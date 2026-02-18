@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+sqlmodel
+asyncpg
+pgvector
+pydantic-settings
+psycopg2-binary
+ruff
+openai
+langchain
+greenlet
+
+# Testing
+pytest
+httpx

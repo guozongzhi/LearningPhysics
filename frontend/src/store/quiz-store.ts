@@ -1,0 +1,109 @@
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import { api } from '@/lib/api';
+
+// --- Store Definition ---
+
+type QuizState = {
+  status: 'idle' | 'loading' | 'in-progress' | 'finished';
+  quizId: string | null;
+  questions: any[];
+  answers: Record<string, string>;
+  report: any | null;
+  currentQuestionIndex: number;
+};
+
+type QuizActions = {
+  generateQuiz: (topicIds: number[], count: number) => Promise<void>;
+  setAnswer: (questionId: string, answer: string) => void;
+  nextQuestion: () => void;
+  prevQuestion: () => void;
+  submitQuiz: () => Promise<void>;
+  reset: () => void;
+};
+
+export const useQuizStore = create<QuizState & QuizActions>()(
+  immer((set, get) => ({
+    status: 'idle',
+    quizId: null,
+    questions: [],
+    answers: {},
+    report: null,
+    currentQuestionIndex: 0,
+
+    generateQuiz: async (topicIds, count) => {
+      set({ status: 'loading' });
+      try {
+        const data = await api.generateQuiz(topicIds, count);
+        set((state) => {
+          state.status = 'in-progress';
+          state.quizId = data.quiz_id;
+          state.questions = data.questions;
+          state.answers = {};
+          state.report = null;
+          state.currentQuestionIndex = 0;
+        });
+      } catch (error) {
+        console.error("Failed to generate quiz", error);
+        set({ status: 'idle' });
+      }
+    },
+
+    setAnswer: (questionId, answer) => {
+      set((state) => {
+        state.answers[questionId] = answer;
+      });
+    },
+
+    nextQuestion: () => {
+      if (get().currentQuestionIndex < get().questions.length - 1) {
+        set((state) => {
+          state.currentQuestionIndex += 1;
+        });
+      }
+    },
+
+    prevQuestion: () => {
+      if (get().currentQuestionIndex > 0) {
+        set((state) => {
+          state.currentQuestionIndex -= 1;
+        });
+      }
+    },
+
+    submitQuiz: async () => {
+        set({ status: 'loading' });
+        const { quizId, answers } = get();
+        if (!quizId) return;
+
+        // Transform answers into the format the API expects
+        const apiAnswers = Object.entries(answers).map(([questionId, studentInput]) => ({
+            question_id: questionId,
+            student_input: studentInput,
+            time_spent_ms: 0, // Placeholder
+        }));
+
+        try {
+            const reportData = await api.submitQuiz(quizId, apiAnswers);
+            set((state) => {
+                state.status = 'finished';
+                state.report = reportData;
+            });
+        } catch (error) {
+            console.error("Failed to submit quiz", error);
+            set({ status: 'in-progress' }); // Revert status on failure
+        }
+    },
+
+    reset: () => {
+        set({
+            status: 'idle',
+            quizId: null,
+            questions: [],
+            answers: {},
+            report: null,
+            currentQuestionIndex: 0,
+        });
+    }
+  }))
+);
