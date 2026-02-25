@@ -9,6 +9,8 @@ ruff
 openai
 langchain
 greenlet
+passlib[bcrypt]
+python-jose[cryptography]
 
 # Testing
 pytest

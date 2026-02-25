@@ -1,14 +1,17 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 
 from app.db.session import get_session
 from app.schemas.quiz import (
-    QuizGenerateRequest, 
+    QuizGenerateRequest,
     QuizGenerateResponse,
     QuizSubmitRequest,
     QuizSubmitResponse
 )
 from app.services import quiz_service
+from app.models.models import User
+from app.core.auth import get_current_user
 
 router = APIRouter()
 
@@ -20,6 +23,7 @@ router = APIRouter()
 )
 async def generate_quiz_endpoint(
     request: QuizGenerateRequest,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_session),
 ):
     """
@@ -28,7 +32,8 @@ async def generate_quiz_endpoint(
     - **difficulty_preference**: How to select difficulty (currently ignored, defaults to adaptive).
     - **count**: The number of questions to include in the quiz.
     """
-    quiz_data = await quiz_service.generate_quiz(db=db, request_data=request)
+    # Add the current user's ID to the request data
+    quiz_data = await quiz_service.generate_quiz(db=db, request_data=request, user_id=current_user.id)
     return quiz_data
 
 @router.post(
@@ -39,6 +44,7 @@ async def generate_quiz_endpoint(
 )
 async def submit_quiz_endpoint(
     request: QuizSubmitRequest,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_session),
 ):
     """
@@ -46,5 +52,6 @@ async def submit_quiz_endpoint(
     - **quiz_id**: The ID of the quiz being submitted.
     - **answers**: A list of student answers for each question.
     """
-    analysis_data = await quiz_service.submit_quiz(db=db, request_data=request)
+    # Pass the current user's ID to the service layer
+    analysis_data = await quiz_service.submit_quiz(db=db, request_data=request, user_id=current_user.id)
     return analysis_data

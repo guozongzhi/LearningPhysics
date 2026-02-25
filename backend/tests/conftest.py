@@ -1,29 +1,31 @@
 import sys
 import os
 import pytest
-import asyncio
+import pytest_asyncio
 from typing import AsyncGenerator
 
 # Add the project root directory to the sys.path to resolve module imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 from sqlmodel import SQLModel
 
-from app.main import app
+from main import app
 from app.db.session import get_session
 
-# Use an in-memory SQLite database for testing
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+# Use a dedicated PostgreSQL test database with NullPool to avoid connection conflicts
+TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/leaningphysics_test"
 
-# Create a new async engine for the test database
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=True)
+# NullPool disables connection pooling — each connection is created fresh and closed immediately.
+# This avoids "another operation is in progress" errors with asyncpg in tests.
+test_engine = create_async_engine(TEST_DATABASE_URL, echo=True, poolclass=NullPool)
 
-# Create a new sessionmaker for the test database
+# Create a session factory bound to the test engine
 TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=test_engine, class_=AsyncSession
+    autocommit=False, autoflush=False, bind=test_engine, class_=AsyncSession, expire_on_commit=False
 )
 
 async def override_get_session() -> AsyncGenerator[AsyncSession, None]:
@@ -36,16 +38,7 @@ async def override_get_session() -> AsyncGenerator[AsyncSession, None]:
 # Apply the dependency override to the app
 app.dependency_overrides[get_session] = override_get_session
 
-@pytest.fixture(scope="session")
-def event_loop():
-    """
-    Creates an instance of the default event loop for each test session.
-    """
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-@pytest.fixture(scope="function", autouse=True)
+@pytest_asyncio.fixture(scope="function", autouse=True)
 async def setup_database():
     """
     Fixture to create and drop database tables for each test function.
@@ -57,10 +50,11 @@ async def setup_database():
         await conn.run_sync(SQLModel.metadata.drop_all)
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def client() -> AsyncGenerator[AsyncClient, None]:
     """
     Fixture to provide an async test client.
     """
-    async with AsyncClient(app=app, base_url="http://test") as c:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as c:
         yield c

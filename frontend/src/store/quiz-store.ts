@@ -46,6 +46,11 @@ export const useQuizStore = create<QuizState & QuizActions>()(
       } catch (error) {
         console.error("Failed to generate quiz", error);
         set({ status: 'idle' });
+        // Check if it's an authentication error
+        if (error instanceof Error && error.message.includes('401')) {
+          // Show auth error to user
+          alert("认证失败，请重新登录");
+        }
       }
     },
 
@@ -92,6 +97,11 @@ export const useQuizStore = create<QuizState & QuizActions>()(
         } catch (error) {
             console.error("Failed to submit quiz", error);
             set({ status: 'in-progress' }); // Revert status on failure
+            // Check if it's an authentication error
+            if (error instanceof Error && error.message.includes('401')) {
+              // Show auth error to user
+              alert("认证失败，请重新登录");
+            }
         }
     },
 

@@ -1,0 +1,236 @@
+{
+    "knowledge_nodes": [
+        {
+            "id": 101,
+            "name": "牛顿定律",
+            "code": "NEWTON-LAWS",
+            "level": 1,
+            "description": "研究力和运动关系的基本定律"
+        },
+        {
+            "id": 102,
+            "name": "动量守恒",
+            "code": "MOMENTUM",
+            "level": 1,
+            "description": "系统总动量不变的定律"
+        },
+        {
+            "id": 103,
+            "name": "圆周运动",
+            "code": "CIRCULAR-MOTION",
+            "level": 1,
+            "description": "研究物体做圆周运动的规律"
+        },
+        {
+            "id": 104,
+            "name": "能量守恒",
+            "code": "ENERGY",
+            "level": 1,
+            "description": "能量不会凭空产生或消失，只能从一种形式转化为另一种形式"
+        },
+        {
+            "id": 105,
+            "name": "电磁学",
+            "code": "ELECTROMAGNETISM",
+            "level": 1,
+            "description": "研究电场、磁场及电磁感应的物理学分支"
+        }
+    ],
+    "questions": [
+        {
+            "topic_code": "NEWTON-LAWS",
+            "content_latex": "一个质量为 $m=2\\text{kg}$ 的物体，受到大小为 $F=10\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 5,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 10/2 = 5 m/s²"
+        },
+        {
+            "topic_code": "NEWTON-LAWS",
+            "content_latex": "一辆质量为 $M=1000\\text{kg}$ 的汽车以 $v=20\\text{m/s}$ 的速度行驶，刹车后经过 $t=5\\text{s}$ 停下。求刹车力 $F$ 的大小。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 4000,
+                "unit": "N",
+                "tolerance": 10
+            },
+            "solution_steps": "由 v=v₀-at, 0=20-a×5, a=4m/s²。F=Ma=1000×4=4000N"
+        },
+        {
+            "topic_code": "NEWTON-LAWS",
+            "content_latex": "质量 $m=5\\text{kg}$ 的物体放在粗糙水平面上，受到 $F=30\\text{N}$ 的水平拉力，物体的加速度为 $a=2\\text{m/s}^2$。求物体与地面间的摩擦力 $f$（取 $g=10\\text{m/s}^2$）。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 20,
+                "unit": "N",
+                "tolerance": 0.5
+            },
+            "solution_steps": "由牛顿第二定律 F-f=ma, f=F-ma=30-5×2=20N"
+        },
+        {
+            "topic_code": "NEWTON-LAWS",
+            "content_latex": "一个物体从高 $h=45\\text{m}$ 的楼顶自由落下（忽略空气阻力，$g=10\\text{m/s}^2$）。求物体落地所需时间 $t$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3,
+                "unit": "s",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由 h=½gt², t=√(2h/g)=√(2×45/10)=√9=3s"
+        },
+        {
+            "topic_code": "MOMENTUM",
+            "content_latex": "一个静止的炮车（质量 $M=500\\text{kg}$）发射一枚质量 $m=5\\text{kg}$ 的炮弹，炮弹速度为 $v=200\\text{m/s}$。求炮车的反冲速度。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2,
+                "unit": "m/s",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由动量守恒 0=mv+MV, V=mv/M=5×200/500=2m/s"
+        },
+        {
+            "topic_code": "MOMENTUM",
+            "content_latex": "在光滑水平面上，质量 $m_1=3\\text{kg}$ 的小球以 $v_1=4\\text{m/s}$ 的速度与质量 $m_2=1\\text{kg}$ 的静止小球发生完全非弹性碰撞。求碰后共同速度。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3,
+                "unit": "m/s",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由动量守恒 m₁v₁=(m₁+m₂)v, v=3×4/(3+1)=3m/s"
+        },
+        {
+            "topic_code": "MOMENTUM",
+            "content_latex": "一质量为 $m=2\\text{kg}$ 的物体以 $v=6\\text{m/s}$ 运动，受到一个恒力作用 $t=3\\text{s}$ 后速度变为反方向 $v'=3\\text{m/s}$。求该力的冲量大小。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 18,
+                "unit": "N·s",
+                "tolerance": 0.5
+            },
+            "solution_steps": "取初速度方向为正，冲量 I=m(v'-(-v))=2×((-3)-6)=-18N·s，大小为18N·s"
+        },
+        {
+            "topic_code": "CIRCULAR-MOTION",
+            "content_latex": "一个质量为 $m=0.5\\text{kg}$ 的球在水平面内做半径 $r=2\\text{m}$ 的匀速圆周运动，线速度 $v=4\\text{m/s}$。求向心力大小。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 4,
+                "unit": "N",
+                "tolerance": 0.1
+            },
+            "solution_steps": "向心力 F=mv²/r=0.5×16/2=4N"
+        },
+        {
+            "topic_code": "CIRCULAR-MOTION",
+            "content_latex": "一颗卫星在距地面高度 $h$ 处做匀速圆周运动，已知地球半径 $R=6400\\text{km}$，地面重力加速度 $g=10\\text{m/s}^2$，$h=R$。求卫星的线速度（结果保留整数）。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 5657,
+                "unit": "m/s",
+                "tolerance": 50
+            },
+            "solution_steps": "轨道半径 r=R+h=2R, mg'=mv²/r, g'=gR²/r²=g/4, v=√(g'r)=√(gR²/(2R))×√2=√(gR/2)=√(10×6.4×10⁶/2)≈5657m/s"
+        },
+        {
+            "topic_code": "ENERGY",
+            "content_latex": "一个质量为 $m=0.5\\text{kg}$ 的物体从 $h=20\\text{m}$ 高处自由落下（忽略空气阻力，$g=10\\text{m/s}^2$）。求落地时的动能。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 100,
+                "unit": "J",
+                "tolerance": 1
+            },
+            "solution_steps": "由机械能守恒，Ek=mgh=0.5×10×20=100J"
+        },
+        {
+            "topic_code": "ENERGY",
+            "content_latex": "一个弹簧枪将质量 $m=0.02\\text{kg}$ 的子弹竖直向上射出，子弹上升的最大高度为 $h=50\\text{m}$（$g=10\\text{m/s}^2$）。求弹簧释放的弹性势能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 10,
+                "unit": "J",
+                "tolerance": 0.5
+            },
+            "solution_steps": "弹性势能全部转化为重力势能，Ep=mgh=0.02×10×50=10J"
+        },
+        {
+            "topic_code": "ENERGY",
+            "content_latex": "一个质量为 $m=1\\text{kg}$ 的物体以 $v_0=10\\text{m/s}$ 从地面竖直上抛，到达最高点时速度为零。若空气阻力恒为 $f=2\\text{N}$（$g=10\\text{m/s}^2$），求最高点的高度 $h$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 4.17,
+                "unit": "m",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由动能定理：0-½mv₀²=-(mg+f)h, h=½mv₀²/(mg+f)=½×1×100/(10+2)=50/12≈4.17m"
+        },
+        {
+            "topic_code": "ELECTROMAGNETISM",
+            "content_latex": "两个点电荷 $q_1=2\\times10^{-6}\\text{C}$ 和 $q_2=8\\times10^{-6}\\text{C}$ 相距 $r=0.2\\text{m}$。求它们之间的库仑力（$k=9\\times10^9\\text{N·m}^2/\\text{C}^2$）。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3.6,
+                "unit": "N",
+                "tolerance": 0.1
+            },
+            "solution_steps": "F=kq₁q₂/r²=9×10⁹×2×10⁻⁶×8×10⁻⁶/0.04=3.6N"
+        },
+        {
+            "topic_code": "ELECTROMAGNETISM",
+            "content_latex": "一条长直导线中通有 $I=5\\text{A}$ 的电流，导线长 $L=0.3\\text{m}$ 放在磁感应强度 $B=0.2\\text{T}$ 的匀强磁场中，导线与磁场方向垂直。求安培力 $F$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.3,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "安培力 F=BIL=0.2×5×0.3=0.3N"
+        },
+        {
+            "topic_code": "ELECTROMAGNETISM",
+            "content_latex": "一个电子（$e=1.6\\times10^{-19}\\text{C}$）以速度 $v=2\\times10^6\\text{m/s}$ 垂直进入磁感应强度 $B=0.1\\text{T}$ 的匀强磁场。求洛伦兹力大小。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3.2e-14,
+                "unit": "N",
+                "tolerance": 1e-15
+            },
+            "solution_steps": "洛伦兹力 F=qvB=1.6×10⁻¹⁹×2×10⁶×0.1=3.2×10⁻¹⁴N"
+        }
+    ]
+}

@@ -7,14 +7,16 @@ from app.core.config import settings
 # Create an async engine
 async_engine = create_async_engine(settings.DATABASE_URL, echo=True, future=True)
 
+# Create a global session factory
+async_session_factory = sessionmaker(
+    bind=async_engine, class_=AsyncSession, expire_on_commit=False
+)
+
 async def get_session() -> AsyncSession:
     """
     Dependency to get an async session for API endpoints.
     """
-    async_session = sessionmaker(
-        bind=async_engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with async_session() as session:
+    async with async_session_factory() as session:
         yield session
 
 async def init_db():

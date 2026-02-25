@@ -1,6 +1,34 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 /**
+ * Gets the authentication token from localStorage
+ */
+function getAuthToken(): string | null {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('authToken');
+  }
+  return null;
+}
+
+/**
+ * Sets the authentication token in localStorage
+ */
+function setAuthToken(token: string): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('authToken', token);
+  }
+}
+
+/**
+ * Removes the authentication token from localStorage
+ */
+function removeAuthToken(): void {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('authToken');
+  }
+}
+
+/**
  * A wrapper for the native fetch function to handle common API request logic.
  * @param endpoint The API endpoint to call (e.g., '/api/v1/quiz/generate').
  * @param options The options for the fetch request (e.g., method, headers, body).
@@ -8,12 +36,17 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
  */
 async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
+
+  // Get auth token if available
+  const token = getAuthToken();
+
   const defaultOptions: RequestInit = {
+    ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
       ...options.headers,
     },
-    ...options,
   };
 
   try {
@@ -22,7 +55,17 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
       // Log the error for debugging, but let the caller handle it
       const errorBody = await response.text();
       console.error(`API Error ${response.status}: ${errorBody}`);
+
+      // If the error is 401 Unauthorized, remove the token
+      if (response.status === 401) {
+        removeAuthToken();
+      }
+
       throw new Error(`API request failed with status ${response.status}`);
+    }
+    // Handle 204 No Content (e.g. DELETE responses)
+    if (response.status === 204) {
+      return null;
     }
     return await response.json();
   } catch (error) {
@@ -31,9 +74,120 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
   }
 }
 
-// --- Specific API functions ---
+// --- Authentication API functions ---
+export const authApi = {
+  login: async (username: string, password: string) => {
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
 
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Login failed: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      if (data.access_token) {
+        setAuthToken(data.access_token);
+      }
+      if (data.is_admin !== undefined) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('isAdmin', JSON.stringify(data.is_admin));
+        }
+      }
+      return data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  },
+
+  register: async (email: string, username: string, password: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, username, password }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Registration failed: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      if (data.access_token) {
+        setAuthToken(data.access_token);
+      }
+      return data;
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
+  },
+
+  logout: () => {
+    removeAuthToken();
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('isAdmin');
+    }
+  },
+
+  changePassword: async (oldPassword: string, newPassword: string) => {
+    return apiFetch('/api/v1/auth/change-password', {
+      method: 'PUT',
+      body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+    });
+  },
+};
+
+// --- Admin API ---
+export const adminApi = {
+  getStudents: () => apiFetch('/api/v1/admin/students'),
+  createStudent: (data: { username: string; email: string; password: string }) =>
+    apiFetch('/api/v1/admin/students', { method: 'POST', body: JSON.stringify(data) }),
+  deleteStudent: (id: string) =>
+    apiFetch(`/api/v1/admin/students/${id}`, { method: 'DELETE' }),
+  resetPassword: (id: string, newPassword: string) =>
+    apiFetch(`/api/v1/admin/students/${id}/reset-password`, {
+      method: 'PUT', body: JSON.stringify({ new_password: newPassword }),
+    }),
+
+  getQuestions: () => apiFetch('/api/v1/admin/questions'),
+  createQuestion: (data: any) =>
+    apiFetch('/api/v1/admin/questions', { method: 'POST', body: JSON.stringify(data) }),
+  updateQuestion: (id: string, data: any) =>
+    apiFetch(`/api/v1/admin/questions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteQuestion: (id: string) =>
+    apiFetch(`/api/v1/admin/questions/${id}`, { method: 'DELETE' }),
+
+  createTopic: (data: { name: string; code: string; level: number; description?: string }) =>
+    apiFetch('/api/v1/admin/topics', { method: 'POST', body: JSON.stringify(data) }),
+
+  exportRecords: () => `${API_BASE_URL}/api/v1/admin/records/export`,
+};
+
+// --- Specific API functions ---
 export const api = {
+  getTopics: async () => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/topics`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch topics: ${response.status}`);
+    }
+    return response.json();
+  },
+
   generateQuiz: async (topic_ids: number[], count: number) => {
     return apiFetch('/api/v1/quiz/generate', {
       method: 'POST',
