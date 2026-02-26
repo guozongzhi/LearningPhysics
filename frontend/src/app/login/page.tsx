@@ -43,7 +43,7 @@ export default function LoginPage() {
       >
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">
-            ⚛ LeaningPhysics
+            ⚛ LearningPhysics
           </h1>
         </div>
         <div className="space-y-6">
@@ -72,7 +72,7 @@ export default function LoginPage() {
           </div>
         </div>
         <p className="text-sm text-blue-300/60">
-          © 2025 LeaningPhysics. All rights reserved.
+          © 2025 LearningPhysics. All rights reserved.
         </p>
       </div>
 
@@ -80,7 +80,7 @@ export default function LoginPage() {
       <div className="flex w-full lg:w-1/2 items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden text-center mb-8">
-            <h1 className="text-2xl font-bold">⚛ LeaningPhysics</h1>
+            <h1 className="text-2xl font-bold">⚛ LearningPhysics</h1>
             <p className="text-sm text-muted-foreground mt-1">AI 驱动的高中物理学习平台</p>
           </div>
 

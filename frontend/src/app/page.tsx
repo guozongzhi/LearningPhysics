@@ -91,7 +91,7 @@ export default function Home() {
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <h1 className="text-xl font-bold tracking-tight">
-            ⚛ LeaningPhysics
+            ⚛ LearningPhysics
           </h1>
           <div className="flex items-center gap-3">
             {isLoggedIn ? (

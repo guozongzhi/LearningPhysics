@@ -20,6 +20,8 @@ from app.core.exceptions import (
 )
 from app.core.rate_limit import rate_limit_middleware
 
+from fastapi import HTTPException
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         # Skip rate limiting for authentication endpoints to allow login/register
@@ -28,7 +30,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             return response
 
         # Apply rate limiting to other endpoints
-        rate_limit_middleware(request)
+        try:
+            rate_limit_middleware(request)
+        except HTTPException as exc:
+            return JSONResponse({"detail": exc.detail}, status_code=exc.status_code)
+        
         response = await call_next(request)
         return response
 
@@ -40,7 +46,7 @@ async def lifespan(app: FastAPI):
     # Code to run on shutdown
     print("Shutting down...")
 
-app = FastAPI(title="LeaningPhysics API", lifespan=lifespan)
+app = FastAPI(title="LearningPhysics API", lifespan=lifespan)
 
 # Register exception handlers
 app.add_exception_handler(StarletteHTTPException, http_exception_handler)
@@ -87,7 +93,12 @@ app.include_router(api_router_v1, prefix="/api/v1")
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the LeaningPhysics API"}
+    return {"message": "Welcome to the LearningPhysics API"}
+
+@app.get("/health", tags=["Health"])
+def health_check():
+    """健康检查端点，用于监控和负载均衡器检测。"""
+    return {"status": "ok"}
 
 
 if __name__ == "__main__":

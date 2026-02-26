@@ -14,7 +14,7 @@ type Topic = { id: number; name: string; code: string; level: number; descriptio
 
 export default function AdminDashboard() {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<"students" | "questions" | "export">("students");
+    const [activeTab, setActiveTab] = useState<"students" | "questions" | "export" | "settings">("students");
 
     // Auth check
     useEffect(() => {
@@ -145,10 +145,60 @@ export default function AdminDashboard() {
         router.push("/admin/login");
     };
 
+    // ── System Settings State ──
+    const [llmConfig, setLlmConfig] = useState({
+        openai_api_key_masked: "",
+        openai_api_key_new: "",
+        openai_base_url: "",
+        openai_model: "",
+    });
+    const [llmMsg, setLlmMsg] = useState("");
+    const [llmLoading, setLlmLoading] = useState(false);
+
+    const loadLlmConfig = useCallback(async () => {
+        setLlmLoading(true);
+        try {
+            const data = await adminApi.getLlmConfig();
+            setLlmConfig(prev => ({
+                ...prev,
+                openai_api_key_masked: data.openai_api_key_masked || "",
+                openai_base_url: data.openai_base_url || "",
+                openai_model: data.openai_model || "",
+            }));
+        } catch { setLlmMsg("配置加载失败"); }
+        finally { setLlmLoading(false); }
+    }, []);
+
+    useEffect(() => { if (activeTab === "settings") loadLlmConfig(); }, [activeTab, loadLlmConfig]);
+
+    const handleSaveLlmConfig = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLlmMsg("");
+        try {
+            const dataToUpdate: any = {
+                openai_base_url: llmConfig.openai_base_url,
+                openai_model: llmConfig.openai_model,
+            };
+            if (llmConfig.openai_api_key_new) {
+                dataToUpdate.openai_api_key = llmConfig.openai_api_key_new;
+            }
+            const updated = await adminApi.updateLlmConfig(dataToUpdate);
+            setLlmConfig(prev => ({
+                ...prev,
+                openai_api_key_masked: updated.openai_api_key_masked || "",
+                openai_api_key_new: "",
+            }));
+            setLlmMsg("✅ 设置保存成功并即时生效");
+        } catch (err: any) {
+            setLlmMsg("❌ " + (err.message || "设置保存失败"));
+        }
+    };
+
     const tabs = [
         { key: "students" as const, label: "👥 学生管理" },
         { key: "questions" as const, label: "📝 题库管理" },
         { key: "export" as const, label: "📊 数据导出" },
+        { key: "settings" as const, label: "⚙️ 系统设置" },
     ];
 
     return (
@@ -156,7 +206,7 @@ export default function AdminDashboard() {
             {/* Header */}
             <header className="border-b bg-white dark:bg-gray-900 sticky top-0 z-10">
                 <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-                    <h1 className="text-lg font-bold">🔐 LeaningPhysics 管理后台</h1>
+                    <h1 className="text-lg font-bold">🔐 LearningPhysics 管理后台</h1>
                     <Button variant="outline" size="sm" onClick={handleLogout}>退出</Button>
                 </div>
             </header>
@@ -376,6 +426,70 @@ export default function AdminDashboard() {
                             <p className="mt-3 text-sm text-muted-foreground">
                                 文件支持 Excel 直接打开（UTF-8 BOM 编码）
                             </p>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* ════════════ System Settings Tab ════════════ */}
+                {activeTab === "settings" && (
+                    <Card className="max-w-3xl">
+                        <CardHeader>
+                            <CardTitle>⚙️ LLM 大模型 API 配置</CardTitle>
+                            <CardDescription>
+                                配置 AI 分析题目的底层大模型服务。修改后会即可生效，无需重启服务器。
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {llmLoading ? (
+                                <p className="text-muted-foreground text-sm">加载中...</p>
+                            ) : (
+                                <form onSubmit={handleSaveLlmConfig} className="space-y-6">
+                                    <div className="space-y-2">
+                                        <Label>API Base URL</Label>
+                                        <Input
+                                            value={llmConfig.openai_base_url}
+                                            onChange={(e) => setLlmConfig(c => ({ ...c, openai_base_url: e.target.value }))}
+                                            placeholder="https://api.openai.com/v1"
+                                            className="w-full"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            留空则默认使用 OpenAI。可以配置为国内兼容 OpenAI API 规范的代理地址或大模型服务（如豆包、百川等）。
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Model (模型名称)</Label>
+                                        <Input
+                                            value={llmConfig.openai_model}
+                                            onChange={(e) => setLlmConfig(c => ({ ...c, openai_model: e.target.value }))}
+                                            placeholder="gpt-4-turbo"
+                                            className="w-full sm:w-1/2"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            例如: gpt-3.5-turbo, gpt-4o, ep-202403211516...
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>API Key (密钥)</Label>
+                                        <Input
+                                            type="password"
+                                            value={llmConfig.openai_api_key_new}
+                                            onChange={(e) => setLlmConfig(c => ({ ...c, openai_api_key_new: e.target.value }))}
+                                            placeholder={llmConfig.openai_api_key_masked || "请输入新的 API Key (留空保持不变)"}
+                                            className="w-full"
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            当前密钥: {llmConfig.openai_api_key_masked || "未设置"}。如果不需要修改请留空。
+                                        </p>
+                                    </div>
+
+                                    <div className="pt-2 flex items-center gap-4">
+                                        <Button type="submit">保存更改</Button>
+                                        {llmMsg && <span className="text-sm font-medium">{llmMsg}</span>}
+                                    </div>
+                                </form>
+                            )}
                         </CardContent>
                     </Card>
                 )}

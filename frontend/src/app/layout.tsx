@@ -4,13 +4,13 @@ import "./globals.css";
 import "katex/dist/katex.min.css";
 import { cn } from "@/lib/utils";
 
-const fontSans = Inter({ 
+const fontSans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
-  title: "LeaningPhysics",
+  title: "LearningPhysics",
   description: "An AI-powered platform for learning high school physics.",
 };
 

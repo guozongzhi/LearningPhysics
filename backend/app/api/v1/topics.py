@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 from app.db.session import get_session
@@ -14,7 +14,7 @@ class TopicResponse(BaseModel):
     id: int
     name: str
     code: str
-    description: str | None = None
+    description: Optional[str] = None
     level: int
 
     class Config:
@@ -22,7 +22,7 @@ class TopicResponse(BaseModel):
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[TopicResponse],
     summary="List all available topics",
     description="Returns all knowledge nodes that can be used as quiz topics. No authentication required.",

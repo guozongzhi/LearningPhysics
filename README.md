@@ -85,7 +85,7 @@ graph TD
 docker-compose up -d
 ```
 
-该命令会启动一个 PostgreSQL 16 的容器，并自动创建名为 `leaningphysics` 的数据库和启用 `pgvector` 扩展。
+该命令会启动一个 PostgreSQL 16 的容器，并自动创建名为 `learningphysics` 的数据库和启用 `pgvector` 扩展。
 
 **2. 配置后端环境变量:**
 

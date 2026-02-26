@@ -65,7 +65,7 @@ async def test_read_root(client: AsyncClient):
     """Test the root endpoint."""
     response = await client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Welcome to the LeaningPhysics API"}
+    assert response.json() == {"message": "Welcome to the LearningPhysics API"}
 
 
 async def test_generate_quiz_happy_path(client: AsyncClient, populate_db, auth_token):

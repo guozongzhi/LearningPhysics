@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl">🔐 管理员登录</CardTitle>
-                    <CardDescription>LeaningPhysics 后台管理系统</CardDescription>
+                    <CardDescription>LearningPhysics 后台管理系统</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {error && (

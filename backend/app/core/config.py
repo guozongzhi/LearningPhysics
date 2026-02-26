@@ -4,9 +4,9 @@ import secrets
 class Settings(BaseSettings):
     # The default DATABASE_URL is for a local PostgreSQL instance
     # using the default user "postgres" and password "postgres",
-    # connecting to a database named "leaningphysics".
+    # connecting to a database named "learningphysics".
     # Format: postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/leaningphysics"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/learningphysics"
 
     # AI API Configuration (supports OpenAI, Gemini, Doubao via OpenAI-compatible interface)
     # Set OPENAI_BASE_URL to use a different provider:
@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     OPENAI_BASE_URL: str = ""
     OPENAI_MODEL: str = "gpt-4-turbo-preview"
 
-    # Secret key for JWT tokens - generate a random one if not provided
-    SECRET_KEY: str = secrets.token_urlsafe(32) if not __name__ == "__main__" else "dev-secret-key"
+    # Secret key for JWT tokens — override via .env in production
+    SECRET_KEY: str = secrets.token_urlsafe(32)
 
     # Token expiration
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30

@@ -148,6 +148,6 @@ async def import_from_json(filepath: str):
 
 if __name__ == "__main__":
     filepath = sys.argv[1] if len(sys.argv) > 1 else "data/questions.json"
-    print("🚀 LeaningPhysics Question Importer")
+    print("🚀 LearningPhysics Question Importer")
     print("=" * 40)
     asyncio.run(import_from_json(filepath))

@@ -17,6 +17,9 @@ from datetime import datetime
 from app.db.session import get_session
 from app.models.models import User, Question, KnowledgeNode, ExamRecord, get_password_hash
 from app.core.auth import get_current_user
+from app.core.config import settings
+import dotenv
+import os
 
 router = APIRouter()
 
@@ -316,6 +319,73 @@ async def create_topic(
     await db.commit()
     await db.refresh(node)
     return {"id": node.id, "name": node.name, "code": node.code}
+
+
+# ============================================================
+# System Configuration Management
+# ============================================================
+
+class LlmConfigUpdate(BaseModel):
+    openai_api_key: Optional[str] = None
+    openai_base_url: Optional[str] = None
+    openai_model: Optional[str] = None
+
+class LlmConfigResponse(BaseModel):
+    openai_api_key_masked: str
+    openai_base_url: str
+    openai_model: str
+
+@router.get("/config/llm", response_model=LlmConfigResponse)
+async def get_llm_config(
+    admin: User = Depends(get_admin_user),
+):
+    # Mask the API key, showing only first 4 and last 4 characters if it exists
+    key = settings.OPENAI_API_KEY
+    masked_key = ""
+    if key and len(key) > 8:
+        masked_key = f"{key[:4]}...{key[-4:]}"
+    elif key:
+        masked_key = "***MASKED***"
+        
+    return LlmConfigResponse(
+        openai_api_key_masked=masked_key,
+        openai_base_url=settings.OPENAI_BASE_URL,
+        openai_model=settings.OPENAI_MODEL,
+    )
+
+@router.put("/config/llm", response_model=LlmConfigResponse)
+async def update_llm_config(
+    data: LlmConfigUpdate,
+    admin: User = Depends(get_admin_user),
+):
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
+    
+    # Update in memory and write to .env
+    if data.openai_api_key is not None and data.openai_api_key.strip():
+        settings.OPENAI_API_KEY = data.openai_api_key
+        dotenv.set_key(env_path, "OPENAI_API_KEY", data.openai_api_key)
+        
+    if data.openai_base_url is not None:
+        settings.OPENAI_BASE_URL = data.openai_base_url
+        dotenv.set_key(env_path, "OPENAI_BASE_URL", data.openai_base_url)
+        
+    if data.openai_model is not None:
+        settings.OPENAI_MODEL = data.openai_model
+        dotenv.set_key(env_path, "OPENAI_MODEL", data.openai_model)
+
+    # Return updated config
+    key = settings.OPENAI_API_KEY
+    masked_key = ""
+    if key and len(key) > 8:
+        masked_key = f"{key[:4]}...{key[-4:]}"
+    elif key:
+        masked_key = "***MASKED***"
+        
+    return LlmConfigResponse(
+        openai_api_key_masked=masked_key,
+        openai_base_url=settings.OPENAI_BASE_URL,
+        openai_model=settings.OPENAI_MODEL,
+    )
 
 
 # ============================================================

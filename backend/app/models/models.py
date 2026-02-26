@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, Field, Relationship, Column
 from sqlalchemy.dialects.postgresql import JSONB
 from pgvector.sqlalchemy import Vector
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -54,7 +54,7 @@ class UserMastery(SQLModel, table=True):
     user_id: uuid.UUID = Field(foreign_key="users.id", primary_key=True)
     node_id: int = Field(foreign_key="knowledge_nodes.id", primary_key=True)
     mastery_score: float = Field(default=0.0, ge=0.0, le=1.0)
-    last_updated: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None), sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc).replace(tzinfo=None)})
 
     node: KnowledgeNode = Relationship(back_populates="user_masteries")
     user: "User" = Relationship(back_populates="masteries")
@@ -67,7 +67,7 @@ class ExamRecord(SQLModel, table=True):
     student_input: str
     is_correct: bool
     ai_analysis: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSONB))
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     question_id: uuid.UUID = Field(foreign_key="questions.id")
     user: "User" = Relationship(back_populates="exam_records")
@@ -83,8 +83,8 @@ class User(SQLModel, table=True):
     hashed_password: str
     is_active: bool = Field(default=True)
     is_admin: bool = Field(default=False)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None), sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc).replace(tzinfo=None)})
 
     # Relationships
     masteries: List["UserMastery"] = Relationship(back_populates="user")

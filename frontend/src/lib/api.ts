@@ -172,7 +172,12 @@ export const adminApi = {
   createTopic: (data: { name: string; code: string; level: number; description?: string }) =>
     apiFetch('/api/v1/admin/topics', { method: 'POST', body: JSON.stringify(data) }),
 
-  exportRecords: () => `${API_BASE_URL}/api/v1/admin/records/export`,
+  exportRecords: () => {
+    return `${API_BASE_URL}/api/v1/admin/records/export`;
+  },
+  getLlmConfig: () => apiFetch('/api/v1/admin/config/llm', { method: 'GET' }),
+  updateLlmConfig: (data: any) =>
+    apiFetch('/api/v1/admin/config/llm', { method: 'PUT', body: JSON.stringify(data) }),
 };
 
 // --- Specific API functions ---

@@ -17,7 +17,7 @@ from main import app
 from app.db.session import get_session
 
 # Use a dedicated PostgreSQL test database with NullPool to avoid connection conflicts
-TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/leaningphysics_test"
+TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/learningphysics_test"
 
 # NullPool disables connection pooling — each connection is created fresh and closed immediately.
 # This avoids "another operation is in progress" errors with asyncpg in tests.
