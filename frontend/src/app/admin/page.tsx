@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminApi, api, authApi } from "@/lib/api";
+import { Latex } from "@/components/latex";
 
 type Student = { id: string; username: string; email: string; is_active: boolean; created_at: string };
 type QuestionItem = { id: string; content_latex: string; difficulty: number; question_type: string; answer_schema: any; solution_steps: string; primary_node_id: number; topic_name: string };
@@ -77,6 +78,7 @@ export default function AdminDashboard() {
     const [questionsLoading, setQuestionsLoading] = useState(false);
     const [questionMsg, setQuestionMsg] = useState("");
     const [showAddQuestion, setShowAddQuestion] = useState(false);
+    const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
     const [newQ, setNewQ] = useState({
         content_latex: "", difficulty: 2, question_type: "CALCULATION",
         correct_value: "", unit: "", tolerance: "0.1",
@@ -98,11 +100,11 @@ export default function AdminDashboard() {
 
     useEffect(() => { if (activeTab === "questions") loadQuestions(); }, [activeTab, loadQuestions]);
 
-    const handleCreateQuestion = async (e: React.FormEvent) => {
+    const handleSaveQuestion = async (e: React.FormEvent) => {
         e.preventDefault();
         setQuestionMsg("");
         try {
-            await adminApi.createQuestion({
+            const questionPayload = {
                 content_latex: newQ.content_latex,
                 difficulty: newQ.difficulty,
                 question_type: newQ.question_type,
@@ -115,20 +117,49 @@ export default function AdminDashboard() {
                 solution_steps: newQ.solution_steps,
                 primary_node_id: newQ.primary_node_id,
                 image_url: newQ.image_url || null,
-            });
+            };
+
+            if (editingQuestionId) {
+                await adminApi.updateQuestion(editingQuestionId, questionPayload);
+                setQuestionMsg("✅ 题目更新成功");
+            } else {
+                await adminApi.createQuestion(questionPayload);
+                setQuestionMsg("✅ 题目添加成功");
+            }
+
             setNewQ({ content_latex: "", difficulty: 2, question_type: "CALCULATION", correct_value: "", unit: "", tolerance: "0.1", solution_steps: "", primary_node_id: topics[0]?.id || 0, image_url: "" });
             setShowAddQuestion(false);
-            setQuestionMsg("✅ 题目添加成功");
+            setEditingQuestionId(null);
             loadQuestions();
         } catch (err: any) {
-            setQuestionMsg("❌ " + (err.message || "添加失败"));
+            setQuestionMsg("❌ " + (err.message || "保存失败"));
         }
+    };
+
+    const handleEditQuestion = (q: QuestionItem) => {
+        setNewQ({
+            content_latex: q.content_latex,
+            difficulty: q.difficulty,
+            question_type: q.question_type,
+            correct_value: q.answer_schema?.correct_value?.toString() || "",
+            unit: q.answer_schema?.unit || "",
+            tolerance: q.answer_schema?.tolerance?.toString() || "0.1",
+            solution_steps: q.solution_steps,
+            primary_node_id: q.primary_node_id,
+            image_url: q.answer_schema?.image_url || "", // Adjust logic if image_url is stored differently
+        });
+        setEditingQuestionId(q.id);
+        setShowAddQuestion(true);
     };
 
     const handleDeleteQuestion = async (id: string) => {
         if (!confirm("确定删除此题目？")) return;
         try {
             await adminApi.deleteQuestion(id);
+            if (editingQuestionId === id) {
+                setShowAddQuestion(false);
+                setEditingQuestionId(null);
+            }
             loadQuestions();
         } catch { setQuestionMsg("删除失败"); }
     };
@@ -202,25 +233,34 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div
+            className="min-h-screen bg-background"
+            style={{
+                background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
+            }}
+        >
             {/* Header */}
-            <header className="border-b bg-white dark:bg-gray-900 sticky top-0 z-10">
-                <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-                    <h1 className="text-lg font-bold">🔐 LearningPhysics 管理后台</h1>
-                    <Button variant="outline" size="sm" onClick={handleLogout}>退出</Button>
+            <header className="border-b border-blue-100 bg-white/80 backdrop-blur-md sticky top-0 z-10 dark:bg-gray-900/60 dark:border-gray-800">
+                <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-700 dark:from-blue-400 dark:to-cyan-400">
+                        🔐 LearningPhysics 管理后台
+                    </h1>
+                    <Button variant="outline" size="sm" onClick={handleLogout} className="border-blue-200 hover:bg-blue-50 text-blue-800">
+                        退出
+                    </Button>
                 </div>
             </header>
 
             <main className="max-w-6xl mx-auto px-6 py-8">
                 {/* Tabs */}
-                <div className="flex gap-1 mb-6 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-fit">
+                <div className="flex gap-2 mb-8 bg-blue-100/50 p-1.5 rounded-xl w-fit border border-blue-50 shadow-sm backdrop-blur-sm">
                     {tabs.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
-                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${activeTab === tab.key
-                                ? "bg-white dark:bg-gray-700 shadow-sm"
-                                : "text-gray-500 hover:text-gray-700"
+                            className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${activeTab === tab.key
+                                ? "bg-white text-blue-700 shadow-sm ring-1 ring-blue-200"
+                                : "text-slate-600 hover:text-blue-800 hover:bg-white/50"
                                 }`}
                         >
                             {tab.label}
@@ -232,7 +272,7 @@ export default function AdminDashboard() {
                 {activeTab === "students" && (
                     <div className="space-y-6">
                         {/* Add Student Form */}
-                        <Card>
+                        <Card className="bg-white/95 text-slate-900 shadow-md border-white">
                             <CardHeader>
                                 <CardTitle className="text-base">添加学生（白名单）</CardTitle>
                                 <CardDescription>创建学生账户后，学生可以直接用此账号登录，无需注册</CardDescription>
@@ -258,7 +298,7 @@ export default function AdminDashboard() {
                         </Card>
 
                         {/* Student List */}
-                        <Card>
+                        <Card className="bg-white/95 text-slate-900 shadow-md border-white">
                             <CardHeader>
                                 <CardTitle className="text-base">学生列表 ({students.length})</CardTitle>
                             </CardHeader>
@@ -308,21 +348,29 @@ export default function AdminDashboard() {
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-semibold">题库（{questions.length} 题）</h2>
-                            <Button onClick={() => setShowAddQuestion(!showAddQuestion)}>
+                            <Button onClick={() => {
+                                if (showAddQuestion) {
+                                    setShowAddQuestion(false);
+                                    setEditingQuestionId(null);
+                                    setNewQ({ content_latex: "", difficulty: 2, question_type: "CALCULATION", correct_value: "", unit: "", tolerance: "0.1", solution_steps: "", primary_node_id: topics[0]?.id || 0, image_url: "" });
+                                } else {
+                                    setShowAddQuestion(true);
+                                }
+                            }}>
                                 {showAddQuestion ? "取消" : "+ 添加题目"}
                             </Button>
                         </div>
 
                         {questionMsg && <p className="text-sm">{questionMsg}</p>}
 
-                        {/* Add Question Form */}
+                        {/* Add/Edit Question Form */}
                         {showAddQuestion && (
-                            <Card>
+                            <Card className="bg-white/95 text-slate-900 shadow-md border-white">
                                 <CardHeader>
-                                    <CardTitle className="text-base">添加新题目</CardTitle>
+                                    <CardTitle className="text-base">{editingQuestionId ? "编辑题目" : "添加新题目"}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <form onSubmit={handleCreateQuestion} className="space-y-4">
+                                    <form onSubmit={handleSaveQuestion} className="space-y-4">
                                         <div className="space-y-1">
                                             <Label>题目内容（支持 LaTeX）</Label>
                                             <textarea
@@ -331,13 +379,20 @@ export default function AdminDashboard() {
                                                 placeholder="一个质量为 $m=2\text{kg}$ 的物体..."
                                                 required
                                                 rows={3}
-                                                className="w-full rounded-md border px-3 py-2 text-sm"
+                                                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
+                                            {/* Preview block for content */}
+                                            {newQ.content_latex && (
+                                                <div className="mt-2 p-3 bg-slate-50 border border-slate-100 rounded-md text-sm">
+                                                    <span className="text-xs text-slate-400 font-semibold mb-1 block">实时预览：</span>
+                                                    <Latex>{newQ.content_latex}</Latex>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                             <div className="space-y-1">
                                                 <Label>知识点</Label>
-                                                <select value={newQ.primary_node_id} onChange={(e) => setNewQ(q => ({ ...q, primary_node_id: parseInt(e.target.value) }))} className="w-full rounded-md border px-3 py-2 text-sm h-10">
+                                                <select value={newQ.primary_node_id} onChange={(e) => setNewQ(q => ({ ...q, primary_node_id: parseInt(e.target.value) }))} className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm h-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                                     {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                                                 </select>
                                             </div>
@@ -362,8 +417,15 @@ export default function AdminDashboard() {
                                                 placeholder="由牛顿第二定律 F=ma..."
                                                 required
                                                 rows={2}
-                                                className="w-full rounded-md border px-3 py-2 text-sm"
+                                                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
+                                            {/* Preview block for solution */}
+                                            {newQ.solution_steps && (
+                                                <div className="mt-2 p-3 bg-slate-50 border border-slate-100 rounded-md text-sm">
+                                                    <span className="text-xs text-slate-400 font-semibold mb-1 block">实时预览：</span>
+                                                    <Latex>{newQ.solution_steps}</Latex>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="space-y-1">
                                             <Label>示意图 URL（可选）</Label>
@@ -373,14 +435,14 @@ export default function AdminDashboard() {
                                                 placeholder="https://example.com/diagram.png"
                                             />
                                         </div>
-                                        <Button type="submit">保存题目</Button>
+                                        <Button type="submit">{editingQuestionId ? "保存修改" : "保存新题目"}</Button>
                                     </form>
                                 </CardContent>
                             </Card>
                         )}
 
                         {/* Questions List */}
-                        <Card>
+                        <Card className="bg-white/95 text-slate-900 shadow-md border-white">
                             <CardContent className="pt-6">
                                 {questionsLoading ? (
                                     <p className="text-muted-foreground text-sm">加载中...</p>
@@ -389,18 +451,25 @@ export default function AdminDashboard() {
                                 ) : (
                                     <div className="space-y-3">
                                         {questions.map((q, i) => (
-                                            <div key={q.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-900">
+                                            <div key={q.id} className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 bg-white hover:bg-slate-50 transition-colors">
                                                 <span className="text-xs text-muted-foreground mt-1 w-6">{i + 1}</span>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm leading-relaxed break-words">{q.content_latex}</p>
-                                                    <div className="flex gap-2 mt-1">
+                                                <div className="flex-1 min-w-0 pr-4">
+                                                    <div className="text-sm leading-relaxed overflow-x-auto pb-1 latex-container">
+                                                        <Latex>{q.content_latex}</Latex>
+                                                    </div>
+                                                    <div className="flex gap-2 mt-2">
                                                         <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{q.topic_name}</span>
                                                         <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">难度 {q.difficulty}</span>
                                                     </div>
                                                 </div>
-                                                <Button variant="destructive" size="sm" onClick={() => handleDeleteQuestion(q.id)}>
-                                                    删除
-                                                </Button>
+                                                <div className="flex flex-col gap-2 shrink-0">
+                                                    <Button variant="outline" size="sm" onClick={() => handleEditQuestion(q)}>
+                                                        编辑
+                                                    </Button>
+                                                    <Button variant="destructive" size="sm" onClick={() => handleDeleteQuestion(q.id)}>
+                                                        删除
+                                                    </Button>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -412,7 +481,7 @@ export default function AdminDashboard() {
 
                 {/* ════════════ Export Tab ════════════ */}
                 {activeTab === "export" && (
-                    <Card>
+                    <Card className="bg-white/95 text-slate-900 shadow-md border-white">
                         <CardHeader>
                             <CardTitle>📊 导出学生答题记录</CardTitle>
                             <CardDescription>
@@ -432,7 +501,7 @@ export default function AdminDashboard() {
 
                 {/* ════════════ System Settings Tab ════════════ */}
                 {activeTab === "settings" && (
-                    <Card className="max-w-3xl">
+                    <Card className="max-w-3xl bg-white/95 text-slate-900 shadow-md border-white">
                         <CardHeader>
                             <CardTitle>⚙️ LLM 大模型 API 配置</CardTitle>
                             <CardDescription>

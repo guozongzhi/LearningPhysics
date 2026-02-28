@@ -12,5 +12,6 @@ node_modules/
 .vscode/
 .idea/
 
-# OS
-.DS_Store
+# Logs
+backend/backend.log
+output.log

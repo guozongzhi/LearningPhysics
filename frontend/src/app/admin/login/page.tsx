@@ -37,35 +37,82 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div
-            className="min-h-screen flex items-center justify-center p-4"
-            style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)" }}
-        >
-            <Card className="w-full max-w-md">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl">🔐 管理员登录</CardTitle>
-                    <CardDescription>LearningPhysics 后台管理系统</CardDescription>
-                </CardHeader>
-                <CardContent>
+        <div className="flex min-h-screen">
+            {/* Left Panel — Brand */}
+            <div
+                className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12"
+                style={{
+                    background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0ea5e9 100%)",
+                }}
+            >
+                <div>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">
+                        ⚛ LearningPhysics
+                    </h1>
+                </div>
+                <div className="space-y-6">
+                    <h2 className="text-4xl font-bold text-white leading-tight">
+                        后台管理系统
+                    </h2>
+                    <p className="text-lg text-blue-200 max-w-md leading-relaxed">
+                        安全地管理平台资源，分析学生数据，并控制 AI 引擎的核心配置。
+                    </p>
+                    <div className="grid grid-cols-3 gap-4 pt-4">
+                        <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4 text-center">
+                            <div className="text-2xl mb-1">👥</div>
+                            <div className="text-xs text-blue-200">用户控制</div>
+                        </div>
+                        <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4 text-center">
+                            <div className="text-2xl mb-1">📝</div>
+                            <div className="text-xs text-blue-200">题库维护</div>
+                        </div>
+                        <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4 text-center">
+                            <div className="text-2xl mb-1">⚙️</div>
+                            <div className="text-xs text-blue-200">系统追踪</div>
+                        </div>
+                    </div>
+                </div>
+                <p className="text-sm text-blue-300/60">
+                    © 2025 LearningPhysics. All rights reserved.
+                </p>
+            </div>
+
+            {/* Right Panel — Form */}
+            <div className="flex w-full lg:w-1/2 items-center justify-center p-8 bg-white text-slate-900">
+                <div className="w-full max-w-md space-y-8">
+                    <div className="lg:hidden text-center mb-8">
+                        <h1 className="text-2xl font-bold">⚛ LearningPhysics</h1>
+                        <p className="text-sm text-slate-500 mt-1">后台管理系统</p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <h2 className="text-3xl font-bold tracking-tight">管理员登录</h2>
+                        <p className="text-slate-500">
+                            请输入管理员凭证以访问系统控制台
+                        </p>
+                    </div>
+
                     {error && (
-                        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/50 dark:text-red-400">
+                        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                             {error}
                         </div>
                     )}
+
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="username">管理员账号</Label>
+                            <Label htmlFor="username" className="text-slate-700">管理员账号</Label>
                             <Input
                                 id="username"
+                                type="text"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                placeholder="请输入管理员用户名"
+                                placeholder="输入管理员用户名"
                                 required
-                                className="h-11"
+                                className="h-11 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="password">密码</Label>
+                            <Label htmlFor="password" className="text-slate-700">密码</Label>
                             <Input
                                 id="password"
                                 type="password"
@@ -73,15 +120,20 @@ export default function AdminLoginPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="请输入密码"
                                 required
-                                className="h-11"
+                                className="h-11 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"
                             />
                         </div>
-                        <Button type="submit" className="w-full h-11" disabled={isLoading}>
-                            {isLoading ? "登录中..." : "登录管理后台"}
+
+                        <Button
+                            type="submit"
+                            className="w-full h-11 text-base font-medium mt-2 bg-blue-600 hover:bg-blue-700 text-white"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "验证中..." : "登录后台"}
                         </Button>
                     </form>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     );
 }
