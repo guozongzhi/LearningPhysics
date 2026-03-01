@@ -1,93 +1,134 @@
-# LearningPhysics - 高中物理 AI 自适应学习平台
+<div align="center">
 
-![Status](https://img.shields.io/badge/Status-In%20Development-blue)
-![Tech](https://img.shields.io/badge/Stack-Next.js%20%7C%20FastAPI%20%7C%20PostgreSQL-green)
-![AI](https://img.shields.io/badge/AI-RAG%20%2B%20Knowledge%20Graph-purple)
+# 🪐 LearningPhysics
 
-> **不仅是刷题，更是诊断。**
-> 基于知识图谱与生成式 AI (GenAI) 的下一代物理辅助学习系统。
+**高中物理 AI 自适应学习与精准诊断平台**
+
+[![Next.js](https://img.shields.io/badge/Next.js-14.x-black?logo=next.js)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
+[![Status](https://img.shields.io/badge/Status-In%20Active%20Development-blue)]()
+[![License](https://img.shields.io/badge/License-MIT-green.svg)]()
+
+> *不仅是刷题，更是诊断。基于知识图谱与生成式 AI (GenAI) 的下一代物理辅助学习系统。*
+
+[English Documentation](./README_EN.md) (WIP) | [部署指南](docs/arch/DEPLOYMENT_GUIDE.md)
+
+</div>
 
 ---
 
 ## 📖 项目简介 (Introduction)
 
-**LearningPhysics** 旨在解决传统题海战术“只知对错，不知归因”的痛点。本项目专注于高中物理学科，结合 **知识图谱 (Knowledge Graph)** 和 **向量检索 (RAG)** 技术，实现两大核心功能：
+**LearningPhysics** 旨在解决传统题海战术“只知对错，不知归因”的痛点。本项目专注于高中物理学科，结合 **知识图谱 (Knowledge Graph)** 和 **生成式 AI 模型 (GenAI)**，实现智能化测评与自适应学习。
 
-1.  **精准归因诊断:** 识别错误源头是“概念混淆”、“计算失误”还是“模型未建立”。
-2.  **动态自适应路径:** 根据学生的实时掌握度 (Knowledge Tracing)，动态调整题目难度与考察点。
+通过精巧的数学模型提取底层物理规律，它能够：
+1. **精准归因诊断**: 识别学生错误的真正源头（例如：是“概念混淆”、“单位换算失误”还是“受力分析忽略了摩擦力”）。
+2. **多维度能力剖析**: 相比传统的干瘪对号和红叉，AI 会像金牌教练一样，对每一次提交进行思维层面的 Chain-of-Thought (CoT) 解析。
+
+---
+
+## ✨ 核心特性 (Features)
+
+* **🧠 智能大模型诊断 (Powered by Doubao / OpenAI)**
+  * 深度解析错因，自动为学生生成详尽的“解题思维链”，不仅告诉你“错了”，更告诉你“怎么错的”。
+* **📚 高质量物理题库与知识图谱**
+  * 内置力学、热学、光学、电磁学与近代物理等多个核心板块。
+  * 前端深度集成 KaTeX，提供无损、极其优雅的数学公式与各类复杂物理符号渲染。
+* **🎨 宇宙级沉浸式 UI (Cosmic Dark Theme)**
+  * 极具质感的极暗全宇宙（Cosmic Dark）响应式界面。
+  * 内嵌数十种物理元素的动态 SVG 粒子系统（抛体运动、单摆、引力轨道、电磁感应），在极客风格中汲取学习灵感。
+* **🛠️ 一站式极简运维 (Managing Made Easy)**
+  * 利用 `docker-compose` 和统一环境管理脚本 `manage.sh`，实现极速一键拉起、数据注入与热更部署。
+
+---
+
+## 🛠️ 技术栈 (Tech Stack)
+
+### 前端 (Frontend)
+- **框架**: Next.js 14 (App Router), React 18
+- **样式**: Tailwind CSS (支持高度定制的动画体系与响应式断点)
+- **组件库**: Radix UI, shadcn/ui
+- **状态管理**: Zustand
+- **渲染引擎**: KaTeX (用于 LaTeX 物理公式)
+
+### 后端 (Backend)
+- **核心框架**: FastAPI (全异步非阻塞)
+- **ORM & DB**: SQLModel, SQLAlchemy, PostgreSQL
+- **状态 & 认证**: JWT Auth, Passlib
+- **AI 引擎对接**: 兼容 OpenAI 格式的各类大模型 API（默认驱动：字节跳动豆包模型等）
 
 ---
 
 ## 🚀 快速启动 (Quick Start)
 
-现在所有操作都通过根目录下的统一管理脚本 `./manage.sh` 完成。
+本项目依托于 `docker` 实现了全容器化运行。只需一行脚本即可在任何环境下一键启动。
 
-1. **环境准备**: 确保已安装 Docker, Node.js 和 Python 3。
-2. **初始化系统**: 运行 `./manage.sh init` (创建数据库、导入题库)。
-3. **启动服务**: 运行 `./manage.sh start`。
-4. **系统诊断**: 运行 `./manage.sh diagnose` 检查运行状态。
+### 1. 环境准备
+确保您的本机或服务器已安装 [Docker](https://www.docker.com/) 与 `docker-compose`。
 
-详细指南请参考: [部署与管理指南](docs/arch/DEPLOYMENT_GUIDE.md)
+### 2. 克隆项目
+```bash
+git clone https://github.com/guozongzhi/LearningPhysics.git
+cd LearningPhysics
+```
 
----
+### 3. 配置环境变量
+复制提供好的环境变量模板，并填入您的 AI API Key：
+```bash
+cp config/example.env config/backend.env
+cp frontend/.env.example frontend/.env.local
+```
+> **注意**：您需要在 `config/backend.env` 中配置您的 `OPENAI_API_KEY` 及对应的 `OPENAI_API_BASE`，以便系统可以调用大模型进行题目解析诊断。
 
-## 📂 项目结构 (Structure)
+### 4. 初始化与启动服务
+我们的根目录下提供了一个统一的运维管家控制台 `manage.sh`。
 
-```text
-LearningPhysics/
-├── docs/                      # [核心] 项目文档与设计说明
-│   ├── design/                # AI 设计上下文与技术方案
-│   ├── arch/                  # 系统架构、部署指南与总结
-│   └── debug/                 # 调试记录与问题解决方案
-├── backend/                   # FastAPI 后端实现
-├── frontend/                  # Next.js 前端实现
-├── data/                      # 静态资源 (题库 JSON 等)
-├── config/                    # 环境变量配置文件
-├── manage.sh                  # 统一管理脚本 (Entry Point)
-└── README.md
+```bash
+# 赋予执行权限
+chmod +x manage.sh
+
+# 一键构建镜像并拉起服务（后台运行）
+./manage.sh prod
+```
+
+### 5. 加载出厂知识图谱与题库
+如果是第一次运行，您需要向数据库中导入默认的高中物理测试题库：
+```bash
+# 进入后端容器内初始化题目
+docker exec -it learningphysics_backend_prod python init_system.py
+docker exec -it learningphysics_backend_prod python import_questions.py data/questions.json
 ```
 
 ---
 
-## 🌟 核心功能 (Features)
+## 📡 访问入口
 
-* **🧠 智能组卷 (Smart Quiz Generation)**
-    * 基于 IRT (项目反应理论) 的难度匹配。
-    * 混合检索：结合知识点标签过滤与向量语义搜索。
-* **🕵️‍♂️ 深度错题分析 (Deep Error Analysis)**
-    * **Chain-of-Thought (CoT)**: AI 像金牌教练一样逐步拆解解题步骤。
-    * **多维归因**: 区分数值错误、单位错误、受力分析漏力等物理特有错误。
-* **📊 知识雷达 (Knowledge Radar)**
-    * 基于 `pgvector` 的实时能力追踪。
-    * 可视化展示力学、电磁学等模块的掌握程度。
-* **⚡ 沉浸式刷题体验**
-    * 完美支持 LaTeX 公式渲染 (KaTeX)。
-    * 无干扰的“学术风” UI 设计。
+启动成功后，您可以在浏览器中访问以下服务：
+- **前台学生中心**: `http://localhost:3000` 
+  - 注册后即可生成测验，进行 AI 分析。
+- **后台管理平台**: `http://localhost:3000/admin`
+  - 管理员账号：在 `init_system.py` 初始化时会生成默认账号（详见输出日志）。可在此处管理题库、配置 AI 及导出诊断记录。
+- **API Swagger 文档**: `http://localhost:8000/docs`
+
+> 如果您部署在云服务器，请将 `localhost` 替换为相应的公网 IP，并在 `frontend/.env.local` 里面配置正确的 `NEXT_PUBLIC_API_URL` 跨域源。
 
 ---
 
-## 🏗 系统架构 (Architecture)
+## 🤝 参与贡献 (Contributing)
 
-采用 **Modular Monolith (模块化单体)** 架构，便于开发与后期微服务拆分。
+我们非常欢迎且渴望开源社区的各方力量加入，一起打造改变下一代教育的物理平台！
+1. Fork 本仓库。
+2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)。
+3. 提交您的修改 (`git commit -m 'Add some AmazingFeature'`)。
+4. 推送至分支 (`git push origin feature/AmazingFeature`)。
+5. 开启一个 Pull Request。
 
-```mermaid
-graph TD
-    Client[Web Client (Next.js)] <--> API[API Gateway (FastAPI)]
-    
-    subgraph "Backend Service"
-        API --> QuizSvc[组卷服务]
-        API --> AnalysisSvc[AI 分析服务]
-        API --> UserSvc[用户能力追踪]
-    end
-    
-    subgraph "Data Storage"
-        QuizSvc <--> DB[(PostgreSQL)]
-        AnalysisSvc <--> VectorDB[(pgvector)]
-        DB -.->|Schema| KnowledgeNodes[知识图谱]
-    end
-    
-    subgraph "AI Core"
-        AnalysisSvc --> LLM[LLM (OpenAI/Gemini)]
-        QuizSvc --> Embedding[Embedding Model]
-    end
-```
+无论是增补题库、修复 Bug，还是提供更好看的高级物理动画 SVG，我们都感激不尽。
+
+---
+
+## 📄 开源许可证 (License)
+
+本项目基于 [MIT License](LICENSE) 协议开源。欢迎自由分发和修改使用。
+如果有任何部署和使用疑问，欢迎在 GitHub 提交 Issue。
