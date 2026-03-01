@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authApi } from "@/lib/api";
+import { SiteLogo } from "@/components/site-logo";
 
 export default function AdminLoginPage() {
     const [username, setUsername] = useState("");
@@ -54,9 +55,7 @@ export default function AdminLoginPage() {
                 }}
             >
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">
-                        ⚛ LearningPhysics
-                    </h1>
+                    <SiteLogo showText />
                 </div>
                 <div className="space-y-6">
                     <h2 className="text-4xl font-bold text-white leading-tight">
@@ -86,29 +85,31 @@ export default function AdminLoginPage() {
             </div>
 
             {/* Right Panel — Form */}
-            <div className="flex w-full lg:w-1/2 items-center justify-center p-8 bg-white text-slate-900">
+            <div className="flex w-full lg:w-1/2 items-center justify-center p-8 bg-slate-950 text-slate-100">
                 <div className="w-full max-w-md space-y-8">
                     <div className="lg:hidden text-center mb-8">
-                        <h1 className="text-2xl font-bold">⚛ LearningPhysics</h1>
-                        <p className="text-sm text-slate-500 mt-1">后台管理系统</p>
+                        <div className="flex justify-center">
+                            <SiteLogo />
+                        </div>
+                        <p className="text-sm text-slate-400 mt-1">后台管理系统</p>
                     </div>
 
                     <div className="space-y-2">
-                        <h2 className="text-3xl font-bold tracking-tight">管理员登录</h2>
-                        <p className="text-slate-500">
+                        <h2 className="text-3xl font-bold tracking-tight text-slate-100">管理员登录</h2>
+                        <p className="text-slate-400">
                             请输入管理员凭证以访问系统控制台
                         </p>
                     </div>
 
                     {error && (
-                        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                        <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-300">
                             {error}
                         </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="username" className="text-slate-700">管理员账号</Label>
+                            <Label htmlFor="username" className="text-slate-300">管理员账号</Label>
                             <Input
                                 id="username"
                                 type="text"
@@ -116,11 +117,11 @@ export default function AdminLoginPage() {
                                 onChange={(e) => setUsername(e.target.value)}
                                 placeholder="输入管理员用户名"
                                 required
-                                className="h-11 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"
+                                className="h-11 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="password" className="text-slate-700">密码</Label>
+                            <Label htmlFor="password" className="text-slate-300">密码</Label>
                             <Input
                                 id="password"
                                 type="password"
@@ -128,13 +129,13 @@ export default function AdminLoginPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="请输入密码"
                                 required
-                                className="h-11 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"
+                                className="h-11 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"
                             />
                         </div>
 
                         <Button
                             type="submit"
-                            className="w-full h-11 text-base font-medium mt-2 bg-blue-600 hover:bg-blue-700 text-white"
+                            className="w-full h-11 text-base font-medium mt-2 bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90"
                             disabled={isLoading}
                         >
                             {isLoading ? "验证中..." : "登录后台"}

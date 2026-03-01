@@ -164,6 +164,8 @@ export const authApi = {
     removeAuthToken();
     if (typeof window !== 'undefined') {
       localStorage.removeItem('isAdmin');
+      localStorage.removeItem('username');
+      localStorage.removeItem('lastQuizSeconds');
     }
   },
 

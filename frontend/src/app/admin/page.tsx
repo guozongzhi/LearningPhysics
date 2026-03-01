@@ -249,34 +249,29 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <div
-            className="min-h-screen bg-background"
-            style={{
-                background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
-            }}
-        >
-            {/* Header */}
-            <header className="border-b border-blue-100 bg-white/80 backdrop-blur-md sticky top-0 z-10 dark:bg-gray-900/60 dark:border-gray-800">
-                <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-700 dark:from-blue-400 dark:to-cyan-400">
+        <div className="min-h-screen bg-slate-950 text-slate-100">
+            {/* Header — cosmic */}
+            <header className="border-b border-slate-800 bg-slate-950/90 backdrop-blur-md sticky top-0 z-10">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-400">
                         🔐 LearningPhysics 管理后台
                     </h1>
-                    <Button variant="outline" size="sm" onClick={handleLogout} className="border-blue-200 hover:bg-blue-50 text-blue-800">
+                    <Button variant="outline" size="sm" onClick={handleLogout} className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white">
                         退出
                     </Button>
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-6 py-8">
-                {/* Tabs */}
-                <div className="flex gap-2 mb-8 bg-blue-100/50 p-1.5 rounded-xl w-fit border border-blue-50 shadow-sm backdrop-blur-sm">
+            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+                {/* Tabs — cosmic */}
+                <div className="flex flex-wrap gap-2 mb-8 p-1.5 rounded-xl w-fit bg-slate-900/70 border border-slate-700/60">
                     {tabs.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
                             className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${activeTab === tab.key
-                                ? "bg-white text-blue-700 shadow-sm ring-1 ring-blue-200"
-                                : "text-slate-600 hover:text-blue-800 hover:bg-white/50"
+                                ? "bg-sky-500/20 text-sky-300 border border-sky-500/60 shadow-[0_0_18px_rgba(56,189,248,0.25)]"
+                                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/80"
                                 }`}
                         >
                             {tab.label}
@@ -288,63 +283,63 @@ export default function AdminDashboard() {
                 {activeTab === "students" && (
                     <div className="space-y-6">
                         {/* Add Student Form */}
-                        <Card className="bg-white/95 text-slate-900 shadow-md border-white">
+                        <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
                             <CardHeader>
-                                <CardTitle className="text-base">添加学生（白名单）</CardTitle>
-                                <CardDescription>创建学生账户后，学生可以直接用此账号登录，无需注册</CardDescription>
+                                <CardTitle className="text-base text-slate-100">添加学生（白名单）</CardTitle>
+                                <CardDescription className="text-slate-400">创建学生账户后，学生可以直接用此账号登录，无需注册</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <form onSubmit={handleCreateStudent} className="flex flex-wrap gap-3 items-end">
                                     <div className="space-y-1">
-                                        <Label className="text-xs">用户名</Label>
-                                        <Input value={newStudent.username} onChange={(e) => setNewStudent(s => ({ ...s, username: e.target.value }))} placeholder="student01" required className="w-40" />
+                                        <Label className="text-xs text-slate-300">用户名</Label>
+                                        <Input value={newStudent.username} onChange={(e) => setNewStudent(s => ({ ...s, username: e.target.value }))} placeholder="student01" required className="w-40 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500" />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-xs">邮箱</Label>
-                                        <Input value={newStudent.email} onChange={(e) => setNewStudent(s => ({ ...s, email: e.target.value }))} type="email" placeholder="student@example.com" required className="w-52" />
+                                        <Label className="text-xs text-slate-300">邮箱</Label>
+                                        <Input value={newStudent.email} onChange={(e) => setNewStudent(s => ({ ...s, email: e.target.value }))} type="email" placeholder="student@example.com" required className="w-52 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500" />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-xs">初始密码</Label>
-                                        <Input value={newStudent.password} onChange={(e) => setNewStudent(s => ({ ...s, password: e.target.value }))} placeholder="123456" required className="w-36" />
+                                        <Label className="text-xs text-slate-300">初始密码</Label>
+                                        <Input value={newStudent.password} onChange={(e) => setNewStudent(s => ({ ...s, password: e.target.value }))} placeholder="123456" required className="w-36 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500" />
                                     </div>
-                                    <Button type="submit" size="sm">+ 添加</Button>
+                                    <Button type="submit" size="sm" className="bg-sky-500 hover:bg-sky-600 text-slate-950">+ 添加</Button>
                                 </form>
-                                {studentMsg && <p className="mt-3 text-sm">{studentMsg}</p>}
+                                {studentMsg && <p className="mt-3 text-sm text-slate-300">{studentMsg}</p>}
                             </CardContent>
                         </Card>
 
                         {/* Student List */}
-                        <Card className="bg-white/95 text-slate-900 shadow-md border-white">
+                        <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
                             <CardHeader>
-                                <CardTitle className="text-base">学生列表 ({students.length})</CardTitle>
+                                <CardTitle className="text-base text-slate-100">学生列表 ({students.length})</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 {studentsLoading ? (
-                                    <p className="text-muted-foreground text-sm">加载中...</p>
+                                    <p className="text-slate-400 text-sm">加载中...</p>
                                 ) : students.length === 0 ? (
-                                    <p className="text-muted-foreground text-sm">暂无学生</p>
+                                    <p className="text-slate-400 text-sm">暂无学生</p>
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-sm">
                                             <thead>
-                                                <tr className="border-b">
-                                                    <th className="text-left py-2 pr-4 font-medium">用户名</th>
-                                                    <th className="text-left py-2 pr-4 font-medium">邮箱</th>
-                                                    <th className="text-left py-2 pr-4 font-medium">创建时间</th>
-                                                    <th className="text-right py-2 font-medium">操作</th>
+                                                <tr className="border-b border-slate-700">
+                                                    <th className="text-left py-2 pr-4 font-medium text-slate-300">用户名</th>
+                                                    <th className="text-left py-2 pr-4 font-medium text-slate-300">邮箱</th>
+                                                    <th className="text-left py-2 pr-4 font-medium text-slate-300">创建时间</th>
+                                                    <th className="text-right py-2 font-medium text-slate-300">操作</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {students.map((s) => (
-                                                    <tr key={s.id} className="border-b last:border-0">
-                                                        <td className="py-2 pr-4">{s.username}</td>
-                                                        <td className="py-2 pr-4 text-muted-foreground">{s.email}</td>
-                                                        <td className="py-2 pr-4 text-muted-foreground text-xs">{s.created_at ? new Date(s.created_at).toLocaleDateString() : "-"}</td>
+                                                    <tr key={s.id} className="border-b border-slate-800 last:border-0">
+                                                        <td className="py-2 pr-4 text-slate-200">{s.username}</td>
+                                                        <td className="py-2 pr-4 text-slate-400">{s.email}</td>
+                                                        <td className="py-2 pr-4 text-slate-400 text-xs">{s.created_at ? new Date(s.created_at).toLocaleDateString() : "-"}</td>
                                                         <td className="py-2 text-right space-x-2">
-                                                            <Button variant="outline" size="sm" onClick={() => handleResetPassword(s.id, s.username)}>
+                                                            <Button variant="outline" size="sm" onClick={() => handleResetPassword(s.id, s.username)} className="border-slate-600 text-slate-300 hover:bg-slate-800">
                                                                 重置密码
                                                             </Button>
-                                                            <Button variant="destructive" size="sm" onClick={() => handleDeleteStudent(s.id, s.username)}>
+                                                            <Button variant="destructive" size="sm" onClick={() => handleDeleteStudent(s.id, s.username)} className="bg-rose-500/80 hover:bg-rose-500 text-slate-950">
                                                                 删除
                                                             </Button>
                                                         </td>
@@ -363,7 +358,7 @@ export default function AdminDashboard() {
                 {activeTab === "questions" && (
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">题库（{questions.length} 题）</h2>
+                            <h2 className="text-lg font-semibold text-slate-100">题库（{questions.length} 题）</h2>
                             <Button onClick={() => {
                                 if (showAddQuestion) {
                                     setShowAddQuestion(false);
@@ -372,119 +367,113 @@ export default function AdminDashboard() {
                                 } else {
                                     setShowAddQuestion(true);
                                 }
-                            }}>
+                            }} className="bg-sky-500 hover:bg-sky-600 text-slate-950">
                                 {showAddQuestion ? "取消" : "+ 添加题目"}
                             </Button>
                         </div>
 
-                        {questionMsg && <p className="text-sm">{questionMsg}</p>}
+                        {questionMsg && <p className="text-sm text-slate-300">{questionMsg}</p>}
 
-                        {/* Add/Edit Question Form */}
                         {showAddQuestion && (
-                            <Card className="bg-white/95 text-slate-900 shadow-md border-white">
+                            <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
                                 <CardHeader>
-                                    <CardTitle className="text-base">{editingQuestionId ? "编辑题目" : "添加新题目"}</CardTitle>
+                                    <CardTitle className="text-base text-slate-100">{editingQuestionId ? "编辑题目" : "添加新题目"}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <form onSubmit={handleSaveQuestion} className="space-y-4">
                                         <div className="space-y-1">
-                                            <Label>题目内容（支持 LaTeX）</Label>
+                                            <Label className="text-slate-300">题目内容（支持 LaTeX）</Label>
                                             <textarea
                                                 value={newQ.content_latex}
                                                 onChange={(e) => setNewQ(q => ({ ...q, content_latex: e.target.value }))}
                                                 placeholder="一个质量为 $m=2\text{kg}$ 的物体..."
                                                 required
                                                 rows={3}
-                                                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full rounded-md border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                                             />
-                                            {/* Preview block for content */}
                                             {newQ.content_latex && (
-                                                <div className="mt-2 p-3 bg-slate-50 border border-slate-100 rounded-md text-sm">
-                                                    <span className="text-xs text-slate-400 font-semibold mb-1 block">实时预览：</span>
+                                                <div className="mt-2 p-3 bg-slate-800/50 border border-slate-700 rounded-md text-sm text-slate-200">
+                                                    <span className="text-xs text-slate-500 font-semibold mb-1 block">实时预览：</span>
                                                     <Latex>{newQ.content_latex}</Latex>
                                                 </div>
                                             )}
                                         </div>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                             <div className="space-y-1">
-                                                <Label>知识点</Label>
-                                                <select value={newQ.primary_node_id} onChange={(e) => setNewQ(q => ({ ...q, primary_node_id: parseInt(e.target.value) }))} className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm h-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <Label className="text-slate-300">知识点</Label>
+                                                <select value={newQ.primary_node_id} onChange={(e) => setNewQ(q => ({ ...q, primary_node_id: parseInt(e.target.value) }))} className="w-full rounded-md border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm h-10 text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
                                                     {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                                                 </select>
                                             </div>
                                             <div className="space-y-1">
-                                                <Label>难度 (1-5)</Label>
-                                                <Input type="number" min={1} max={5} value={newQ.difficulty} onChange={(e) => setNewQ(q => ({ ...q, difficulty: parseInt(e.target.value) }))} />
+                                                <Label className="text-slate-300">难度 (1-5)</Label>
+                                                <Input type="number" min={1} max={5} value={newQ.difficulty} onChange={(e) => setNewQ(q => ({ ...q, difficulty: parseInt(e.target.value) }))} className="bg-slate-800/80 border-slate-600 text-slate-100" />
                                             </div>
                                             <div className="space-y-1">
-                                                <Label>正确答案</Label>
-                                                <Input value={newQ.correct_value} onChange={(e) => setNewQ(q => ({ ...q, correct_value: e.target.value }))} placeholder="5" required />
+                                                <Label className="text-slate-300">正确答案</Label>
+                                                <Input value={newQ.correct_value} onChange={(e) => setNewQ(q => ({ ...q, correct_value: e.target.value }))} placeholder="5" required className="bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500" />
                                             </div>
                                             <div className="space-y-1">
-                                                <Label>单位</Label>
-                                                <Input value={newQ.unit} onChange={(e) => setNewQ(q => ({ ...q, unit: e.target.value }))} placeholder="m/s^2" required />
+                                                <Label className="text-slate-300">单位</Label>
+                                                <Input value={newQ.unit} onChange={(e) => setNewQ(q => ({ ...q, unit: e.target.value }))} placeholder="m/s^2" required className="bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500" />
                                             </div>
                                         </div>
                                         <div className="space-y-1">
-                                            <Label>解题步骤</Label>
+                                            <Label className="text-slate-300">解题步骤</Label>
                                             <textarea
                                                 value={newQ.solution_steps}
                                                 onChange={(e) => setNewQ(q => ({ ...q, solution_steps: e.target.value }))}
                                                 placeholder="由牛顿第二定律 F=ma..."
                                                 required
                                                 rows={2}
-                                                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full rounded-md border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
                                             />
-                                            {/* Preview block for solution */}
                                             {newQ.solution_steps && (
-                                                <div className="mt-2 p-3 bg-slate-50 border border-slate-100 rounded-md text-sm">
-                                                    <span className="text-xs text-slate-400 font-semibold mb-1 block">实时预览：</span>
+                                                <div className="mt-2 p-3 bg-slate-800/50 border border-slate-700 rounded-md text-sm text-slate-200">
+                                                    <span className="text-xs text-slate-500 font-semibold mb-1 block">实时预览：</span>
                                                     <Latex>{newQ.solution_steps}</Latex>
                                                 </div>
                                             )}
                                         </div>
                                         <div className="space-y-1">
-                                            <Label>示意图 URL（可选）</Label>
+                                            <Label className="text-slate-300">示意图 URL（可选）</Label>
                                             <Input
                                                 value={newQ.image_url}
                                                 onChange={(e) => setNewQ(q => ({ ...q, image_url: e.target.value }))}
                                                 placeholder="https://example.com/diagram.png"
+                                                className="bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
                                             />
                                         </div>
-                                        <Button type="submit">{editingQuestionId ? "保存修改" : "保存新题目"}</Button>
+                                        <Button type="submit" className="bg-sky-500 hover:bg-sky-600 text-slate-950">{editingQuestionId ? "保存修改" : "保存新题目"}</Button>
                                     </form>
                                 </CardContent>
                             </Card>
                         )}
 
                         {/* Questions List */}
-                        <Card className="bg-white/95 text-slate-900 shadow-md border-white">
+                        <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
                             <CardContent className="pt-6">
                                 {questionsLoading ? (
-                                    <p className="text-muted-foreground text-sm">加载中...</p>
+                                    <p className="text-slate-400 text-sm">加载中...</p>
                                 ) : questions.length === 0 ? (
-                                    <p className="text-muted-foreground text-sm">暂无题目</p>
+                                    <p className="text-slate-400 text-sm">暂无题目</p>
                                 ) : (
                                     <div className="space-y-3">
                                         {questions.map((q, i) => (
-                                            <div key={q.id} className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 bg-white hover:bg-slate-50 transition-colors">
-                                                <span className="text-xs text-muted-foreground mt-1 w-6">{i + 1}</span>
+                                            <div key={q.id} className="flex items-start gap-3 p-3 rounded-lg border border-slate-700/60 bg-slate-800/40 hover:bg-slate-800/60 transition-colors">
+                                                <span className="text-xs text-slate-500 mt-1 w-6">{i + 1}</span>
                                                 <div className="flex-1 min-w-0 pr-4">
-                                                    <div className="text-sm leading-relaxed overflow-x-auto pb-1 latex-container">
+                                                    <div className="text-sm leading-relaxed overflow-x-auto pb-1 latex-container text-slate-200">
                                                         <Latex>{q.content_latex}</Latex>
                                                     </div>
                                                     <div className="flex gap-2 mt-2">
-                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{q.topic_name}</span>
-                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">难度 {q.difficulty}</span>
+                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300">{q.topic_name}</span>
+                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-400">难度 {q.difficulty}</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col gap-2 shrink-0">
-                                                    <Button variant="outline" size="sm" onClick={() => handleEditQuestion(q)}>
-                                                        编辑
-                                                    </Button>
-                                                    <Button variant="destructive" size="sm" onClick={() => handleDeleteQuestion(q.id)}>
-                                                        删除
-                                                    </Button>
+                                                    <Button variant="outline" size="sm" onClick={() => handleEditQuestion(q)} className="border-slate-600 text-slate-300 hover:bg-slate-800">编辑</Button>
+                                                    <Button variant="destructive" size="sm" onClick={() => handleDeleteQuestion(q.id)} className="bg-rose-500/80 hover:bg-rose-500 text-slate-950">删除</Button>
                                                 </div>
                                             </div>
                                         ))}
@@ -497,18 +486,18 @@ export default function AdminDashboard() {
 
                 {/* ════════════ Export Tab ════════════ */}
                 {activeTab === "export" && (
-                    <Card className="bg-white/95 text-slate-900 shadow-md border-white">
+                    <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
                         <CardHeader>
-                            <CardTitle>📊 导出学生答题记录</CardTitle>
-                            <CardDescription>
+                            <CardTitle className="text-slate-100">📊 导出学生答题记录</CardTitle>
+                            <CardDescription className="text-slate-400">
                                 导出所有学生的答题数据为 CSV 文件，包含学生信息、题目内容、答案、是否正确和 AI 反馈。
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Button onClick={handleExport} size="lg">
+                            <Button onClick={handleExport} size="lg" className="bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90 shadow-lg shadow-sky-500/25">
                                 📥 下载 CSV 文件
                             </Button>
-                            <p className="mt-3 text-sm text-muted-foreground">
+                            <p className="mt-3 text-sm text-slate-400">
                                 文件支持 Excel 直接打开（UTF-8 BOM 编码）
                             </p>
                         </CardContent>
@@ -517,83 +506,81 @@ export default function AdminDashboard() {
 
                 {/* ════════════ System Settings Tab ════════════ */}
                 {activeTab === "settings" && (
-                    <Card className="max-w-3xl bg-white/95 text-slate-900 shadow-md border-white">
+                    <Card className="max-w-3xl bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
                         <CardHeader>
-                            <CardTitle>⚙️ LLM 大模型 API 配置</CardTitle>
-                            <CardDescription>
+                            <CardTitle className="text-slate-100">⚙️ LLM 大模型 API 配置</CardTitle>
+                            <CardDescription className="text-slate-400">
                                 配置 AI 分析题目的底层大模型服务。修改后会即可生效，无需重启服务器。
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             {llmLoading ? (
-                                <p className="text-muted-foreground text-sm">加载中...</p>
+                                <p className="text-slate-400 text-sm">加载中...</p>
                             ) : (
                                 <form onSubmit={handleSaveLlmConfig} className="space-y-6">
                                     <div className="space-y-2">
-                                        <Label>API Base URL</Label>
+                                        <Label className="text-slate-300">API Base URL</Label>
                                         <Input
                                             value={llmConfig.openai_base_url}
                                             onChange={(e) => setLlmConfig(c => ({ ...c, openai_base_url: e.target.value }))}
                                             placeholder="https://api.openai.com/v1"
-                                            className="w-full"
+                                            className="w-full bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
                                         />
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-xs text-slate-500">
                                             留空则默认使用 OpenAI。可以配置为国内兼容 OpenAI API 规范的代理地址或大模型服务（如豆包、百川等）。
                                         </p>
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label>Model (模型名称)</Label>
+                                        <Label className="text-slate-300">Model (模型名称)</Label>
                                         <Input
                                             value={llmConfig.openai_model}
                                             onChange={(e) => setLlmConfig(c => ({ ...c, openai_model: e.target.value }))}
                                             placeholder="gpt-4-turbo"
-                                            className="w-full sm:w-1/2"
+                                            className="w-full sm:w-1/2 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
                                         />
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-xs text-slate-500">
                                             例如: gpt-3.5-turbo, gpt-4o, ep-202403211516...
                                         </p>
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label>API Key (密钥)</Label>
+                                        <Label className="text-slate-300">API Key (密钥)</Label>
                                         <Input
                                             type="password"
                                             value={llmConfig.openai_api_key_new}
                                             onChange={(e) => setLlmConfig(c => ({ ...c, openai_api_key_new: e.target.value }))}
                                             placeholder={llmConfig.openai_api_key_masked || "请输入新的 API Key (留空保持不变)"}
-                                            className="w-full"
+                                            className="w-full bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
                                         />
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-xs text-slate-500">
                                             当前密钥: {llmConfig.openai_api_key_masked || "未设置"}。如果不需要修改请留空。
                                         </p>
                                     </div>
 
                                     <div className="pt-2 flex flex-wrap items-center gap-4">
-                                        <Button type="submit">保存更改</Button>
+                                        <Button type="submit" className="bg-sky-500 hover:bg-sky-600 text-slate-950">保存更改</Button>
                                         <Button
                                             type="button"
                                             variant="outline"
                                             onClick={handleTestLlmConfig}
                                             disabled={llmTesting}
-                                            className="border-blue-200"
+                                            className="border-slate-600 text-slate-300 hover:bg-slate-800"
                                         >
                                             {llmTesting ? "测试中..." : "测试连接"}
                                         </Button>
-                                        {llmMsg && <span className="text-sm font-medium">{llmMsg}</span>}
+                                        {llmMsg && <span className="text-sm font-medium text-slate-300">{llmMsg}</span>}
                                     </div>
 
                                     {llmTestResult && (
-                                        <div className={`mt-4 p-4 rounded-lg border flex items-center gap-3 ${llmTestResult.status === 'success'
-                                                ? "bg-green-50 border-green-100 text-green-800"
-                                                : "bg-red-50 border-red-100 text-red-800"
-                                            }`}>
-                                            <span className="text-xl">
-                                                {llmTestResult.status === 'success' ? "✅" : "❌"}
-                                            </span>
+                                        <div className={`mt-4 p-4 rounded-lg border flex items-center gap-3 ${llmTestResult.status === "success"
+                                            ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                                            : "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                                        }`}>
+                                            <span className="text-xl">{llmTestResult.status === "success" ? "✅" : "❌"}</span>
                                             <div>
                                                 <p className="font-bold text-sm">
-                                                    {llmTestResult.status === 'success' ? "AI 服务可用" : "AI 连接失败"}
+                                                    {llmTestResult.status === "success" ? "AI 服务可用" : "AI 连接失败"}
                                                 </p>
                                                 <p className="text-xs opacity-90">{llmTestResult.message}</p>
                                             </div>

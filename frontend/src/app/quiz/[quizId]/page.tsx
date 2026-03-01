@@ -16,35 +16,34 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     questions,
     answers,
     currentQuestionIndex,
-    generateQuiz,
+    startedAt,
     setAnswer,
     nextQuestion,
     prevQuestion,
     submitQuiz,
   } = useQuizStore();
 
-  // On component mount, we only show an error if status is idle (meaning direct access without generation)
+  const [username, setUsername] = useState<string | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
   useEffect(() => {
-    if (status === 'idle') {
-      router.push('/');
+    if (typeof window !== "undefined") {
+      const storedName = localStorage.getItem("username");
+      if (storedName) setUsername(storedName);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (status === "idle") {
+      router.push("/");
     }
   }, [status, router]);
 
-  // When submission is finished, navigate to the report page
   useEffect(() => {
-    if (status === 'finished') {
+    if (status === "finished") {
       router.push(`/quiz/report/${quizId}`);
     }
   }, [status, router, quizId]);
-
-  if (status === 'loading') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-lg font-medium text-slate-600">正在生成题目...</p>
-      </div>
-    );
-  }
 
   const [factIndex, setFactIndex] = useState(0);
   const physicsFacts = [
@@ -55,45 +54,77 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     "如果没有空气阻力，一根羽毛和一个保龄球会同时落地。",
     "中子星的密度极大，一茶匙中子星物质重约 10 亿吨。",
     "宇宙的温度仅仅比绝对零度高约 2.7 度。",
-    "时间在强引力场中会流逝得更慢，这被称为引力时间膨胀。"
+    "时间在强引力场中会流逝得更慢，这被称为引力时间膨胀。",
   ];
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (status === 'submitting') {
+    if (status === "submitting" || status === "in-progress") {
       interval = setInterval(() => {
         setFactIndex((prev: number) => (prev + 1) % physicsFacts.length);
-      }, 3000); // Change fact every 3 seconds
+      }, 3000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [status, physicsFacts.length]);
 
-  if (status === 'submitting') {
+  // Update elapsed time based on startedAt from store
+  useEffect(() => {
+    if (status !== "in-progress" || !startedAt) return;
+    const update = () => {
+      const diff = Date.now() - startedAt;
+      setElapsedSeconds(Math.max(0, Math.floor(diff / 1000)));
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [status, startedAt]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  if (status === "loading") {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-100">
         <div className="relative w-24 h-24 mb-6">
-          <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-          <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-2xl">🧠</span>
-          </div>
+          <div className="absolute inset-0 border-4 border-slate-700 rounded-full" />
+          <div className="absolute inset-0 border-4 border-sky-500 rounded-full border-t-transparent animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center text-3xl">🧠</div>
         </div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">AI 智能评分中</h2>
-        <p className="text-slate-600 mb-6 text-center max-w-md h-12 transition-opacity duration-500">
-          <span className="block animate-pulse mb-2">正在深度分析您的解题过程，请稍候...</span>
-          <span className="block text-sm text-blue-700 font-medium">{physicsFacts[factIndex]}</span>
+        <p className="text-lg font-medium text-slate-300">正在生成题目...</p>
+        <p className="text-sm text-slate-500 mt-2">AI 正在为你挑选题目</p>
+      </div>
+    );
+  }
+
+  if (status === "submitting") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-100">
+        <div className="relative w-24 h-24 mb-6">
+          <div className="absolute inset-0 border-4 border-slate-700 rounded-full" />
+          <div className="absolute inset-0 border-4 border-sky-500 rounded-full border-t-transparent animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center text-3xl">🧠</div>
+        </div>
+        <h2 className="text-2xl font-bold text-slate-100 mb-2">AI 智能评分中</h2>
+        <p className="text-slate-400 mb-6 text-center max-w-md min-h-[3rem] transition-opacity duration-500">
+          <span className="block animate-pulse mb-2 text-slate-500">正在深度分析您的解题过程，请稍候...</span>
+          <span className="block text-sm text-sky-400 font-medium">{physicsFacts[factIndex]}</span>
         </p>
       </div>
     );
   }
 
-  if (status !== 'in-progress' || questions.length === 0) {
+  if (status !== "in-progress" || questions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-slate-500">无法加载测验，请尝试重新生成。</p>
-        <Button onClick={() => router.push('/')} className="mt-4">返回首页</Button>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-300">
+        <p className="text-slate-400">无法加载测验，请尝试重新生成。</p>
+        <Button onClick={() => router.push("/")} className="mt-4 bg-sky-500 hover:bg-sky-600 text-slate-950">
+          返回首页
+        </Button>
       </div>
     );
   }
@@ -101,34 +132,78 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
   const currentQuestion = questions[currentQuestionIndex];
   const studentAnswer = answers[currentQuestion.id] || "";
 
+  const handleSubmitWithTime = async () => {
+    if (typeof window !== "undefined" && startedAt) {
+      const totalSeconds = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+      localStorage.setItem("lastQuizSeconds", totalSeconds.toString());
+    }
+    await submitQuiz();
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12">
-      <div className="w-full max-w-6xl">
-        <h1 className="text-3xl font-bold mb-2">高中物理测验</h1>
-        <p className="text-muted-foreground mb-6">Quiz ID: {quizId}</p>
+    <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+      <div className="w-full max-w-6xl mx-auto flex-1 flex flex-col p-4 sm:p-6 md:p-8 relative">
+        {/* Decorative glow behind top bar */}
+        <div className="pointer-events-none absolute inset-x-0 -top-6 h-24 opacity-40 blur-3xl">
+          <div className="mx-auto max-w-3xl h-full bg-gradient-to-r from-sky-500/20 via-cyan-400/10 to-sky-500/20 rounded-full" />
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8">
+        {/* Progress bar — cosmic style + name & timer */}
+        <div className="mb-4 sm:mb-6 relative z-10">
+          <div className="flex justify-between items-start gap-4 text-xs sm:text-sm text-slate-400 mb-2">
+            <div className="flex flex-col">
+              <span>第 {currentQuestionIndex + 1} / {questions.length} 题</span>
+              <span className="mt-0.5">已作答 {Object.keys(answers).filter((k) => answers[k]).length} / {questions.length}</span>
+            </div>
+            <div className="flex flex-col items-end">
+              {username && (
+                <span className="text-slate-300">
+                  姓名：<span className="font-medium text-sky-300">{username}</span>
+                </span>
+              )}
+              <span className="mt-0.5">
+                用时：<span className="font-mono text-sky-300">{formatTime(elapsedSeconds)}</span>
+              </span>
+            </div>
+          </div>
+          <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-sky-500 to-cyan-400 rounded-full transition-all duration-300"
+              style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+            />
+          </div>
+        </div>
 
-          {/* Left Panel: Question Display */}
-          <div className="mb-8 md:mb-0">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>题目 ({currentQuestionIndex + 1}/{questions.length})</CardTitle>
-                  <div className="flex items-center gap-1 text-sm font-medium px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8 flex-1">
+          {/* Left: Question */}
+          <div className="mb-6 md:mb-0">
+            <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20 h-full flex flex-col relative overflow-hidden">
+              {/* Decorative Watermark - Atom */}
+              <div className="absolute -right-16 -top-16 w-64 h-64 opacity-[0.03] pointer-events-none text-sky-100">
+                <svg viewBox="0 0 100 100" className="w-full h-full animate-orbit-slow" fill="currentColor">
+                  <circle cx="50" cy="50" r="8" />
+                  <ellipse cx="50" cy="50" rx="42" ry="16" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(30 50 50)" />
+                  <ellipse cx="50" cy="50" rx="42" ry="16" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(-30 50 50)" />
+                  <ellipse cx="50" cy="50" rx="16" ry="42" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(90 50 50)" />
+                </svg>
+              </div>
+              <CardHeader className="pb-3 relative z-10">
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                  <CardTitle className="text-lg text-slate-100">题目</CardTitle>
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40">
                     难度: {currentQuestion.difficulty || "未知"}
-                  </div>
+                  </span>
                 </div>
-                <CardDescription>请仔细阅读题目并作答。</CardDescription>
+                <CardDescription className="text-slate-400">请仔细阅读题目并作答。</CardDescription>
               </CardHeader>
-              <CardContent className="text-lg leading-relaxed">
+              <CardContent className="text-lg leading-relaxed text-slate-200 flex-1">
                 <Latex>{currentQuestion.content_latex}</Latex>
                 {currentQuestion.image_url && (
                   <div className="mt-4">
                     <img
                       src={currentQuestion.image_url}
                       alt="题目示意图"
-                      className="max-w-full rounded-lg border max-h-64 object-contain"
+                      className="max-w-full rounded-lg border border-slate-700 max-h-64 object-contain"
                     />
                   </div>
                 )}
@@ -136,16 +211,20 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
             </Card>
           </div>
 
-          {/* Right Panel: Workspace */}
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>你的答案</CardTitle>
-                <CardDescription>
+          {/* Right: Answer */}
+          <div className="flex flex-col">
+            <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20 flex-1 flex flex-col relative overflow-hidden">
+              {/* Decorative Watermark - Wave */}
+              <div className="absolute -left-12 -bottom-10 w-64 h-40 opacity-[0.04] pointer-events-none text-cyan-200">
+                <svg viewBox="0 0 100 50" className="w-full h-full animate-wave-drift">
+                  <path d="M0 25 Q25 0 50 25 T100 25" fill="none" stroke="currentColor" strokeWidth="4" />
+                  <path d="M0 25 Q25 50 50 25 T100 25" fill="none" stroke="currentColor" strokeWidth="4" opacity="0.5" />
+                </svg>
+              </div>
+              <CardHeader className="pb-3 relative z-10">
+                <CardTitle className="text-lg text-slate-100">你的答案</CardTitle>
+                <CardDescription className="text-slate-400">
                   对于计算题，请写出最终数值和单位。
-                  <span className="block mt-1 text-xs">
-                    已作答 {Object.keys(answers).filter(k => answers[k]).length}/{questions.length} 题
-                  </span>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -154,46 +233,56 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
                   placeholder="例如: 15 m/s"
                   value={studentAnswer}
                   onChange={(e) => setAnswer(currentQuestion.id, e.target.value)}
-                  className="text-lg"
+                  className="text-lg bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"
                 />
+                {/* Small rotating physics fact to enrich UI */}
+                <div className="mt-2 pt-3 border-t border-slate-800 text-xs text-slate-400 flex items-start gap-2">
+                  <span className="text-sky-400/80 text-base leading-none">✦</span>
+                  <p className="leading-relaxed">{physicsFacts[factIndex]}</p>
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="mt-8 flex justify-between items-center">
+        {/* Navigation — fixed feel at bottom on mobile */}
+        <div className="mt-6 pt-4 border-t border-slate-800 flex flex-wrap justify-between items-center gap-4">
           <Button
             disabled={currentQuestionIndex === 0}
             onClick={prevQuestion}
             variant="outline"
+            className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white"
           >
             上一题
           </Button>
 
-          {/* Question dots */}
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 flex-wrap justify-center">
             {questions.map((q: { id: string }, i: number) => (
               <div
                 key={q.id}
-                className={`w-2.5 h-2.5 rounded-full transition-colors ${i === currentQuestionIndex
-                  ? "bg-primary scale-125"
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${i === currentQuestionIndex
+                  ? "bg-sky-400 scale-125 shadow-[0_0_10px_rgba(56,189,248,0.8)]"
                   : answers[q.id]
-                    ? "bg-green-500"
-                    : "bg-gray-300"
+                    ? "bg-emerald-400/80"
+                    : "bg-slate-600"
                   }`}
               />
             ))}
           </div>
 
           {currentQuestionIndex < questions.length - 1 ? (
-            <Button onClick={nextQuestion} variant="outline">
+            <Button
+              onClick={nextQuestion}
+              variant="outline"
+              className="border-sky-500/50 text-sky-300 hover:bg-sky-500/20"
+            >
               下一题
             </Button>
           ) : (
             <Button
-              onClick={submitQuiz}
-              disabled={Object.keys(answers).filter(k => answers[k]).length === 0}
+              onClick={handleSubmitWithTime}
+              disabled={Object.keys(answers).filter((k) => answers[k]).length === 0}
+              className="bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90 shadow-lg shadow-sky-500/25"
             >
               提交并查看分析报告
             </Button>

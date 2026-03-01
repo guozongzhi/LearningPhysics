@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authApi } from "@/lib/api";
+import { SiteLogo } from "@/components/site-logo";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -35,6 +36,9 @@ export default function RegisterPage() {
 
     try {
       await authApi.register(email, username, password);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("username", username);
+      }
       router.push("/login");
     } catch (err) {
       console.error("Registration failed:", err);
@@ -54,9 +58,7 @@ export default function RegisterPage() {
         }}
       >
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">
-            ⚛ LearningPhysics
-          </h1>
+          <SiteLogo showText />
         </div>
         <div className="space-y-6">
           <h2 className="text-4xl font-bold text-white leading-tight">
@@ -89,29 +91,31 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Panel — Form */}
-      <div className="flex w-full lg:w-1/2 items-center justify-center p-8 bg-background">
+      <div className="flex w-full lg:w-1/2 items-center justify-center p-8 bg-slate-950 text-slate-100">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden text-center mb-8">
-            <h1 className="text-2xl font-bold">⚛ LearningPhysics</h1>
-            <p className="text-sm text-muted-foreground mt-1">AI 驱动的高中物理学习平台</p>
+            <div className="flex justify-center">
+              <SiteLogo />
+            </div>
+            <p className="text-sm text-slate-400 mt-1">AI 驱动的高中物理学习平台</p>
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">创建账户</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-3xl font-bold tracking-tight text-slate-100">创建账户</h2>
+            <p className="text-slate-400">
               填写信息，开始智能物理学习
             </p>
           </div>
 
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/50 dark:text-red-400">
+            <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-300">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">邮箱</Label>
+              <Label htmlFor="email" className="text-slate-300">邮箱</Label>
               <Input
                 id="email"
                 type="email"
@@ -119,11 +123,11 @@ export default function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
-                className="h-11"
+                className="h-11 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="username">用户名</Label>
+              <Label htmlFor="username" className="text-slate-300">用户名</Label>
               <Input
                 id="username"
                 type="text"
@@ -131,12 +135,12 @@ export default function RegisterPage() {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="请输入用户名"
                 required
-                className="h-11"
+                className="h-11 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="password">密码</Label>
+                <Label htmlFor="password" className="text-slate-300">密码</Label>
                 <Input
                   id="password"
                   type="password"
@@ -144,11 +148,11 @@ export default function RegisterPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="至少 6 位"
                   required
-                  className="h-11"
+                  className="h-11 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">确认密码</Label>
+                <Label htmlFor="confirmPassword" className="text-slate-300">确认密码</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -156,13 +160,13 @@ export default function RegisterPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="再次输入"
                   required
-                  className="h-11"
+                  className="h-11 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"
                 />
               </div>
             </div>
             <Button
               type="submit"
-              className="w-full h-11 text-base font-medium"
+              className="w-full h-11 text-base font-medium bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90"
               disabled={isLoading}
             >
               {isLoading ? "注册中..." : "创建账户"}
@@ -171,16 +175,16 @@ export default function RegisterPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-slate-700" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
+              <span className="bg-slate-950 px-2 text-slate-500">
                 已有账户？
               </span>
             </div>
           </div>
 
-          <Button asChild variant="outline" className="w-full h-11">
+          <Button asChild variant="outline" className="w-full h-11 border-sky-500/50 text-sky-300 hover:bg-sky-500/20">
             <Link href="/login">立即登录</Link>
           </Button>
         </div>

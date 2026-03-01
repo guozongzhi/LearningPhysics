@@ -11,6 +11,7 @@ type QuizState = {
   answers: Record<string, string>;
   report: any | null;
   currentQuestionIndex: number;
+  startedAt: number | null;
 };
 
 type QuizActions = {
@@ -30,6 +31,7 @@ export const useQuizStore = create<QuizState & QuizActions>()(
     answers: {},
     report: null,
     currentQuestionIndex: 0,
+     startedAt: null,
 
     generateQuiz: async (topicIds, count) => {
       set({ status: 'loading' });
@@ -42,6 +44,7 @@ export const useQuizStore = create<QuizState & QuizActions>()(
           state.answers = {};
           state.report = null;
           state.currentQuestionIndex = 0;
+          state.startedAt = Date.now();
         });
       } catch (error) {
         console.error("Failed to generate quiz", error);
@@ -78,14 +81,17 @@ export const useQuizStore = create<QuizState & QuizActions>()(
 
     submitQuiz: async () => {
       set({ status: 'submitting' });
-      const { quizId, answers } = get();
+      const { quizId, answers, startedAt } = get();
       if (!quizId) return;
+
+      const now = Date.now();
+      const totalMs = startedAt ? now - startedAt : 0;
 
       // Transform answers into the format the API expects
       const apiAnswers = Object.entries(answers).map(([questionId, studentInput]) => ({
         question_id: questionId,
         student_input: studentInput,
-        time_spent_ms: 0, // Placeholder
+        time_spent_ms: totalMs,
       }));
 
       try {
@@ -113,6 +119,7 @@ export const useQuizStore = create<QuizState & QuizActions>()(
         answers: {},
         report: null,
         currentQuestionIndex: 0,
+        startedAt: null,
       });
     }
   }))
