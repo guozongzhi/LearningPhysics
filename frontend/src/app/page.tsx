@@ -14,6 +14,7 @@ type Topic = {
   code: string;
   description: string | null;
   level: number;
+  question_count: number;
 };
 
 export default function Home() {
@@ -184,9 +185,12 @@ export default function Home() {
                             {topic.description}
                           </div>
                         )}
-                        <div className="mt-4">
+                        <div className="mt-4 flex gap-2">
                           <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full tracking-wide ${isSelected ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100" : "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"}`}>
                             Level {topic.level}
+                          </span>
+                          <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full tracking-wide ${isSelected ? "bg-indigo-200 text-indigo-900 dark:bg-indigo-800 dark:text-indigo-100" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>
+                            {topic.question_count || 0} 题
                           </span>
                         </div>
                       </div>

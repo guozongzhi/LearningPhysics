@@ -5,197 +5,1133 @@
             "name": "力学",
             "code": "mechanics",
             "level": 1,
-            "description": "研究力和运动关系的基本定律，包括牛顿运动定律、动量、能量等"
+            "description": "涵盖运动学、动力学、功与能、动量及圆周运动等经典力学核心概念。"
         },
         {
             "id": 2,
             "name": "热学",
             "code": "thermodynamics",
             "level": 1,
-            "description": "研究热现象及其宏观和微观规律，包括气体实验定律、热力学定律等"
+            "description": "研究分子热运动、气体实验定律、热力学第一、第二定律及其宏观表现。"
         },
         {
             "id": 3,
             "name": "光学",
             "code": "optics",
             "level": 1,
-            "description": "研究光的传播、干涉、衍射和偏振，以及光的波粒二象性"
+            "description": "包括几何光学的反射折射，以及物理光学的干涉、衍射和偏振现象。"
         },
         {
             "id": 4,
             "name": "电磁学",
             "code": "electromagnetism",
             "level": 1,
-            "description": "研究电场、磁场及两者的相互作用，包括库仑定律、安培力、磁通量等"
+            "description": "涵盖电场、磁场、欧姆定律、电磁感应及交流电等核心规律。"
         },
         {
             "id": 5,
             "name": "现代物理",
             "code": "modern_physics",
             "level": 1,
-            "description": "研究原子的组成及其运动规律，涉及量子力学、波粒二象性等"
+            "description": "探索原子结构、原子核衰变、光电效应及波粒二象性等量子学起步知识。"
         }
     ],
     "questions": [
         {
             "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=2\\text{kg}$ 的物体，受到大小为 $F=10\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "content_latex": "一个质量为 $m=1\\text{kg}$ 的物体，受到大小为 $F=31\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 5,
+                "correct_value": 31.0,
                 "unit": "m/s^2",
                 "tolerance": 0.1
             },
-            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 10/2 = 5 m/s²"
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 31/1 = 31.0 m/s²"
         },
         {
             "topic_code": "mechanics",
-            "content_latex": "一辆质量为 $M=1000\\text{kg}$ 的汽车以 $v=20\\text{m/s}$ 的速度行驶，刹车后经过 $t=5\\text{s}$ 停下。求刹车力 $F$ 的大小。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 4000,
-                "unit": "N",
-                "tolerance": 10
-            },
-            "solution_steps": "由 v=v₀-at, 0=20-a×5, a=4m/s²。F=Ma=1000×4=4000N"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "质量 $m=5\\text{kg}$ 的物体放在粗糙水平面上，受到 $F=30\\text{N}$ 的水平拉力，物体的加速度为 $a=2\\text{m/s}^2$。求物体与地面间的摩擦力 $f$（取 $g=10\\text{m/s}^2$）。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 20,
-                "unit": "N",
-                "tolerance": 0.5
-            },
-            "solution_steps": "由牛顿第二定律 F-f=ma, f=F-ma=30-5×2=20N"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个炮车（质量 $M=500\\text{kg}$）发射一枚质量 $m=5\\text{kg}$ 的炮弹，炮弹速度为 $v=200\\text{m/s}$。求炮车的反冲速度。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 2,
-                "unit": "m/s",
-                "tolerance": 0.1
-            },
-            "solution_steps": "由动量守恒 0=mv+MV, V=mv/M=5×200/500=2m/s"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=0.5\\text{kg}$ 的球在水平面内做半径 $r=2\\text{m}$ 的匀速圆周运动，线速度 $v=4\\text{m/s}$。求向心力大小。",
+            "content_latex": "一个质量为 $m=10\\text{kg}$ 的物体，受到大小为 $F=28\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 4,
-                "unit": "N",
+                "correct_value": 2.8,
+                "unit": "m/s^2",
                 "tolerance": 0.1
             },
-            "solution_steps": "向心力 F=mv²/r=0.5×16/2=4N"
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 28/10 = 2.8 m/s²"
         },
         {
             "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=0.5\\text{kg}$ 的物体从 $h=20\\text{m}$ 高处自由落下（$g=10\\text{m/s}^2$）。求落地时的动能。",
+            "content_latex": "一个质量为 $m=1\\text{kg}$ 的物体，受到大小为 $F=14\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 14.0,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 14/1 = 14.0 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=2\\text{kg}$ 的物体，受到大小为 $F=14\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 7.0,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 14/2 = 7.0 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=4\\text{kg}$ 的物体，受到大小为 $F=22\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 100,
-                "unit": "J",
-                "tolerance": 1
+                "correct_value": 5.5,
+                "unit": "m/s^2",
+                "tolerance": 0.1
             },
-            "solution_steps": "由机械能守恒，Ek=mgh=0.5×10×20=100J"
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 22/4 = 5.5 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=6\\text{kg}$ 的物体，受到大小为 $F=15\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2.5,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 15/6 = 2.5 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=2\\text{kg}$ 的物体，受到大小为 $F=14\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 7.0,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 14/2 = 7.0 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=10\\text{kg}$ 的物体，受到大小为 $F=28\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2.8,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 28/10 = 2.8 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=6\\text{kg}$ 的物体，受到大小为 $F=50\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 8.33,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 50/6 = 8.33 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=6\\text{kg}$ 的物体，受到大小为 $F=16\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2.67,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 16/6 = 2.67 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=8\\text{kg}$ 的物体，受到大小为 $F=29\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3.62,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 29/8 = 3.62 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=5\\text{kg}$ 的物体，受到大小为 $F=32\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 6.4,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 32/5 = 6.4 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=5\\text{kg}$ 的物体，受到大小为 $F=20\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 4.0,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 20/5 = 4.0 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=5\\text{kg}$ 的物体，受到大小为 $F=47\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 9.4,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 47/5 = 9.4 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=4\\text{kg}$ 的物体，受到大小为 $F=50\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 12.5,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 50/4 = 12.5 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=3\\text{kg}$ 的物体，受到大小为 $F=25\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 8.33,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 25/3 = 8.33 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=3\\text{kg}$ 的物体，受到大小为 $F=27\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 9.0,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 27/3 = 9.0 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=2\\text{kg}$ 的物体，受到大小为 $F=30\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 15.0,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 30/2 = 15.0 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=1\\text{kg}$ 的物体，受到大小为 $F=32\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 32.0,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 32/1 = 32.0 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=4\\text{kg}$ 的物体，受到大小为 $F=12\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3.0,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 12/4 = 3.0 m/s²"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=9\\text{kg}$ 的物体，受到大小为 $F=41\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 4.56,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 41/9 = 4.56 m/s²"
         },
         {
             "topic_code": "thermodynamics",
-            "content_latex": "一定质量的理想气体，在恒定温度下压力为 $P_1=1.0\\times10^5\\text{Pa}$ 时，体积为 $V_1=2.0\\text{L}$。若将体积压缩到 $V_2=0.5\\text{L}$，求此时的压力 $P_2$。",
-            "difficulty": 1,
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=100000\\text{Pa}$ 时体积为 $V_1=3\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 4.0e5,
+                "correct_value": 150000.0,
                 "unit": "Pa",
-                "tolerance": 0.1e5
+                "tolerance": 10000.0
             },
-            "solution_steps": "由玻意耳定律 P₁V₁=P₂V₂，得 P₂ = P₁V₁/V₂ = 1.0e5 × 2.0 / 0.5 = 4.0e5 Pa"
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 100000 × 3 / 2 = 150000 Pa"
         },
         {
             "topic_code": "thermodynamics",
-            "content_latex": "在热力学过程中，系统吸收了 $Q=500\\text{J}$ 的热量，同时对外做了 $W=200\\text{J}$ 的功。求该系统内能的变化量 $\\Delta U$。",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=150000\\text{Pa}$ 时体积为 $V_1=2\\text{L}$。若体积缩为 $V_2=1\\text{L}$，求压力 $P_2$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 300000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 150000 × 2 / 1 = 300000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=200000\\text{Pa}$ 时体积为 $V_1=3\\text{L}$。若体积缩为 $V_2=1\\text{L}$，求压力 $P_2$。",
             "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 300,
-                "unit": "J",
-                "tolerance": 1
+                "correct_value": 600000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
             },
-            "solution_steps": "由热力学第一定律 ΔU = Q - W = 500 - 200 = 300 J"
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 200000 × 3 / 1 = 600000 Pa"
         },
         {
-            "topic_code": "optics",
-            "content_latex": "一束光从空气射入折射率为 $n=\\sqrt{3}$ 的玻璃中，入射角 $i=60^\\circ$。求折射角 $r$。",
-            "difficulty": 1,
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=200000\\text{Pa}$ 时体积为 $V_1=2\\text{L}$。若体积缩为 $V_2=1\\text{L}$，求压力 $P_2$。",
+            "difficulty": 3,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 30,
-                "unit": "degree",
-                "tolerance": 0.5
+                "correct_value": 400000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
             },
-            "solution_steps": "由折射定律 sin i / sin r = n, sin r = sin 60° / √3 = (√3/2) / √3 = 1/2, r = 30°"
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 200000 × 2 / 1 = 400000 Pa"
         },
         {
-            "topic_code": "optics",
-            "content_latex": "已知水的折射率为 $n=1.33$。一束光在水中发生的临界角 $C$ 的正弦值是多少？",
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=100000\\text{Pa}$ 时体积为 $V_1=2\\text{L}$。若体积缩为 $V_2=1\\text{L}$，求压力 $P_2$。",
             "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 0.75,
-                "unit": "ratio",
-                "tolerance": 0.01
+                "correct_value": 200000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
             },
-            "solution_steps": "由临界角公式 sin C = 1/n = 1/1.33 ≈ 0.75"
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 100000 × 2 / 1 = 200000 Pa"
         },
         {
-            "topic_code": "electromagnetism",
-            "content_latex": "两个点电荷 $q_1=2\\times10^{-6}\\text{C}$ 和 $q_2=8\\times10^{-6}\\text{C}$ 相距 $r=0.2\\text{m}$。求它们之间的库仑力（$k=9\\times10^9\\text{N·m}^2/\\text{C}^2$）。",
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=100000\\text{Pa}$ 时体积为 $V_1=2\\text{L}$。若体积缩为 $V_2=1\\text{L}$，求压力 $P_2$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 100000 × 2 / 1 = 200000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=150000\\text{Pa}$ 时体积为 $V_1=5\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 375000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 150000 × 5 / 2 = 375000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=150000\\text{Pa}$ 时体积为 $V_1=3\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 225000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 150000 × 3 / 2 = 225000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=200000\\text{Pa}$ 时体积为 $V_1=5\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 3.6,
-                "unit": "N",
-                "tolerance": 0.1
+                "correct_value": 500000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
             },
-            "solution_steps": "F=kq₁q₂/r²=9×10⁹×2×10⁻⁶×8×10⁻⁶/0.04=3.6N"
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 200000 × 5 / 2 = 500000 Pa"
         },
         {
-            "topic_code": "electromagnetism",
-            "content_latex": "一通电直导线长 $L=0.3\\text{m}$，通有 $I=5\\text{A}$ 电流，磁感应强度 $B=0.2\\text{T}$，导线与磁场垂直。求安培力大小。",
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=150000\\text{Pa}$ 时体积为 $V_1=4\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 300000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 150000 × 4 / 2 = 300000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=150000\\text{Pa}$ 时体积为 $V_1=5\\text{L}$。若体积缩为 $V_2=1\\text{L}$，求压力 $P_2$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 750000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 150000 × 5 / 1 = 750000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=150000\\text{Pa}$ 时体积为 $V_1=3\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 225000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 150000 × 3 / 2 = 225000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=150000\\text{Pa}$ 时体积为 $V_1=2\\text{L}$。若体积缩为 $V_2=1\\text{L}$，求压力 $P_2$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 300000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 150000 × 2 / 1 = 300000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=150000\\text{Pa}$ 时体积为 $V_1=5\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 375000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 150000 × 5 / 2 = 375000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=200000\\text{Pa}$ 时体积为 $V_1=3\\text{L}$。若体积缩为 $V_2=1\\text{L}$，求压力 $P_2$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 600000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 200000 × 3 / 1 = 600000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=100000\\text{Pa}$ 时体积为 $V_1=3\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 100000 × 3 / 2 = 150000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=200000\\text{Pa}$ 时体积为 $V_1=4\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 0.3,
+                "correct_value": 400000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 200000 × 4 / 2 = 400000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=200000\\text{Pa}$ 时体积为 $V_1=3\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 300000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 200000 × 3 / 2 = 300000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=100000\\text{Pa}$ 时体积为 $V_1=4\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 100000 × 4 / 2 = 200000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=200000\\text{Pa}$ 时体积为 $V_1=3\\text{L}$。若体积缩为 $V_2=2\\text{L}$，求压力 $P_2$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 300000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 200000 × 3 / 2 = 300000 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，恒温下压力为 $P_1=150000\\text{Pa}$ 时体积为 $V_1=2\\text{L}$。若体积缩为 $V_2=1\\text{L}$，求压力 $P_2$。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 300000.0,
+                "unit": "Pa",
+                "tolerance": 10000.0
+            },
+            "solution_steps": "由 P₁V₁=P₂V₂，得 P₂ = 150000 × 2 / 1 = 300000 Pa"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 120000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.5 = 1.2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=1.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 1.5 = 2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=1.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 1.5 = 2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.0$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.0 = 1.5e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=1.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 1.5 = 2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.0$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.0 = 1.5e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.0$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.0 = 1.5e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=1.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 1.5 = 2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=1.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 1.5 = 2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.0$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.0 = 1.5e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=1.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 1.5 = 2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=1.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 1.5 = 2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.0$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.0 = 1.5e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 120000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.5 = 1.2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.0$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.0 = 1.5e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=1.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 200000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 1.5 = 2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 120000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.5 = 1.2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.0$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.0 = 1.5e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.5$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 120000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.5 = 1.2e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.0$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.0 = 1.5e+08 m/s"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "某介质的折射率为 $n=2.0$。求光在此介质中传播的速度 $v$ (已知 $c=3\\times10^8\\text{m/s}$)。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 150000000.0,
+                "unit": "m/s",
+                "tolerance": 10000000.0
+            },
+            "solution_steps": "v = c/n = 3e8 / 2.0 = 1.5e+08 m/s"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=3\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.5,
                 "unit": "N",
                 "tolerance": 0.01
             },
-            "solution_steps": "F=BIL = 0.2 × 5 × 0.3 = 0.3 N"
+            "solution_steps": "F = BIL = 0.5 × 3 × 1.0 = 1.5 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=7\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3.5,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.5 × 7 × 1.0 = 3.5 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=9\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 4.5,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.5 × 9 × 1.0 = 4.5 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=4\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2.0,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.5 × 4 × 1.0 = 2.0 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $0.5\\text{m}, I=3\\text{A}, B=0.1\\text{T}$ 垂直。求安培力。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.15,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.1 × 3 × 0.5 = 0.15 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=6\\text{A}, B=0.2\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.2,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.2 × 6 × 1.0 = 1.2 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $0.2\\text{m}, I=9\\text{A}, B=0.2\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.36,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.2 × 9 × 0.2 = 0.36 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=5\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2.5,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.5 × 5 × 1.0 = 2.5 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=4\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2.0,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.5 × 4 × 1.0 = 2.0 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=7\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3.5,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.5 × 7 × 1.0 = 3.5 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $0.2\\text{m}, I=10\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.0,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.5 × 10 × 0.2 = 1.0 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $0.2\\text{m}, I=6\\text{A}, B=0.2\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.24,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.2 × 6 × 0.2 = 0.24 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $0.2\\text{m}, I=7\\text{A}, B=0.2\\text{T}$ 垂直。求安培力。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.28,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.2 × 7 × 0.2 = 0.28 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $0.5\\text{m}, I=8\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2.0,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.5 × 8 × 0.5 = 2.0 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $0.5\\text{m}, I=4\\text{A}, B=0.5\\text{T}$ 垂直。求安培力。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.0,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.5 × 4 × 0.5 = 1.0 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=5\\text{A}, B=0.2\\text{T}$ 垂直。求安培力。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.0,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.2 × 5 × 1.0 = 1.0 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=3\\text{A}, B=0.2\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.6,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.2 × 3 × 1.0 = 0.6 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=1\\text{A}, B=0.1\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.1,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.1 × 1 × 1.0 = 0.1 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=6\\text{A}, B=0.1\\text{T}$ 垂直。求安培力。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.6,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.1 × 6 × 1.0 = 0.6 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=8\\text{A}, B=0.2\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.6,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.2 × 8 × 1.0 = 1.6 N"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "通电导线长 $1.0\\text{m}, I=2\\text{A}, B=0.2\\text{T}$ 垂直。求安培力。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.4,
+                "unit": "N",
+                "tolerance": 0.01
+            },
+            "solution_steps": "F = BIL = 0.2 × 2 × 1.0 = 0.4 N"
         },
         {
             "topic_code": "modern_physics",
-            "content_latex": "已知某金属的逸出功为 $W=2.0\\text{eV}$。若用能量为 $E=3.5\\text{eV}$ 的光子照射，求光电子的最大初动能。",
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $4.0\\text{eV}$ 光子照射。求光电子最大初动能。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
@@ -204,98 +1140,267 @@
                 "unit": "eV",
                 "tolerance": 0.1
             },
-            "solution_steps": "由爱因斯坦光电效应方程 Ek_max = hν - W = 3.5 - 2.0 = 1.5 eV"
+            "solution_steps": "Ek = hv - W = 4.0 - 2.5 = 1.5 eV"
         },
         {
             "topic_code": "modern_physics",
-            "content_latex": "某种放射性元素的半衰期为 $T=10\\text{天}$。经过 $t=20\\text{天}$ 后，该元素剩余质量占初始质量的比例是多少？",
-            "difficulty": 1,
+            "content_latex": "金属逸出功 $2.2\\text{eV}$，用 $3.5\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 0.25,
-                "unit": "ratio",
-                "tolerance": 0.01
-            },
-            "solution_steps": "剩余比例 = (1/2)^(t/T) = (1/2)^(20/10) = (1/2)^2 = 0.25"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个物体从高 $h=45\\text{m}$ 的楼顶自由落下（$g=10\\text{m/s}^2$）。求物体落地所需时间 $t$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3,
-                "unit": "s",
+                "correct_value": 1.3,
+                "unit": "eV",
                 "tolerance": 0.1
             },
-            "solution_steps": "由 h=½gt², t=√(2h/g)=√(2×45/10)=√9=3s"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的气体在压强为 $P$ 时，体积为 $V$，温度为 $T$。若压强变为 $2P$，温度变为 $2T$，求此时的体积。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1,
-                "unit": "V",
-                "tolerance": 0.01
-            },
-            "solution_steps": "由克拉珀龙方程 PV/T = C，得 P'V'/T' = PV/T -> (2P)V'/(2T) = PV/T -> V' = V"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "在杨氏双缝干涉实验中，若缝间距 $d$ 增大，则相邻干涉条纹间距 $\\Delta x$ 将如何变化？",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 0,
-                "unit": "decrease",
-                "tolerance": 0
-            },
-            "solution_steps": "由条纹间距公式 Δx = (L/d)λ，可知 d 增大时，Δx 减小。这里填 0 代表减小。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "闭合线圈内磁通量在 $t=0.5\\text{s}$ 内由 $\\Phi_1=0.2\\text{Wb}$ 均匀增加到 $\\Phi_2=0.8\\text{Wb}$。求感应电动势 $E$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.2,
-                "unit": "V",
-                "tolerance": 0.1
-            },
-            "solution_steps": "E = ΔΦ / Δt = (0.8 - 0.2) / 0.5 = 1.2 V"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "质量为 $m=50\\text{kg}$ 的人在电梯中，电梯以 $a=2\\text{m/s}^2$ 的加速度上升。求体重计示数（$g=10\\text{m/s}^2$）。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 600,
-                "unit": "N",
-                "tolerance": 1
-            },
-            "solution_steps": "F - mg = ma, F = m(g+a) = 50 × (10+2) = 600 N"
+            "solution_steps": "Ek = hv - W = 3.5 - 2.2 = 1.3 eV"
         },
         {
             "topic_code": "modern_physics",
-            "content_latex": "一个静止的原子核发生 $\\alpha$ 衰变，放出的 $\\alpha$ 粒子速度为 $v$。已知 $\\alpha$ 粒子与剩核质量比为 $1:50$。求剩核速度大小。",
-            "difficulty": 3,
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $3.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 0.02,
-                "unit": "v",
-                "tolerance": 0.001
+                "correct_value": 0.5,
+                "unit": "eV",
+                "tolerance": 0.1
             },
-            "solution_steps": "动量守恒：0 = m_α v - M_残 v_残，v_残 = (m_α/M_残) v = (1/50) v = 0.02 v"
+            "solution_steps": "Ek = hv - W = 3.0 - 2.5 = 0.5 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $3.5\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.0,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.5 - 2.5 = 1.0 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $3.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.5,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.0 - 2.5 = 0.5 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $3.5\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.0,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.5 - 2.5 = 1.0 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $4.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.5,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 4.0 - 2.5 = 1.5 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.2\\text{eV}$，用 $3.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.8,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.0 - 2.2 = 0.8 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $4.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.5,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 4.0 - 2.5 = 1.5 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.0\\text{eV}$，用 $4.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2.0,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 4.0 - 2.0 = 2.0 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.0\\text{eV}$，用 $3.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.0,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.0 - 2.0 = 1.0 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.0\\text{eV}$，用 $4.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 2.0,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 4.0 - 2.0 = 2.0 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.2\\text{eV}$，用 $3.5\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.3,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.5 - 2.2 = 1.3 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $3.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.5,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.0 - 2.5 = 0.5 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.0\\text{eV}$，用 $3.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.0,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.0 - 2.0 = 1.0 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $3.5\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.0,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.5 - 2.5 = 1.0 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.0\\text{eV}$，用 $3.5\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.5,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.5 - 2.0 = 1.5 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.5\\text{eV}$，用 $4.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.5,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 4.0 - 2.5 = 1.5 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.2\\text{eV}$，用 $3.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.8,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.0 - 2.2 = 0.8 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.2\\text{eV}$，用 $4.0\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.8,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 4.0 - 2.2 = 1.8 eV"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "金属逸出功 $2.2\\text{eV}$，用 $3.5\\text{eV}$ 光子照射。求光电子最大初动能。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.3,
+                "unit": "eV",
+                "tolerance": 0.1
+            },
+            "solution_steps": "Ek = hv - W = 3.5 - 2.2 = 1.3 eV"
         }
     ]
 }
