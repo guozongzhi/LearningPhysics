@@ -55,8 +55,8 @@ export default function Home() {
       .then((data: Topic[]) => {
         const uniqueTopicsMap = new Map();
         data.forEach(topic => {
-          if (!uniqueTopicsMap.has(topic.id)) {
-            uniqueTopicsMap.set(topic.id, topic);
+          if (!uniqueTopicsMap.has(topic.name)) {
+            uniqueTopicsMap.set(topic.name, topic);
           }
         });
         const uniqueTopics = Array.from(uniqueTopicsMap.values());
@@ -243,10 +243,10 @@ export default function Home() {
                       key={topic.id}
                       onClick={() => toggleTopic(topic.id)}
                       className={`
-                        relative p-5 rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer overflow-hidden
+                        relative p-5 rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-[2px] sm:backdrop-blur-none
                         ${isSelected
-                          ? "border-sky-400 bg-sky-500/20 shadow-lg shadow-sky-500/20"
-                          : "border-slate-700 bg-slate-800/60 hover:border-slate-500 hover:bg-slate-800/80"
+                          ? "border-sky-400 bg-sky-500/30 sm:bg-sky-500/20 shadow-lg shadow-sky-500/20"
+                          : "border-slate-700/40 sm:border-slate-700 bg-slate-800/20 sm:bg-slate-800/60 hover:border-slate-500 hover:bg-slate-800/80"
                         }
                       `}
                     >
