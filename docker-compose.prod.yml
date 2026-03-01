@@ -28,7 +28,7 @@ services:
     restart: always
     environment:
       # Ensure the backend waits for the database to be ready
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/learningphysics
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/learningphysics
 
   frontend:
     build:
