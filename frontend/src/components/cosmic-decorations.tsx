@@ -11,7 +11,7 @@ export function CosmicDecorations() {
     <>
       {/* Left side — orbit + planet + wave + atom */}
       <div
-        className="fixed left-0 top-0 bottom-0 w-[140px] xl:w-[180px] pointer-events-none z-[1] hidden md:flex flex-col items-center justify-center gap-6 xl:gap-8 py-20"
+        className="fixed left-0 top-0 bottom-0 w-[80px] sm:w-[140px] xl:w-[180px] pointer-events-none z-[1] flex flex-col items-center justify-center gap-4 sm:gap-6 xl:gap-8 py-10 sm:py-20 opacity-30 sm:opacity-100"
         aria-hidden
       >
         {/* Orbital path with small planet */}
@@ -66,7 +66,7 @@ export function CosmicDecorations() {
 
       {/* Right side — reverse orbit + field lines + planet/moon */}
       <div
-        className="fixed right-0 top-0 bottom-0 w-[140px] xl:w-[180px] pointer-events-none z-[1] hidden md:flex flex-col items-center justify-center gap-6 xl:gap-8 py-20"
+        className="fixed right-0 top-0 bottom-0 w-[80px] sm:w-[140px] xl:w-[180px] pointer-events-none z-[1] flex flex-col items-center justify-center gap-4 sm:gap-6 xl:gap-8 py-10 sm:py-20 opacity-30 sm:opacity-100"
         aria-hidden
       >
         {/* Elliptical orbit (reverse) + satellite */}
