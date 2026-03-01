@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 // --- Store Definition ---
 
 type QuizState = {
-  status: 'idle' | 'loading' | 'in-progress' | 'finished';
+  status: 'idle' | 'loading' | 'submitting' | 'in-progress' | 'finished';
   quizId: string | null;
   questions: any[];
   answers: Record<string, string>;
@@ -77,43 +77,43 @@ export const useQuizStore = create<QuizState & QuizActions>()(
     },
 
     submitQuiz: async () => {
-        set({ status: 'loading' });
-        const { quizId, answers } = get();
-        if (!quizId) return;
+      set({ status: 'submitting' });
+      const { quizId, answers } = get();
+      if (!quizId) return;
 
-        // Transform answers into the format the API expects
-        const apiAnswers = Object.entries(answers).map(([questionId, studentInput]) => ({
-            question_id: questionId,
-            student_input: studentInput,
-            time_spent_ms: 0, // Placeholder
-        }));
+      // Transform answers into the format the API expects
+      const apiAnswers = Object.entries(answers).map(([questionId, studentInput]) => ({
+        question_id: questionId,
+        student_input: studentInput,
+        time_spent_ms: 0, // Placeholder
+      }));
 
-        try {
-            const reportData = await api.submitQuiz(quizId, apiAnswers);
-            set((state) => {
-                state.status = 'finished';
-                state.report = reportData;
-            });
-        } catch (error) {
-            console.error("Failed to submit quiz", error);
-            set({ status: 'in-progress' }); // Revert status on failure
-            // Check if it's an authentication error
-            if (error instanceof Error && error.message.includes('401')) {
-              // Show auth error to user
-              alert("认证失败，请重新登录");
-            }
+      try {
+        const reportData = await api.submitQuiz(quizId, apiAnswers);
+        set((state) => {
+          state.status = 'finished';
+          state.report = reportData;
+        });
+      } catch (error) {
+        console.error("Failed to submit quiz", error);
+        set({ status: 'in-progress' }); // Revert status on failure
+        // Check if it's an authentication error
+        if (error instanceof Error && error.message.includes('401')) {
+          // Show auth error to user
+          alert("认证失败，请重新登录");
         }
+      }
     },
 
     reset: () => {
-        set({
-            status: 'idle',
-            quizId: null,
-            questions: [],
-            answers: {},
-            report: null,
-            currentQuestionIndex: 0,
-        });
+      set({
+        status: 'idle',
+        quizId: null,
+        questions: [],
+        answers: {},
+        report: null,
+        currentQuestionIndex: 0,
+      });
     }
   }))
 );

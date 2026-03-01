@@ -185,6 +185,8 @@ export default function AdminDashboard() {
     });
     const [llmMsg, setLlmMsg] = useState("");
     const [llmLoading, setLlmLoading] = useState(false);
+    const [llmTestResult, setLlmTestResult] = useState<{ status: string, message: string } | null>(null);
+    const [llmTesting, setLlmTesting] = useState(false);
 
     const loadLlmConfig = useCallback(async () => {
         setLlmLoading(true);
@@ -220,8 +222,22 @@ export default function AdminDashboard() {
                 openai_api_key_new: "",
             }));
             setLlmMsg("✅ 设置保存成功并即时生效");
+            setLlmTestResult(null); // Clear test results on save
         } catch (err: any) {
             setLlmMsg("❌ " + (err.message || "设置保存失败"));
+        }
+    };
+
+    const handleTestLlmConfig = async () => {
+        setLlmTesting(true);
+        setLlmTestResult(null);
+        try {
+            const result = await adminApi.testLlmConfig();
+            setLlmTestResult(result);
+        } catch (err: any) {
+            setLlmTestResult({ status: "error", message: err.message || "网络请求失败" });
+        } finally {
+            setLlmTesting(false);
         }
     };
 
@@ -553,10 +569,36 @@ export default function AdminDashboard() {
                                         </p>
                                     </div>
 
-                                    <div className="pt-2 flex items-center gap-4">
+                                    <div className="pt-2 flex flex-wrap items-center gap-4">
                                         <Button type="submit">保存更改</Button>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={handleTestLlmConfig}
+                                            disabled={llmTesting}
+                                            className="border-blue-200"
+                                        >
+                                            {llmTesting ? "测试中..." : "测试连接"}
+                                        </Button>
                                         {llmMsg && <span className="text-sm font-medium">{llmMsg}</span>}
                                     </div>
+
+                                    {llmTestResult && (
+                                        <div className={`mt-4 p-4 rounded-lg border flex items-center gap-3 ${llmTestResult.status === 'success'
+                                                ? "bg-green-50 border-green-100 text-green-800"
+                                                : "bg-red-50 border-red-100 text-red-800"
+                                            }`}>
+                                            <span className="text-xl">
+                                                {llmTestResult.status === 'success' ? "✅" : "❌"}
+                                            </span>
+                                            <div>
+                                                <p className="font-bold text-sm">
+                                                    {llmTestResult.status === 'success' ? "AI 服务可用" : "AI 连接失败"}
+                                                </p>
+                                                <p className="text-xs opacity-90">{llmTestResult.message}</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </form>
                             )}
                         </CardContent>

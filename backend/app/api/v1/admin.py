@@ -405,6 +405,35 @@ async def update_llm_config(
     )
 
 
+@router.get("/config/llm/test")
+async def test_llm_connection(
+    admin: User = Depends(get_admin_user),
+):
+    """Test the connectivity of the current LLM configuration."""
+    from app.services.quiz_service import client
+    import openai
+    
+    if not client:
+        return {"status": "error", "message": "AI 客户端未初始化，请检查 API Key 配置"}
+    
+    try:
+        # Perform a minimal completion request to test connectivity
+        # We use a very low max_tokens and high temperature to keep it cheap and fast
+        response = await client.chat.completions.create(
+            model=settings.OPENAI_MODEL,
+            messages=[{"role": "user", "content": "ping"}],
+            max_tokens=5,
+            timeout=10.0
+        )
+        return {"status": "success", "message": "连接成功", "model": settings.OPENAI_MODEL}
+    except openai.AuthenticationError:
+        return {"status": "error", "message": "认证失败：API Key 无效"}
+    except openai.APIConnectionError:
+        return {"status": "error", "message": "网络错误：无法连接到 Base URL"}
+    except Exception as e:
+        return {"status": "error", "message": f"连接失败: {str(e)}"}
+
+
 # ============================================================
 # Record Export
 # ============================================================

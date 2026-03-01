@@ -1,44 +1,44 @@
 {
     "knowledge_nodes": [
         {
-            "id": 101,
-            "name": "牛顿定律",
-            "code": "NEWTON-LAWS",
+            "id": 1,
+            "name": "力学",
+            "code": "mechanics",
             "level": 1,
-            "description": "研究力和运动关系的基本定律"
+            "description": "研究力和运动关系的基本定律，包括牛顿运动定律、动量、能量等"
         },
         {
-            "id": 102,
-            "name": "动量守恒",
-            "code": "MOMENTUM",
+            "id": 2,
+            "name": "热学",
+            "code": "thermodynamics",
             "level": 1,
-            "description": "系统总动量不变的定律"
+            "description": "研究热现象及其宏观和微观规律，包括气体实验定律、热力学定律等"
         },
         {
-            "id": 103,
-            "name": "圆周运动",
-            "code": "CIRCULAR-MOTION",
+            "id": 3,
+            "name": "光学",
+            "code": "optics",
             "level": 1,
-            "description": "研究物体做圆周运动的规律"
+            "description": "研究光的传播、干涉、衍射和偏振，以及光的波粒二象性"
         },
         {
-            "id": 104,
-            "name": "能量守恒",
-            "code": "ENERGY",
-            "level": 1,
-            "description": "能量不会凭空产生或消失，只能从一种形式转化为另一种形式"
-        },
-        {
-            "id": 105,
+            "id": 4,
             "name": "电磁学",
-            "code": "ELECTROMAGNETISM",
+            "code": "electromagnetism",
             "level": 1,
-            "description": "研究电场、磁场及电磁感应的物理学分支"
+            "description": "研究电场、磁场及两者的相互作用，包括库仑定律、安培力、磁通量等"
+        },
+        {
+            "id": 5,
+            "name": "现代物理",
+            "code": "modern_physics",
+            "level": 1,
+            "description": "研究原子的组成及其运动规律，涉及量子力学、波粒二象性等"
         }
     ],
     "questions": [
         {
-            "topic_code": "NEWTON-LAWS",
+            "topic_code": "mechanics",
             "content_latex": "一个质量为 $m=2\\text{kg}$ 的物体，受到大小为 $F=10\\text{N}$ 的水平推力作用，在光滑水平面上运动。求物体的加速度 $a$。",
             "difficulty": 1,
             "question_type": "CALCULATION",
@@ -51,7 +51,7 @@
             "solution_steps": "由牛顿第二定律 F=ma，得 a = F/m = 10/2 = 5 m/s²"
         },
         {
-            "topic_code": "NEWTON-LAWS",
+            "topic_code": "mechanics",
             "content_latex": "一辆质量为 $M=1000\\text{kg}$ 的汽车以 $v=20\\text{m/s}$ 的速度行驶，刹车后经过 $t=5\\text{s}$ 停下。求刹车力 $F$ 的大小。",
             "difficulty": 2,
             "question_type": "CALCULATION",
@@ -64,7 +64,7 @@
             "solution_steps": "由 v=v₀-at, 0=20-a×5, a=4m/s²。F=Ma=1000×4=4000N"
         },
         {
-            "topic_code": "NEWTON-LAWS",
+            "topic_code": "mechanics",
             "content_latex": "质量 $m=5\\text{kg}$ 的物体放在粗糙水平面上，受到 $F=30\\text{N}$ 的水平拉力，物体的加速度为 $a=2\\text{m/s}^2$。求物体与地面间的摩擦力 $f$（取 $g=10\\text{m/s}^2$）。",
             "difficulty": 2,
             "question_type": "CALCULATION",
@@ -77,21 +77,8 @@
             "solution_steps": "由牛顿第二定律 F-f=ma, f=F-ma=30-5×2=20N"
         },
         {
-            "topic_code": "NEWTON-LAWS",
-            "content_latex": "一个物体从高 $h=45\\text{m}$ 的楼顶自由落下（忽略空气阻力，$g=10\\text{m/s}^2$）。求物体落地所需时间 $t$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3,
-                "unit": "s",
-                "tolerance": 0.1
-            },
-            "solution_steps": "由 h=½gt², t=√(2h/g)=√(2×45/10)=√9=3s"
-        },
-        {
-            "topic_code": "MOMENTUM",
-            "content_latex": "一个静止的炮车（质量 $M=500\\text{kg}$）发射一枚质量 $m=5\\text{kg}$ 的炮弹，炮弹速度为 $v=200\\text{m/s}$。求炮车的反冲速度。",
+            "topic_code": "mechanics",
+            "content_latex": "一个炮车（质量 $M=500\\text{kg}$）发射一枚质量 $m=5\\text{kg}$ 的炮弹，炮弹速度为 $v=200\\text{m/s}$。求炮车的反冲速度。",
             "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
@@ -103,33 +90,7 @@
             "solution_steps": "由动量守恒 0=mv+MV, V=mv/M=5×200/500=2m/s"
         },
         {
-            "topic_code": "MOMENTUM",
-            "content_latex": "在光滑水平面上，质量 $m_1=3\\text{kg}$ 的小球以 $v_1=4\\text{m/s}$ 的速度与质量 $m_2=1\\text{kg}$ 的静止小球发生完全非弹性碰撞。求碰后共同速度。",
-            "difficulty": 3,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3,
-                "unit": "m/s",
-                "tolerance": 0.1
-            },
-            "solution_steps": "由动量守恒 m₁v₁=(m₁+m₂)v, v=3×4/(3+1)=3m/s"
-        },
-        {
-            "topic_code": "MOMENTUM",
-            "content_latex": "一质量为 $m=2\\text{kg}$ 的物体以 $v=6\\text{m/s}$ 运动，受到一个恒力作用 $t=3\\text{s}$ 后速度变为反方向 $v'=3\\text{m/s}$。求该力的冲量大小。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 18,
-                "unit": "N·s",
-                "tolerance": 0.5
-            },
-            "solution_steps": "取初速度方向为正，冲量 I=m(v'-(-v))=2×((-3)-6)=-18N·s，大小为18N·s"
-        },
-        {
-            "topic_code": "CIRCULAR-MOTION",
+            "topic_code": "mechanics",
             "content_latex": "一个质量为 $m=0.5\\text{kg}$ 的球在水平面内做半径 $r=2\\text{m}$ 的匀速圆周运动，线速度 $v=4\\text{m/s}$。求向心力大小。",
             "difficulty": 1,
             "question_type": "CALCULATION",
@@ -142,21 +103,8 @@
             "solution_steps": "向心力 F=mv²/r=0.5×16/2=4N"
         },
         {
-            "topic_code": "CIRCULAR-MOTION",
-            "content_latex": "一颗卫星在距地面高度 $h$ 处做匀速圆周运动，已知地球半径 $R=6400\\text{km}$，地面重力加速度 $g=10\\text{m/s}^2$，$h=R$。求卫星的线速度（结果保留整数）。",
-            "difficulty": 3,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5657,
-                "unit": "m/s",
-                "tolerance": 50
-            },
-            "solution_steps": "轨道半径 r=R+h=2R, mg'=mv²/r, g'=gR²/r²=g/4, v=√(g'r)=√(gR²/(2R))×√2=√(gR/2)=√(10×6.4×10⁶/2)≈5657m/s"
-        },
-        {
-            "topic_code": "ENERGY",
-            "content_latex": "一个质量为 $m=0.5\\text{kg}$ 的物体从 $h=20\\text{m}$ 高处自由落下（忽略空气阻力，$g=10\\text{m/s}^2$）。求落地时的动能。",
+            "topic_code": "mechanics",
+            "content_latex": "一个质量为 $m=0.5\\text{kg}$ 的物体从 $h=20\\text{m}$ 高处自由落下（$g=10\\text{m/s}^2$）。求落地时的动能。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
@@ -168,33 +116,59 @@
             "solution_steps": "由机械能守恒，Ek=mgh=0.5×10×20=100J"
         },
         {
-            "topic_code": "ENERGY",
-            "content_latex": "一个弹簧枪将质量 $m=0.02\\text{kg}$ 的子弹竖直向上射出，子弹上升的最大高度为 $h=50\\text{m}$（$g=10\\text{m/s}^2$）。求弹簧释放的弹性势能。",
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的理想气体，在恒定温度下压力为 $P_1=1.0\\times10^5\\text{Pa}$ 时，体积为 $V_1=2.0\\text{L}$。若将体积压缩到 $V_2=0.5\\text{L}$，求此时的压力 $P_2$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 4.0e5,
+                "unit": "Pa",
+                "tolerance": 0.1e5
+            },
+            "solution_steps": "由玻意耳定律 P₁V₁=P₂V₂，得 P₂ = P₁V₁/V₂ = 1.0e5 × 2.0 / 0.5 = 4.0e5 Pa"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "在热力学过程中，系统吸收了 $Q=500\\text{J}$ 的热量，同时对外做了 $W=200\\text{J}$ 的功。求该系统内能的变化量 $\\Delta U$。",
             "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 10,
+                "correct_value": 300,
                 "unit": "J",
-                "tolerance": 0.5
+                "tolerance": 1
             },
-            "solution_steps": "弹性势能全部转化为重力势能，Ep=mgh=0.02×10×50=10J"
+            "solution_steps": "由热力学第一定律 ΔU = Q - W = 500 - 200 = 300 J"
         },
         {
-            "topic_code": "ENERGY",
-            "content_latex": "一个质量为 $m=1\\text{kg}$ 的物体以 $v_0=10\\text{m/s}$ 从地面竖直上抛，到达最高点时速度为零。若空气阻力恒为 $f=2\\text{N}$（$g=10\\text{m/s}^2$），求最高点的高度 $h$。",
-            "difficulty": 3,
+            "topic_code": "optics",
+            "content_latex": "一束光从空气射入折射率为 $n=\\sqrt{3}$ 的玻璃中，入射角 $i=60^\\circ$。求折射角 $r$。",
+            "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 4.17,
-                "unit": "m",
-                "tolerance": 0.1
+                "correct_value": 30,
+                "unit": "degree",
+                "tolerance": 0.5
             },
-            "solution_steps": "由动能定理：0-½mv₀²=-(mg+f)h, h=½mv₀²/(mg+f)=½×1×100/(10+2)=50/12≈4.17m"
+            "solution_steps": "由折射定律 sin i / sin r = n, sin r = sin 60° / √3 = (√3/2) / √3 = 1/2, r = 30°"
         },
         {
-            "topic_code": "ELECTROMAGNETISM",
+            "topic_code": "optics",
+            "content_latex": "已知水的折射率为 $n=1.33$。一束光在水中发生的临界角 $C$ 的正弦值是多少？",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.75,
+                "unit": "ratio",
+                "tolerance": 0.01
+            },
+            "solution_steps": "由临界角公式 sin C = 1/n = 1/1.33 ≈ 0.75"
+        },
+        {
+            "topic_code": "electromagnetism",
             "content_latex": "两个点电荷 $q_1=2\\times10^{-6}\\text{C}$ 和 $q_2=8\\times10^{-6}\\text{C}$ 相距 $r=0.2\\text{m}$。求它们之间的库仑力（$k=9\\times10^9\\text{N·m}^2/\\text{C}^2$）。",
             "difficulty": 1,
             "question_type": "CALCULATION",
@@ -207,8 +181,8 @@
             "solution_steps": "F=kq₁q₂/r²=9×10⁹×2×10⁻⁶×8×10⁻⁶/0.04=3.6N"
         },
         {
-            "topic_code": "ELECTROMAGNETISM",
-            "content_latex": "一条长直导线中通有 $I=5\\text{A}$ 的电流，导线长 $L=0.3\\text{m}$ 放在磁感应强度 $B=0.2\\text{T}$ 的匀强磁场中，导线与磁场方向垂直。求安培力 $F$。",
+            "topic_code": "electromagnetism",
+            "content_latex": "一通电直导线长 $L=0.3\\text{m}$，通有 $I=5\\text{A}$ 电流，磁感应强度 $B=0.2\\text{T}$，导线与磁场垂直。求安培力大小。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
@@ -217,76 +191,76 @@
                 "unit": "N",
                 "tolerance": 0.01
             },
-            "solution_steps": "安培力 F=BIL=0.2×5×0.3=0.3N"
+            "solution_steps": "F=BIL = 0.2 × 5 × 0.3 = 0.3 N"
         },
         {
-            "topic_code": "ELECTROMAGNETISM",
-            "content_latex": "一个电子（$e=1.6\\times10^{-19}\\text{C}$）以速度 $v=2\\times10^6\\text{m/s}$ 垂直进入磁感应强度 $B=0.1\\text{T}$ 的匀强磁场。求洛伦兹力大小。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3.2e-14,
-                "unit": "N",
-                "tolerance": 1e-15
-            },
-            "solution_steps": "洛伦兹力 F=qvB=1.6×10⁻¹⁹×2×10⁶×0.1=3.2×10⁻¹⁴N"
-        },
-        {
-            "topic_code": "NEWTON-LAWS",
-            "content_latex": "一个人在电梯内站在体重计上。当电梯以 $a=2\\text{m/s}^2$ 的加速度上升时，体重计的示数为 $F_1=600\\text{N}$。求此人的真实质量 $m$（取 $g=10\\text{m/s}^2$）。",
-            "difficulty": 3,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 50,
-                "unit": "kg",
-                "tolerance": 1
-            },
-            "solution_steps": "由牛顿第二定律 F_1 - mg = ma, m = F_1 / (g + a) = 600 / 12 = 50kg"
-        },
-        {
-            "topic_code": "MOMENTUM",
-            "content_latex": "质量为 $m=0.1\\text{kg}$ 的小橡皮泥球以 $v_0=10\\text{m/s}$ 的速度竖直砸在质量为 $M=0.9\\text{kg}$ 的静止木块上并粘在上面，木块下方有弹簧支撑。求撞击瞬间二者的共同速度 $v$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1,
-                "unit": "m/s",
-                "tolerance": 0.1
-            },
-            "solution_steps": "瞬间动量守恒：mv_0 = (m+M)v， v = mv_0 / (m+M) = 0.1×10 / (0.1+0.9) = 1 m/s"
-        },
-        {
-            "topic_code": "CIRCULAR-MOTION",
-            "content_latex": "一辆质量 $m=1500\\text{kg}$ 的汽车在水平路面上转弯，弯道半径 $R=50\\text{m}$。如果轮胎与路面间的最大静摩擦力为 $f_{max}=7500\\text{N}$，求汽车转弯时的最大安全速度 $v_{max}$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 15.8,
-                "unit": "m/s",
-                "tolerance": 0.5
-            },
-            "solution_steps": "最大静摩擦力提供向心力：f_{max} = m (v_{max}^2 / R)，v_{max} = \\sqrt{f_{max} R / m} = \\sqrt{7500 \\times 50 / 1500} = \\sqrt{250} \\approx 15.8 m/s"
-        },
-        {
-            "topic_code": "ENERGY",
-            "content_latex": "一台起重机将质量 $m=1000\\text{kg}$ 的货物匀速吊起 $h=10\\text{m}$，用时 $t=20\\text{s}$（$g=10\\text{m/s}^2$）。求起重机的有用功率 $P$。",
+            "topic_code": "modern_physics",
+            "content_latex": "已知某金属的逸出功为 $W=2.0\\text{eV}$。若用能量为 $E=3.5\\text{eV}$ 的光子照射，求光电子的最大初动能。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 5000,
-                "unit": "W",
-                "tolerance": 10
+                "correct_value": 1.5,
+                "unit": "eV",
+                "tolerance": 0.1
             },
-            "solution_steps": "做功 W = mgh = 1000 × 10 × 10 = 100000 J，功率 P = W / t = 100000 / 20 = 5000 W"
+            "solution_steps": "由爱因斯坦光电效应方程 Ek_max = hν - W = 3.5 - 2.0 = 1.5 eV"
         },
         {
-            "topic_code": "ELECTROMAGNETISM",
-            "content_latex": "闭合线圈内磁通量在 $t=0.5\\text{s}$ 内由 $\\Phi_1=0.2\\text{Wb}$ 均匀增加到 $\\Phi_2=0.8\\text{Wb}$。求该线圈中产生的感应电动势 $E$。",
+            "topic_code": "modern_physics",
+            "content_latex": "某种放射性元素的半衰期为 $T=10\\text{天}$。经过 $t=20\\text{天}$ 后，该元素剩余质量占初始质量的比例是多少？",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.25,
+                "unit": "ratio",
+                "tolerance": 0.01
+            },
+            "solution_steps": "剩余比例 = (1/2)^(t/T) = (1/2)^(20/10) = (1/2)^2 = 0.25"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "一个物体从高 $h=45\\text{m}$ 的楼顶自由落下（$g=10\\text{m/s}^2$）。求物体落地所需时间 $t$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3,
+                "unit": "s",
+                "tolerance": 0.1
+            },
+            "solution_steps": "由 h=½gt², t=√(2h/g)=√(2×45/10)=√9=3s"
+        },
+        {
+            "topic_code": "thermodynamics",
+            "content_latex": "一定质量的气体在压强为 $P$ 时，体积为 $V$，温度为 $T$。若压强变为 $2P$，温度变为 $2T$，求此时的体积。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1,
+                "unit": "V",
+                "tolerance": 0.01
+            },
+            "solution_steps": "由克拉珀龙方程 PV/T = C，得 P'V'/T' = PV/T -> (2P)V'/(2T) = PV/T -> V' = V"
+        },
+        {
+            "topic_code": "optics",
+            "content_latex": "在杨氏双缝干涉实验中，若缝间距 $d$ 增大，则相邻干涉条纹间距 $\\Delta x$ 将如何变化？",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0,
+                "unit": "decrease",
+                "tolerance": 0
+            },
+            "solution_steps": "由条纹间距公式 Δx = (L/d)λ，可知 d 增大时，Δx 减小。这里填 0 代表减小。"
+        },
+        {
+            "topic_code": "electromagnetism",
+            "content_latex": "闭合线圈内磁通量在 $t=0.5\\text{s}$ 内由 $\\Phi_1=0.2\\text{Wb}$ 均匀增加到 $\\Phi_2=0.8\\text{Wb}$。求感应电动势 $E$。",
             "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
@@ -295,7 +269,33 @@
                 "unit": "V",
                 "tolerance": 0.1
             },
-            "solution_steps": "根据法拉第电磁感应定律：E = ΔΦ / Δt = (0.8 - 0.2) / 0.5 = 1.2 V"
+            "solution_steps": "E = ΔΦ / Δt = (0.8 - 0.2) / 0.5 = 1.2 V"
+        },
+        {
+            "topic_code": "mechanics",
+            "content_latex": "质量为 $m=50\\text{kg}$ 的人在电梯中，电梯以 $a=2\\text{m/s}^2$ 的加速度上升。求体重计示数（$g=10\\text{m/s}^2$）。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 600,
+                "unit": "N",
+                "tolerance": 1
+            },
+            "solution_steps": "F - mg = ma, F = m(g+a) = 50 × (10+2) = 600 N"
+        },
+        {
+            "topic_code": "modern_physics",
+            "content_latex": "一个静止的原子核发生 $\\alpha$ 衰变，放出的 $\\alpha$ 粒子速度为 $v$。已知 $\\alpha$ 粒子与剩核质量比为 $1:50$。求剩核速度大小。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.02,
+                "unit": "v",
+                "tolerance": 0.001
+            },
+            "solution_steps": "动量守恒：0 = m_α v - M_残 v_残，v_残 = (m_α/M_残) v = (1/50) v = 0.02 v"
         }
     ]
 }

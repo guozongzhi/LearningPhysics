@@ -23,13 +23,12 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     submitQuiz,
   } = useQuizStore();
 
-  // On component mount, generate the quiz (or fetch it if a real API was used)
+  // On component mount, we only show an error if status is idle (meaning direct access without generation)
   useEffect(() => {
     if (status === 'idle') {
-      // Use default parameters to generate quiz
-      generateQuiz([1], 10);
+      router.push('/');
     }
-  }, [status, generateQuiz]);
+  }, [status, router]);
 
   // When submission is finished, navigate to the report page
   useEffect(() => {
@@ -38,9 +37,38 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     }
   }, [status, router, quizId]);
 
+  if (status === 'loading') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p className="text-lg font-medium text-slate-600">正在生成题目...</p>
+      </div>
+    );
+  }
+
+  if (status === 'submitting') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
+        <div className="relative w-24 h-24 mb-6">
+          <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl">🧠</span>
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">AI 智能评分中</h2>
+        <p className="text-slate-600 animate-pulse">正在深度分析您的解题过程，请稍候...</p>
+      </div>
+    );
+  }
+
   if (status !== 'in-progress' || questions.length === 0) {
-    // You can add a loading spinner here
-    return <div>Loading Quiz...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p className="text-slate-500">无法加载测验，请尝试重新生成。</p>
+        <Button onClick={() => router.push('/')} className="mt-4">返回首页</Button>
+      </div>
+    );
   }
 
   const currentQuestion = questions[currentQuestionIndex];

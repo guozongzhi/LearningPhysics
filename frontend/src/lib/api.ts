@@ -204,6 +204,7 @@ export const adminApi = {
   getLlmConfig: () => apiFetch('/api/v1/admin/config/llm', { method: 'GET' }),
   updateLlmConfig: (data: any) =>
     apiFetch('/api/v1/admin/config/llm', { method: 'PUT', body: JSON.stringify(data) }),
+  testLlmConfig: () => apiFetch('/api/v1/admin/config/llm/test', { method: 'GET' }),
 };
 
 // --- Specific API functions ---
