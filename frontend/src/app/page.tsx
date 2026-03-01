@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useQuizStore } from "@/store/quiz-store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { api, authApi } from "@/lib/api";
@@ -24,7 +25,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedTopics, setSelectedTopics] = useState<Set<number>>(new Set());
-  const [questionCount, setQuestionCount] = useState(5);
+  const [questionCount, setQuestionCount] = useState(10);
+  const [isCustomCount, setIsCustomCount] = useState(false);
   const [topicsLoading, setTopicsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
@@ -157,7 +159,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button
                 onClick={handleStartQuiz}
-                disabled={isLoading || selectedTopics.size === 0}
+                disabled={isLoading || selectedTopics.size === 0 || questionCount <= 0}
                 size="lg"
                 className="w-full sm:w-auto px-8 h-12 text-base font-bold bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90 shadow-lg shadow-sky-500/30 transition-all rounded-xl"
               >
@@ -171,8 +173,10 @@ export default function Home() {
                   </>
                 ) : selectedTopics.size === 0 ? (
                   "请至少选择一个主题"
+                ) : questionCount <= 0 ? (
+                  "输入有效题数"
                 ) : (
-                  <>开始今天的学习 →</>
+                  "开始测评 →"
                 )}
               </Button>
               <Button asChild variant="outline" size="lg" className="w-full sm:w-auto border-sky-500/50 text-sky-300 hover:bg-sky-500/20 rounded-xl">
@@ -288,21 +292,51 @@ export default function Home() {
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-slate-300 whitespace-nowrap">题目数量</span>
                   <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700">
-                    {[3, 5, 10].map((n) => (
+                    {[10, 20, 50].map((n) => (
                       <button
                         key={n}
-                        onClick={() => setQuestionCount(n)}
+                        onClick={() => {
+                          setQuestionCount(n);
+                          setIsCustomCount(false);
+                        }}
                         className={`
                           px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer duration-200
-                          ${questionCount === n
+                          ${questionCount === n && !isCustomCount
                             ? "bg-sky-500/30 text-sky-200 border border-sky-400/60 shadow-[0_0_14px_rgba(56,189,248,0.3)]"
-                            : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/80"
+                            : "text-slate-400 hover:text-slate-200 border border-transparent hover:bg-slate-700/80"
                           }
                         `}
                       >
                         {n}
                       </button>
                     ))}
+                    <div className="flex items-center gap-2 pl-1 pr-2">
+                      <button
+                        onClick={() => setIsCustomCount(true)}
+                        className={`
+                          px-3 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer duration-200
+                          ${isCustomCount
+                            ? "bg-sky-500/30 text-sky-200 border border-sky-400/60 shadow-[0_0_14px_rgba(56,189,248,0.3)]"
+                            : "text-slate-400 border border-transparent hover:text-slate-200 hover:bg-slate-700/80"
+                          }
+                        `}
+                      >
+                        自定义
+                      </button>
+                      {isCustomCount && (
+                        <Input
+                          type="number"
+                          min={1}
+                          max={200}
+                          value={questionCount || ""}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            setQuestionCount(isNaN(val) ? 0 : val);
+                          }}
+                          className="w-16 h-8 text-center bg-slate-900 border-slate-600 text-slate-200 focus-visible:ring-sky-500"
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex-1 w-full sm:w-auto" />
@@ -321,12 +355,26 @@ export default function Home() {
       </main>
 
       {/* Footer — copyright */}
-      <footer className="border-t border-slate-800 bg-slate-950/90 text-center text-xs sm:text-sm text-slate-500 py-4 mt-4">
-        <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>© 2025 LearningPhysics. All rights reserved.</span>
-          <span className="text-slate-600">
-            物理学习平台 · 高中物理题库与智能测评
-          </span>
+      <footer className="border-t border-slate-800 bg-slate-950/90 py-6 mt-4">
+        <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-500">
+            <span>© 2025 LearningPhysics. All rights reserved.</span>
+            <span className="hidden sm:inline text-slate-700">|</span>
+            <span className="text-slate-600">高中物理题库与智能测评</span>
+          </div>
+
+          {/* Powered by AI Badge */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-700/60 shadow-inner group transition-colors hover:border-sky-500/50">
+            {/* Doubao Avatar */}
+            <img
+              src="https://unpkg.com/@lobehub/icons-static-png@1.83.0/dark/doubao.png"
+              alt="Doubao"
+              className="w-5 h-5 rounded-full object-cover drop-shadow-[0_0_8px_rgba(56,189,248,0.5)]"
+            />
+            <span className="text-xs font-medium text-slate-400">
+              Powered by <span className="text-sky-300 font-bold tracking-wide group-hover:text-sky-200 transition-colors">豆包大模型</span>
+            </span>
+          </div>
         </div>
       </footer>
     </div>
