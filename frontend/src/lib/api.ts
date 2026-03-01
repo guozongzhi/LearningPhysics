@@ -235,4 +235,10 @@ export const api = {
       body: JSON.stringify({ quiz_id: quizId, answers }),
     });
   },
+
+  getLastQuizRecord: async () => {
+    return apiFetch('/api/v1/quiz/last', {
+      method: 'GET',
+    });
+  },
 };

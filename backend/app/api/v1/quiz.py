@@ -10,9 +10,10 @@ from app.schemas.quiz import (
     QuizSubmitResponse
 )
 from app.services import quiz_service
-from app.models.models import User
+from app.models.models import User, ExamRecord
 from app.core.auth import get_current_user
 from app.core.logging_config import api_logger
+from sqlmodel import select, func
 
 router = APIRouter()
 
@@ -68,3 +69,20 @@ async def submit_quiz_endpoint(
     except Exception as e:
         api_logger.error(f"测验提交失败 - 用户: {current_user.username}, 测验ID: {request.quiz_id}, 错误: {str(e)}")
         raise
+
+@router.get(
+    "/last",
+    summary="Get the timestamp of the user's last quiz",
+    description="Retrieves the created_at timestamp of the most recent ExamRecord for the current user.",
+)
+async def get_last_quiz_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_session),
+):
+    """
+    Returns the time the user last took a quiz.
+    """
+    query = select(func.max(ExamRecord.created_at)).where(ExamRecord.user_id == current_user.id)
+    result = await db.execute(query)
+    last_taken = result.scalar()
+    return {"last_quiz_at": last_taken.isoformat() if last_taken else None}

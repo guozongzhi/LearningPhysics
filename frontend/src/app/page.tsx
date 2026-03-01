@@ -30,7 +30,7 @@ export default function Home() {
   const [topicsLoading, setTopicsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
-  const [lastQuizSeconds, setLastQuizSeconds] = useState<number | null>(null);
+  const [lastQuizDate, setLastQuizDate] = useState<string | null>(null);
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
@@ -39,10 +39,16 @@ export default function Home() {
     if (typeof window !== "undefined") {
       const storedName = localStorage.getItem("username");
       if (storedName) setUsername(storedName);
-      const last = localStorage.getItem("lastQuizSeconds");
-      if (last && !Number.isNaN(Number(last))) {
-        setLastQuizSeconds(Number(last));
-      }
+    }
+
+    if (token) {
+      api.getLastQuizRecord()
+        .then((data) => {
+          if (data && data.last_quiz_at) {
+            setLastQuizDate(data.last_quiz_at);
+          }
+        })
+        .catch(console.error);
     }
 
     api.getTopics()
@@ -98,14 +104,17 @@ export default function Home() {
     authApi.logout();
     setIsLoggedIn(false);
     setUsername(null);
-    setLastQuizSeconds(null);
+    setLastQuizDate(null);
   };
 
-  const formatTimeBrief = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    if (m === 0) return `${s} 秒`;
-    return s === 0 ? `${m} 分钟` : `${m} 分 ${s} 秒`;
+  const formatDateBrief = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleString('zh-CN', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
@@ -194,7 +203,7 @@ export default function Home() {
                 <span>👤 学习概览</span>
               </CardTitle>
               <CardDescription className="text-slate-400">
-                快速查看你的身份信息和最近一次练习用时
+                快速查看你的身份信息和最近一次练习时间
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-0 px-4 sm:px-6 pb-4 flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm">
@@ -205,7 +214,7 @@ export default function Home() {
               <div className="flex-1 flex items-center gap-2">
                 <span className="text-slate-400 w-20 sm:w-24">上次答题时间</span>
                 <span className="text-slate-100 font-medium">
-                  {lastQuizSeconds != null ? formatTimeBrief(lastQuizSeconds) : "暂无记录"}
+                  {lastQuizDate ? formatDateBrief(lastQuizDate) : "暂无记录"}
                 </span>
               </div>
             </CardContent>
