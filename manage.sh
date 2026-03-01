@@ -56,6 +56,9 @@ start_services() {
     info "正在清理旧进程..."
     stop_services --silent
 
+    # 确保日志目录存在
+    mkdir -p "$PROJECT_ROOT/logs"
+
     info "启动后端服务..."
     cd "$BACKEND_DIR"
     nohup "$PYTHON" main.py > "$PROJECT_ROOT/logs/backend.log" 2>&1 &
