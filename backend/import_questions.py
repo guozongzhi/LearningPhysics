@@ -32,7 +32,7 @@ from sqlalchemy.future import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.db.session import get_session, async_engine
-from app.models.models import KnowledgeNode, Question, SQLModel
+from app.models.models import KnowledgeNode, Question, ExamRecord, SQLModel
 
 
 async def import_from_json(filepath: str):
@@ -92,6 +92,7 @@ async def import_from_json(filepath: str):
         questions = data.get("questions", [])
         print(f"\n📝 Questions: {len(questions)}")
 
+        active_contents = [q["content_latex"] for q in questions]
         added = 0
         skipped = 0
 
@@ -129,6 +130,22 @@ async def import_from_json(filepath: str):
             print(f"  ✅ Added: {q['content_latex'][:40]}...")
 
         await session.commit()
+
+        # --- Step 4: Cleanup unreferenced questions ---
+        print("\n🗑️ Cleaning up old questions (preserving exam records)...")
+        if active_contents:
+            result = await session.execute(
+                select(Question).where(Question.content_latex.notin_(active_contents))
+            )
+            old_qs = result.scalars().all()
+            deleted_count = 0
+            for oq in old_qs:
+                er = await session.execute(select(ExamRecord).where(ExamRecord.question_id == oq.id))
+                if not er.scalars().first():
+                    await session.delete(oq)
+                    deleted_count += 1
+            await session.commit()
+            print(f"  ✅ Deleted {deleted_count} unreferenced old questions.\n  ⚠️  Note: Some old questions may be retained if they have associated exam records.")
 
         print(f"\n🎉 Done! Added: {added}, Skipped: {skipped}")
 
