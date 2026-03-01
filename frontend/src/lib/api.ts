@@ -1,11 +1,16 @@
 const getApiBaseUrl = () => {
+  // If the environment variable is injected during build, always prioritize it.
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
   if (typeof window !== 'undefined') {
-    // dynamically match the API to the current domain but point to port 8000
+    // dynamically match the API to the current domain but point to port 8000 as fallback
     const protocol = window.location.protocol;
     const hostname = window.location.hostname;
     return `${protocol}//${hostname}:8000`;
   }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  return 'http://localhost:8000';
 };
 
 const API_BASE_URL = getApiBaseUrl();
