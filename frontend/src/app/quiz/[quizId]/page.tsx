@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, use } from "react";
+import { useEffect, use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -46,6 +46,30 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     );
   }
 
+  const [factIndex, setFactIndex] = useState(0);
+  const physicsFacts = [
+    "你知道吗？光从太阳到达地球需要约 8 分 20 秒。",
+    "在宇宙中，不存在绝对静止的物体。",
+    "水在失重环境下会因为表面张力变成完美的球体。",
+    "量子纠缠被爱因斯坦称为“鬼魅般的超距作用”。",
+    "如果没有空气阻力，一根羽毛和一个保龄球会同时落地。",
+    "中子星的密度极大，一茶匙中子星物质重约 10 亿吨。",
+    "宇宙的温度仅仅比绝对零度高约 2.7 度。",
+    "时间在强引力场中会流逝得更慢，这被称为引力时间膨胀。"
+  ];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (status === 'submitting') {
+      interval = setInterval(() => {
+        setFactIndex((prev: number) => (prev + 1) % physicsFacts.length);
+      }, 3000); // Change fact every 3 seconds
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [status, physicsFacts.length]);
+
   if (status === 'submitting') {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
@@ -57,7 +81,10 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
           </div>
         </div>
         <h2 className="text-2xl font-bold text-slate-800 mb-2">AI 智能评分中</h2>
-        <p className="text-slate-600 animate-pulse">正在深度分析您的解题过程，请稍候...</p>
+        <p className="text-slate-600 mb-6 text-center max-w-md h-12 transition-opacity duration-500">
+          <span className="block animate-pulse mb-2">正在深度分析您的解题过程，请稍候...</span>
+          <span className="block text-sm text-blue-700 font-medium">{physicsFacts[factIndex]}</span>
+        </p>
       </div>
     );
   }

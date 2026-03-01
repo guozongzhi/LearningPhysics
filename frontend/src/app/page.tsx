@@ -35,9 +35,18 @@ export default function Home() {
     // Fetch topics
     api.getTopics()
       .then((data: Topic[]) => {
-        setTopics(data);
+        // Deduplicate topics by ID to prevent multiple renders of the same topic
+        const uniqueTopicsMap = new Map();
+        data.forEach(topic => {
+          if (!uniqueTopicsMap.has(topic.id)) {
+            uniqueTopicsMap.set(topic.id, topic);
+          }
+        });
+        const uniqueTopics = Array.from(uniqueTopicsMap.values());
+
+        setTopics(uniqueTopics);
         // Select all by default
-        setSelectedTopics(new Set(data.map((t: Topic) => t.id)));
+        setSelectedTopics(new Set(uniqueTopics.map((t: Topic) => t.id)));
       })
       .catch(console.error)
       .finally(() => setTopicsLoading(false));
