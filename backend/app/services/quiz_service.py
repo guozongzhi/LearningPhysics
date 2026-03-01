@@ -144,10 +144,16 @@ error_tag 从以下选项中选一个：[VALUE_ERROR, UNIT_ERROR, CALCULATION_ER
         response = await client.chat.completions.create(
             model=ANALYSIS_MODEL,
             messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
             temperature=0.3,
         )
-        analysis_json = json.loads(response.choices[0].message.content)
+        # Parse the JSON and handle markdown blocks
+        content = response.choices[0].message.content.strip()
+        if content.startswith("```json"):
+            content = content[7:-3].strip()
+        elif content.startswith("```"):
+            content = content[3:-3].strip()
+        
+        analysis_json = json.loads(content)
         return AnalysisResult(is_correct=is_correct, **analysis_json)
     except Exception as e:
         print(f"Error calling OpenAI for feedback: {e}")
