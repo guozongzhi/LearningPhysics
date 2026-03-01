@@ -231,6 +231,71 @@
                 "tolerance": 1e-15
             },
             "solution_steps": "洛伦兹力 F=qvB=1.6×10⁻¹⁹×2×10⁶×0.1=3.2×10⁻¹⁴N"
+        },
+        {
+            "topic_code": "NEWTON-LAWS",
+            "content_latex": "一个人在电梯内站在体重计上。当电梯以 $a=2\\text{m/s}^2$ 的加速度上升时，体重计的示数为 $F_1=600\\text{N}$。求此人的真实质量 $m$（取 $g=10\\text{m/s}^2$）。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 50,
+                "unit": "kg",
+                "tolerance": 1
+            },
+            "solution_steps": "由牛顿第二定律 F_1 - mg = ma, m = F_1 / (g + a) = 600 / 12 = 50kg"
+        },
+        {
+            "topic_code": "MOMENTUM",
+            "content_latex": "质量为 $m=0.1\\text{kg}$ 的小橡皮泥球以 $v_0=10\\text{m/s}$ 的速度竖直砸在质量为 $M=0.9\\text{kg}$ 的静止木块上并粘在上面，木块下方有弹簧支撑。求撞击瞬间二者的共同速度 $v$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1,
+                "unit": "m/s",
+                "tolerance": 0.1
+            },
+            "solution_steps": "瞬间动量守恒：mv_0 = (m+M)v， v = mv_0 / (m+M) = 0.1×10 / (0.1+0.9) = 1 m/s"
+        },
+        {
+            "topic_code": "CIRCULAR-MOTION",
+            "content_latex": "一辆质量 $m=1500\\text{kg}$ 的汽车在水平路面上转弯，弯道半径 $R=50\\text{m}$。如果轮胎与路面间的最大静摩擦力为 $f_{max}=7500\\text{N}$，求汽车转弯时的最大安全速度 $v_{max}$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 15.8,
+                "unit": "m/s",
+                "tolerance": 0.5
+            },
+            "solution_steps": "最大静摩擦力提供向心力：f_{max} = m (v_{max}^2 / R)，v_{max} = \\sqrt{f_{max} R / m} = \\sqrt{7500 \\times 50 / 1500} = \\sqrt{250} \\approx 15.8 m/s"
+        },
+        {
+            "topic_code": "ENERGY",
+            "content_latex": "一台起重机将质量 $m=1000\\text{kg}$ 的货物匀速吊起 $h=10\\text{m}$，用时 $t=20\\text{s}$（$g=10\\text{m/s}^2$）。求起重机的有用功率 $P$。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 5000,
+                "unit": "W",
+                "tolerance": 10
+            },
+            "solution_steps": "做功 W = mgh = 1000 × 10 × 10 = 100000 J，功率 P = W / t = 100000 / 20 = 5000 W"
+        },
+        {
+            "topic_code": "ELECTROMAGNETISM",
+            "content_latex": "闭合线圈内磁通量在 $t=0.5\\text{s}$ 内由 $\\Phi_1=0.2\\text{Wb}$ 均匀增加到 $\\Phi_2=0.8\\text{Wb}$。求该线圈中产生的感应电动势 $E$。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1.2,
+                "unit": "V",
+                "tolerance": 0.1
+            },
+            "solution_steps": "根据法拉第电磁感应定律：E = ΔΦ / Δt = (0.8 - 0.2) / 0.5 = 1.2 V"
         }
     ]
 }

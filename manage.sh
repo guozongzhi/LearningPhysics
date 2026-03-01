@@ -32,11 +32,13 @@ show_help() {
     echo "用法: $0 [命令]"
     echo ""
     echo "有效命令:"
-    echo "  start      后台启动前端和后端服务"
-    echo "  stop       停止所有项目相关进程"
-    echo "  restart    重启所有服务"
+    echo "  start      后台启动前端和后端服务 (本地开发)"
+    echo "  stop       停止所有项目相关进程 (本地开发)"
+    echo "  prod       使用 Docker Compose 部署生产环境服务"
+    echo "  prod-stop  使用 Docker Compose 停止生产环境服务"
+    echo "  restart    重启所有开发服务"
     echo "  diagnose   运行系统诊断检查"
-    echo "  init       初始化数据库和从 data/questions.json 导入题库"
+    echo "  init       初始化数据库和从 data/questions.json 导入题库 (本地开发)"
     echo "  status     查看服务运行状态"
     echo "  help       显示此帮助信息"
 }
@@ -69,6 +71,22 @@ start_services() {
     echo -e "  后端地址: ${GREEN}http://${LOCAL_IP}:8000${NC}"
     echo -e "  后台管理: ${GREEN}http://${LOCAL_IP}:3000/admin${NC}"
     echo -e "  日志目录: $PROJECT_ROOT/logs/"
+}
+
+prod_services() {
+    info "正在启动生产环境服务 (Docker Compose)..."
+    cd "$PROJECT_ROOT"
+    docker compose -f docker-compose.prod.yml up -d --build
+    success "Docker 容器已启动！"
+    info "提示: 如果是首次启动，您可能需要进入 backend 容器执行初始化:"
+    echo -e "  ${YELLOW}docker exec -it learningphysics_backend_prod python init_system.py${NC}"
+}
+
+prod_stop() {
+    info "正在停止生产环境服务 (Docker Compose)..."
+    cd "$PROJECT_ROOT"
+    docker compose -f docker-compose.prod.yml down
+    success "Docker 容器已停止!"
 }
 
 stop_services() {
@@ -148,6 +166,8 @@ status() {
 case "$1" in
     start)    start_services ;;
     stop)     stop_services ;;
+    prod)     prod_services ;;
+    prod-stop) prod_stop ;;
     restart)  stop_services; sleep 1; start_services ;;
     diagnose) diagnose ;;
     init)     init_data ;;

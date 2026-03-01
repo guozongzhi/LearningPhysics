@@ -52,6 +52,20 @@ async def get_current_user(
     return user
 
 
+import bcrypt
+
+# Passlib check for bcrypt wrap bug bypass
+try:
+    bcrypt.__about__ = type("about", (), {"__version__": bcrypt.__version__})
+except Exception:
+    pass
+
+_original_hashpw = bcrypt.hashpw
+def _patched_hashpw(password, salt):
+    if len(password) > 72:
+        password = password[:72]
+    return _original_hashpw(password, salt)
+bcrypt.hashpw = _patched_hashpw
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

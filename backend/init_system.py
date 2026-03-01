@@ -7,7 +7,7 @@ import sys
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.session import async_engine, async_session_factory
+from app.db.session import async_engine, async_session_factory, init_db
 from app.models.models import User, KnowledgeNode, Question, UserMastery
 from app.core.auth import get_password_hash
 import uuid
@@ -165,6 +165,7 @@ async def main():
     print("=" * 60)
     
     try:
+        await init_db()
         await init_admin()
         await init_students()
         await init_knowledge_nodes()

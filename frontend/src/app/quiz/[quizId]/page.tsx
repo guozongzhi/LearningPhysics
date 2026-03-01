@@ -58,7 +58,12 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
           <div className="mb-8 md:mb-0">
             <Card>
               <CardHeader>
-                <CardTitle>题目 ({currentQuestionIndex + 1}/{questions.length})</CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle>题目 ({currentQuestionIndex + 1}/{questions.length})</CardTitle>
+                  <div className="flex items-center gap-1 text-sm font-medium px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                    难度: {currentQuestion.difficulty || "未知"}
+                  </div>
+                </div>
                 <CardDescription>请仔细阅读题目并作答。</CardDescription>
               </CardHeader>
               <CardContent className="text-lg leading-relaxed">
