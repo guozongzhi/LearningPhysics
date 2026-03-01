@@ -26,6 +26,8 @@ services:
     depends_on:
       - db
     restart: always
+    volumes:
+      - ./data:/app/data
     environment:
       # Ensure the backend waits for the database to be ready
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/learningphysics
