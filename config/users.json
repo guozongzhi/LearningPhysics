@@ -1,0 +1,35 @@
+{
+    "admin": {
+        "username": "admin",
+        "password": "admin123",
+        "email": "admin@learningphysics.com"
+    },
+    "whitelist_only_registration": false,
+    "students": [
+        {
+            "username": "student1",
+            "password": "password123",
+            "email": "student1@example.com"
+        },
+        {
+            "username": "student2",
+            "password": "password123",
+            "email": "student2@example.com"
+        },
+        {
+            "username": "student3",
+            "password": "password123",
+            "email": "student3@example.com"
+        },
+        {
+            "username": "student4",
+            "password": "password123",
+            "email": "student4@example.com"
+        },
+        {
+            "username": "student5",
+            "password": "password123",
+            "email": "student5@example.com"
+        }
+    ]
+}

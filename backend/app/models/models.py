@@ -1,10 +1,17 @@
 from typing import Optional, List, Dict, Any
 from sqlmodel import SQLModel, Field, Relationship, Column
 from sqlalchemy.dialects.postgresql import JSONB
-from pgvector.sqlalchemy import Vector
 import uuid
 from datetime import datetime, timezone
 from passlib.context import CryptContext
+
+# Try to import pgvector, but allow it to fail gracefully
+try:
+    from pgvector.sqlalchemy import Vector
+    PGVECTOR_AVAILABLE = True
+except ImportError:
+    PGVECTOR_AVAILABLE = False
+    Vector = None  # type: ignore
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -40,7 +47,8 @@ class Question(SQLModel, table=True):
     solution_steps: str
     image_url: Optional[str] = Field(default=None)  # URL to diagram/illustration
     
-    embedding: List[float] = Field(sa_column=Column(Vector(1536)))
+    # Store embedding as JSON (JSONB) instead of vector type
+    embedding: Optional[List[float]] = Field(default=None, sa_column=Column(JSONB))
 
     primary_node_id: int = Field(foreign_key="knowledge_nodes.id")
     primary_node: "KnowledgeNode" = Relationship(back_populates="questions")
@@ -87,8 +95,8 @@ class User(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None), sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc).replace(tzinfo=None)})
 
     # Relationships
-    masteries: List["UserMastery"] = Relationship(back_populates="user")
-    exam_records: List["ExamRecord"] = Relationship(back_populates="user")
+    masteries: List["UserMastery"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    exam_records: List["ExamRecord"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 
     def set_password(self, password: str):
         self.hashed_password = get_password_hash(password)

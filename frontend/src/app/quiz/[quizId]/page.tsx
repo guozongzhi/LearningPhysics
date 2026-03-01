@@ -26,7 +26,8 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
   // On component mount, generate the quiz (or fetch it if a real API was used)
   useEffect(() => {
     if (status === 'idle') {
-      generateQuiz();
+      // Use default parameters to generate quiz
+      generateQuiz([1], 10);
     }
   }, [status, generateQuiz]);
 

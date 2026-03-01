@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: learningphysics_db_prod
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=learningphysics
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: learningphysics_backend_prod
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+    restart: always
+    environment:
+      # Ensure the backend waits for the database to be ready
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/learningphysics
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: learningphysics_frontend_prod
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000 # Use localhost for client-side access
+
+volumes:
+  postgres_data_prod:

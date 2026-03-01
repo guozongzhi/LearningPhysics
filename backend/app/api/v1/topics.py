@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from app.db.session import get_session
 from app.models.models import KnowledgeNode
+from app.core.logging_config import api_logger
 
 router = APIRouter()
 
@@ -28,6 +29,12 @@ class TopicResponse(BaseModel):
     description="Returns all knowledge nodes that can be used as quiz topics. No authentication required.",
 )
 async def list_topics(db: AsyncSession = Depends(get_session)):
-    result = await db.execute(select(KnowledgeNode).order_by(KnowledgeNode.level, KnowledgeNode.name))
-    nodes = result.scalars().all()
-    return nodes
+    api_logger.debug("获取主题列表请求")
+    try:
+        result = await db.execute(select(KnowledgeNode).order_by(KnowledgeNode.level, KnowledgeNode.name))
+        nodes = result.scalars().all()
+        api_logger.debug(f"主题列表获取成功 - 总计 {len(nodes)} 个主题")
+        return nodes
+    except Exception as e:
+        api_logger.error(f"主题列表获取失败 - 错误: {str(e)}")
+        raise

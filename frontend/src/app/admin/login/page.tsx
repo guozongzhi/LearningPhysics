@@ -30,7 +30,15 @@ export default function AdminLoginPage() {
             }
             router.push("/admin");
         } catch (err) {
-            setError("用户名或密码错误");
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            console.error("登录错误详情:", errorMessage);
+            if (errorMessage.includes("401")) {
+                setError("用户名或密码错误");
+            } else if (errorMessage.includes("Connect")) {
+                setError("无法连接到服务器，请检查API地址配置");
+            } else {
+                setError(`登录失败: ${errorMessage.substring(0, 100)}`);
+            }
         } finally {
             setIsLoading(false);
         }

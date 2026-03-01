@@ -18,6 +18,7 @@ from app.db.session import get_session
 from app.models.models import User, Question, KnowledgeNode, ExamRecord, get_password_hash
 from app.core.auth import get_current_user
 from app.core.config import settings
+from app.core.logging_config import api_logger
 import dotenv
 import os
 
@@ -62,20 +63,26 @@ async def list_students(
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_session),
 ):
-    result = await db.execute(
-        select(User).where(User.is_admin == False).order_by(User.created_at.desc())
-    )
-    students = result.scalars().all()
-    return [
-        StudentResponse(
-            id=str(s.id),
-            username=s.username,
-            email=s.email,
-            is_active=s.is_active,
-            created_at=s.created_at.isoformat() if s.created_at else "",
+    api_logger.debug(f"列表学生请求 - 管理员: {admin.username}")
+    try:
+        result = await db.execute(
+            select(User).where(User.is_admin == False).order_by(User.created_at.desc())
         )
-        for s in students
-    ]
+        students = result.scalars().all()
+        api_logger.debug(f"学生列表获取成功 - 管理员: {admin.username}, 学生数: {len(students)}")
+        return [
+            StudentResponse(
+                id=str(s.id),
+                username=s.username,
+                email=s.email,
+                is_active=s.is_active,
+                created_at=s.created_at.isoformat() if s.created_at else "",
+            )
+            for s in students
+        ]
+    except Exception as e:
+        api_logger.error(f"学生列表获取失败 - 管理员: {admin.username}, 错误: {str(e)}")
+        raise
 
 
 @router.post("/students", response_model=StudentResponse, status_code=201)
@@ -84,11 +91,13 @@ async def create_student(
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_session),
 ):
+    api_logger.debug(f"创建学生请求 - 管理员: {admin.username}, 用户名: {data.username}")
     # Check if exists
     existing = await db.execute(
         select(User).where((User.email == data.email) | (User.username == data.username))
     )
     if existing.scalar_one_or_none():
+        api_logger.warning(f"创建学生失败 - 用户名或邮箱已存在: {data.username}")
         raise HTTPException(status_code=400, detail="Username or email already exists")
 
     student = User(
@@ -100,6 +109,7 @@ async def create_student(
     db.add(student)
     await db.commit()
     await db.refresh(student)
+    api_logger.debug(f"学生创建成功 - 管理员: {admin.username}, 新学生: {student.username}")
     return StudentResponse(
         id=str(student.id),
         username=student.username,
@@ -115,14 +125,18 @@ async def delete_student(
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_session),
 ):
+    api_logger.debug(f"删除学生请求 - 管理员: {admin.username}, 学生ID: {student_id}")
     result = await db.execute(select(User).where(User.id == student_id))
     student = result.scalar_one_or_none()
     if not student:
+        api_logger.warning(f"删除学生失败 - 学生不存在: {student_id}")
         raise HTTPException(status_code=404, detail="Student not found")
     if student.is_admin:
+        api_logger.warning(f"删除学生失败 - 无法删除管理员: {student.username}")
         raise HTTPException(status_code=400, detail="Cannot delete admin user")
     await db.delete(student)
     await db.commit()
+    api_logger.debug(f"学生删除成功 - 管理员: {admin.username}, 学生: {student.username}")
 
 
 @router.put("/students/{student_id}/reset-password")
@@ -132,12 +146,15 @@ async def reset_student_password(
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_session),
 ):
+    api_logger.debug(f"重置学生密码请求 - 管理员: {admin.username}, 学生ID: {student_id}")
     result = await db.execute(select(User).where(User.id == student_id))
     student = result.scalar_one_or_none()
     if not student:
+        api_logger.warning(f"重置密码失败 - 学生不存在: {student_id}")
         raise HTTPException(status_code=404, detail="Student not found")
     student.set_password(data.new_password)
     await db.commit()
+    api_logger.debug(f"学生密码重置成功 - 管理员: {admin.username}, 学生: {student.username}")
     return {"message": "Password reset successfully"}
 
 

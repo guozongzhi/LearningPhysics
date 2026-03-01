@@ -1,5 +1,14 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    // dynamically match the API to the current domain but point to port 8000
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    return `${protocol}//${hostname}:8000`;
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+};
 
+const API_BASE_URL = getApiBaseUrl();
 /**
  * Gets the authentication token from localStorage
  */
@@ -77,33 +86,45 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
 // --- Authentication API functions ---
 export const authApi = {
   login: async (username: string, password: string) => {
+    console.log(`[DEBUG] 开始登录: 用户名=${username}`);
+    console.log(`[DEBUG] API URL: ${API_BASE_URL}/api/v1/auth/login`);
+
     const formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
 
     try {
+      console.log(`[DEBUG] 发送登录请求...`);
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: 'POST',
         body: formData,
       });
 
+      console.log(`[DEBUG] 响应状态码: ${response.status}`);
+      console.log(`[DEBUG] 响应头:`, response.headers);
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error(`[DEBUG] 登录失败: ${response.status} - ${errorText}`);
         throw new Error(`Login failed: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log(`[DEBUG] 登录成功:`, data);
+
       if (data.access_token) {
         setAuthToken(data.access_token);
+        console.log(`[DEBUG] Token已保存`);
       }
       if (data.is_admin !== undefined) {
         if (typeof window !== 'undefined') {
           localStorage.setItem('isAdmin', JSON.stringify(data.is_admin));
+          console.log(`[DEBUG] Admin状态已保存: ${data.is_admin}`);
         }
       }
       return data;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('[DEBUG] 登录错误:', error);
       throw error;
     }
   },

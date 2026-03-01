@@ -14,4 +14,4 @@ python-jose[cryptography]
 
 # Testing
 pytest
-httpx
+httpxpython-multipart
