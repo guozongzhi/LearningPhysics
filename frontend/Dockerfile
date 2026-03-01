@@ -1,7 +1,7 @@
 
 
 # Stage 1: Build the Next.js application
-FROM node:18-alpine AS builder
+FROM docker.m.daocloud.io/library/node:18-alpine AS builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Create the production image
-FROM node:18-alpine
+FROM docker.m.daocloud.io/library/node:18-alpine
 
 WORKDIR /app
 
