@@ -36,9 +36,6 @@ def refresh_client():
 # Initialize on module load
 refresh_client()
 
-EMBEDDING_MODEL = "text-embedding-3-small"
-ANALYSIS_MODEL = settings.OPENAI_MODEL
-
 
 async def generate_quiz(
     db: AsyncSession, request_data: QuizGenerateRequest, user_id: uuid.UUID
@@ -166,7 +163,7 @@ error_tag 从以下选项中选一个：[VALUE_ERROR, UNIT_ERROR, CALCULATION_ER
 
     try:
         response = await get_client().chat.completions.create(
-            model=ANALYSIS_MODEL,
+            model=settings.OPENAI_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
         )
@@ -293,7 +290,7 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
 不要使用 markdown 格式，直接输出纯文本。"""
 
             summary_response = await get_client().chat.completions.create(
-                model=ANALYSIS_MODEL,
+                model=settings.OPENAI_MODEL,
                 messages=[{"role": "user", "content": summary_prompt}],
                 temperature=0.7,
                 max_tokens=300,
