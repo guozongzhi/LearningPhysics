@@ -36,6 +36,24 @@ export default function LoginPage() {
     }
   };
 
+  const handleAdminQuickLogin = async () => {
+    setError("");
+    setIsLoading(true);
+    try {
+      await authApi.login("admin", "admin123");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("username", "admin");
+      }
+      router.push("/admin");
+      router.refresh();
+    } catch (err) {
+      console.error("Admin Login failed:", err);
+      setError("管理员快捷登录失败，请检查配置或手动登录");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen">
       {/* Left Panel — Brand */}
@@ -149,6 +167,21 @@ export default function LoginPage() {
           <Button asChild variant="outline" className="w-full h-11 border-sky-500/50 text-sky-300 hover:bg-sky-500/20">
             <Link href="/register">立即注册</Link>
           </Button>
+
+          <div className="pt-2">
+            <Button
+              type="button"
+              onClick={handleAdminQuickLogin}
+              variant="outline"
+              disabled={isLoading}
+              className="w-full h-11 border-indigo-500/50 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 transition-all"
+            >
+              👑 管理员一键测试登录
+            </Button>
+            <p className="text-center text-xs text-slate-500 mt-2">
+              (使用预设账号快速进入总控台)
+            </p>
+          </div>
         </div>
       </div>
     </div>
