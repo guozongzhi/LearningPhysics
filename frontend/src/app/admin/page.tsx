@@ -98,6 +98,9 @@ export default function AdminDashboard() {
 
     // ── Global Token State ──
     const [tokenSummary, setTokenSummary] = useState({ global_limit: 0, total_usage: 0, total_limit: 0 });
+    const [adminPwd, setAdminPwd] = useState({ old: "", new: "", confirm: "" });
+    const [adminPwdMsg, setAdminPwdMsg] = useState("");
+    const [adminPwdLoading, setAdminPwdLoading] = useState(false);
 
     const handleUpdateGlobalLimit = async () => {
         const newLimStr = prompt("设定全平台的 System Token 额度池 (限制将按此计算警告):", tokenSummary.global_limit.toString());
@@ -321,6 +324,37 @@ export default function AdminDashboard() {
             setLlmTestResult({ status: "error", message: err.message || "网络请求失败" });
         } finally {
             setLlmTesting(false);
+        }
+    };
+
+    const handleAdminPasswordChange = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setAdminPwdMsg("");
+
+        if (!adminPwd.old || !adminPwd.new || !adminPwd.confirm) {
+            setAdminPwdMsg("❌ 请填写所有字段");
+            return;
+        }
+
+        if (adminPwd.new !== adminPwd.confirm) {
+            setAdminPwdMsg("❌ 两次输入的新密码不一致");
+            return;
+        }
+
+        if (adminPwd.new.length < 6) {
+            setAdminPwdMsg("❌ 新密码长度至少为 6 位");
+            return;
+        }
+
+        setAdminPwdLoading(true);
+        try {
+            await authApi.changePassword(adminPwd.old, adminPwd.new);
+            setAdminPwdMsg("✅ 密码修改成功");
+            setAdminPwd({ old: "", new: "", confirm: "" });
+        } catch (err: any) {
+            setAdminPwdMsg("❌ " + (err.message || "修改失败，请检查旧密码是否正确"));
+        } finally {
+            setAdminPwdLoading(false);
         }
     };
 
@@ -649,90 +683,149 @@ export default function AdminDashboard() {
 
                 {/* ════════════ System Settings Tab ════════════ */}
                 {activeTab === "settings" && (
-                    <Card className="max-w-3xl bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
-                        <CardHeader>
-                            <CardTitle className="text-slate-100">⚙️ LLM 大模型 API 配置</CardTitle>
-                            <CardDescription className="text-slate-400">
-                                配置 AI 分析题目的底层大模型服务。修改后会即可生效，无需重启服务器。
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {llmLoading ? (
-                                <p className="text-slate-400 text-sm">加载中...</p>
-                            ) : (
-                                <form onSubmit={handleSaveLlmConfig} className="space-y-6">
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-300">API Base URL</Label>
-                                        <Input
-                                            value={llmConfig.openai_base_url}
-                                            onChange={(e) => setLlmConfig(c => ({ ...c, openai_base_url: e.target.value }))}
-                                            placeholder="https://api.openai.com/v1"
-                                            className="w-full bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
-                                        />
-                                        <p className="text-xs text-slate-500">
-                                            留空则默认使用 OpenAI。可以配置为国内兼容 OpenAI API 规范的代理地址或大模型服务（如豆包、百川等）。
-                                        </p>
-                                    </div>
+                    <div className="space-y-8 max-w-3xl">
+                        <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
+                            <CardHeader>
+                                <CardTitle className="text-slate-100">⚙️ LLM 大模型 API 配置</CardTitle>
+                                <CardDescription className="text-slate-400">
+                                    配置 AI 分析题目的底层大模型服务。修改后会即可生效，无需重启服务器。
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {llmLoading ? (
+                                    <p className="text-slate-400 text-sm">加载中...</p>
+                                ) : (
+                                    <form onSubmit={handleSaveLlmConfig} className="space-y-6">
+                                        <div className="space-y-2">
+                                            <Label className="text-slate-300">API Base URL</Label>
+                                            <Input
+                                                value={llmConfig.openai_base_url}
+                                                onChange={(e) => setLlmConfig(c => ({ ...c, openai_base_url: e.target.value }))}
+                                                placeholder="https://api.openai.com/v1"
+                                                className="w-full bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
+                                            />
+                                            <p className="text-xs text-slate-500">
+                                                留空则默认使用 OpenAI。可以配置为国内兼容 OpenAI API 规范的代理地址或大模型服务（如豆包、百川等）。
+                                            </p>
+                                        </div>
 
-                                    <div className="space-y-2">
-                                        <Label className="text-slate-300">Model (模型名称)</Label>
-                                        <Input
-                                            value={llmConfig.openai_model}
-                                            onChange={(e) => setLlmConfig(c => ({ ...c, openai_model: e.target.value }))}
-                                            placeholder="gpt-4-turbo"
-                                            className="w-full sm:w-1/2 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
-                                        />
-                                        <p className="text-xs text-slate-500">
-                                            例如: gpt-3.5-turbo, gpt-4o, ep-202403211516...
-                                        </p>
-                                    </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-slate-300">Model (模型名称)</Label>
+                                            <Input
+                                                value={llmConfig.openai_model}
+                                                onChange={(e) => setLlmConfig(c => ({ ...c, openai_model: e.target.value }))}
+                                                placeholder="gpt-4-turbo"
+                                                className="w-full sm:w-1/2 bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
+                                            />
+                                            <p className="text-xs text-slate-500">
+                                                例如: gpt-3.5-turbo, gpt-4o, ep-202403211516...
+                                            </p>
+                                        </div>
 
+                                        <div className="space-y-2">
+                                            <Label className="text-slate-300">API Key (密钥)</Label>
+                                            <Input
+                                                type="password"
+                                                value={llmConfig.openai_api_key_new}
+                                                onChange={(e) => setLlmConfig(c => ({ ...c, openai_api_key_new: e.target.value }))}
+                                                placeholder={llmConfig.openai_api_key_masked || "请输入新的 API Key (留空保持不变)"}
+                                                className="w-full bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
+                                            />
+                                            <p className="text-xs text-slate-500">
+                                                当前密钥: {llmConfig.openai_api_key_masked || "未设置"}。如果不需要修改请留空。
+                                            </p>
+                                        </div>
+
+                                        <div className="pt-2 flex flex-wrap items-center gap-4">
+                                            <Button type="submit" className="bg-sky-500 hover:bg-sky-600 text-slate-950">保存更改</Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={handleTestLlmConfig}
+                                                disabled={llmTesting}
+                                                className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                                            >
+                                                {llmTesting ? "测试中..." : "测试连接"}
+                                            </Button>
+                                            {llmMsg && <span className="text-sm font-medium text-slate-300">{llmMsg}</span>}
+                                        </div>
+
+                                        {llmTestResult && (
+                                            <div className={`mt-4 p-4 rounded-lg border flex items-center gap-3 ${llmTestResult.status === "success"
+                                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                                                : "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                                                }`}>
+                                                <span className="text-xl">{llmTestResult.status === "success" ? "✅" : "❌"}</span>
+                                                <div>
+                                                    <p className="font-bold text-sm">
+                                                        {llmTestResult.status === "success" ? "AI 服务可用" : "AI 连接失败"}
+                                                    </p>
+                                                    <p className="text-xs opacity-90">{llmTestResult.message}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </form>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
+                            <CardHeader>
+                                <CardTitle className="text-slate-100">🔒 管理员密码修改</CardTitle>
+                                <CardDescription className="text-slate-400">
+                                    定期修改密码以确保后台访问安全。
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleAdminPasswordChange} className="space-y-4 max-w-sm">
                                     <div className="space-y-2">
-                                        <Label className="text-slate-300">API Key (密钥)</Label>
+                                        <Label className="text-slate-300">当前旧密码</Label>
                                         <Input
                                             type="password"
-                                            value={llmConfig.openai_api_key_new}
-                                            onChange={(e) => setLlmConfig(c => ({ ...c, openai_api_key_new: e.target.value }))}
-                                            placeholder={llmConfig.openai_api_key_masked || "请输入新的 API Key (留空保持不变)"}
-                                            className="w-full bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500"
+                                            value={adminPwd.old}
+                                            onChange={(e) => setAdminPwd(p => ({ ...p, old: e.target.value }))}
+                                            className="bg-slate-800/80 border-slate-600 text-slate-100"
+                                            required
                                         />
-                                        <p className="text-xs text-slate-500">
-                                            当前密钥: {llmConfig.openai_api_key_masked || "未设置"}。如果不需要修改请留空。
-                                        </p>
                                     </div>
-
-                                    <div className="pt-2 flex flex-wrap items-center gap-4">
-                                        <Button type="submit" className="bg-sky-500 hover:bg-sky-600 text-slate-950">保存更改</Button>
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">设置新密码</Label>
+                                        <Input
+                                            type="password"
+                                            value={adminPwd.new}
+                                            onChange={(e) => setAdminPwd(p => ({ ...p, new: e.target.value }))}
+                                            className="bg-slate-800/80 border-slate-600 text-slate-100"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">确认新密码</Label>
+                                        <Input
+                                            type="password"
+                                            value={adminPwd.confirm}
+                                            onChange={(e) => setAdminPwd(p => ({ ...p, confirm: e.target.value }))}
+                                            className="bg-slate-800/80 border-slate-600 text-slate-100"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="pt-2 flex flex-col gap-3">
                                         <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={handleTestLlmConfig}
-                                            disabled={llmTesting}
-                                            className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                                            type="submit"
+                                            disabled={adminPwdLoading}
+                                            className="w-full sm:w-fit bg-emerald-600 hover:bg-emerald-700 text-white"
                                         >
-                                            {llmTesting ? "测试中..." : "测试连接"}
+                                            {adminPwdLoading ? "正在保存..." : "确认修改密码"}
                                         </Button>
-                                        {llmMsg && <span className="text-sm font-medium text-slate-300">{llmMsg}</span>}
+                                        {adminPwdMsg && (
+                                            <p className={`text-sm ${adminPwdMsg.startsWith("✅") ? "text-emerald-400" : "text-rose-400"}`}>
+                                                {adminPwdMsg}
+                                            </p>
+                                        )}
                                     </div>
-
-                                    {llmTestResult && (
-                                        <div className={`mt-4 p-4 rounded-lg border flex items-center gap-3 ${llmTestResult.status === "success"
-                                            ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
-                                            : "bg-rose-500/10 border-rose-500/30 text-rose-300"
-                                            }`}>
-                                            <span className="text-xl">{llmTestResult.status === "success" ? "✅" : "❌"}</span>
-                                            <div>
-                                                <p className="font-bold text-sm">
-                                                    {llmTestResult.status === "success" ? "AI 服务可用" : "AI 连接失败"}
-                                                </p>
-                                                <p className="text-xs opacity-90">{llmTestResult.message}</p>
-                                            </div>
-                                        </div>
-                                    )}
                                 </form>
-                            )}
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    </div>
                 )}
             </main>
         </div>
