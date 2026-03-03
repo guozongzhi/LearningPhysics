@@ -1,7 +1,7 @@
 import uuid
 import json
 import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import asyncio
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -13,12 +13,28 @@ from app.schemas.quiz import QuizGenerateRequest, QuizSubmitRequest, StudentAnsw
 from app.core.config import settings
 
 # --- AI Client Setup (supports OpenAI, Gemini, Doubao) ---
-client = None
-if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY != "YOUR_OPENAI_API_KEY":
-    client_kwargs = {"api_key": settings.OPENAI_API_KEY}
-    if settings.OPENAI_BASE_URL:
-        client_kwargs["base_url"] = settings.OPENAI_BASE_URL
-    client = openai.AsyncClient(**client_kwargs)
+client: Optional[openai.AsyncClient] = None
+
+def get_client() -> Optional[openai.AsyncClient]:
+    """Get or initialize the AI client."""
+    global client
+    if client is None:
+        refresh_client()
+    return client
+
+def refresh_client():
+    """Re-initialize the AI client with current settings."""
+    global client
+    if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY != "YOUR_OPENAI_API_KEY":
+        client_kwargs = {"api_key": settings.OPENAI_API_KEY}
+        if settings.OPENAI_BASE_URL:
+            client_kwargs["base_url"] = settings.OPENAI_BASE_URL
+        client = openai.AsyncClient(**client_kwargs)
+    else:
+        client = None
+
+# Initialize on module load
+refresh_client()
 
 EMBEDDING_MODEL = "text-embedding-3-small"
 ANALYSIS_MODEL = settings.OPENAI_MODEL
@@ -81,7 +97,8 @@ def _evaluate_answer(student_input: str, answer_schema: Dict[str, Any]) -> bool:
 
 async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is_correct: bool, user: User) -> tuple[AnalysisResult, int]:
     """Generates detailed feedback for any answer. Returns (AnalysisResult, token_usage)."""
-    if not client:
+    ai_client = get_client()
+    if not ai_client:
         return AnalysisResult(
             is_correct=is_correct,
             feedback="AI analysis is not configured." if not is_correct else "回答正确！",
@@ -148,7 +165,7 @@ error_tag 从以下选项中选一个：[VALUE_ERROR, UNIT_ERROR, CALCULATION_ER
 示例：{{"feedback": "你的计算过程有误。本题应用牛顿第二定律 F=ma，已知 F=10N、m=2kg，正确计算为 a=F/m=10/2=5m/s²，而非你给出的 10m/s²。看起来你可能忘记了除以质量，建议复习 F=ma 的推导过程。", "error_tag": "CALCULATION_ERROR"}}"""
 
     try:
-        response = await client.chat.completions.create(
+        response = await get_client().chat.completions.create(
             model=ANALYSIS_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
@@ -253,7 +270,8 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
     yield json.dumps({"progress": graded_count, "total": total_answers, "status": "summarizing"}) + "\n"
     
     overall_summary = ""
-    if client and len(request_data.answers) > 0 and user.token_usage + total_tokens_used < user.token_limit:
+    ai_client = get_client()
+    if ai_client and len(request_data.answers) > 0 and user.token_usage + total_tokens_used < user.token_limit:
         try:
             wrong_details = []
             for answer in request_data.answers:
@@ -274,7 +292,7 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
 
 不要使用 markdown 格式，直接输出纯文本。"""
 
-            summary_response = await client.chat.completions.create(
+            summary_response = await get_client().chat.completions.create(
                 model=ANALYSIS_MODEL,
                 messages=[{"role": "user", "content": summary_prompt}],
                 temperature=0.7,

@@ -21,7 +21,7 @@ from app.core.config import settings
 from app.core.logging_config import api_logger
 import dotenv
 import os
-
+from app.services.quiz_service import get_client, refresh_client
 router = APIRouter()
 
 
@@ -651,6 +651,9 @@ async def update_llm_config(
         settings.OPENAI_MODEL = data.openai_model
         dotenv.set_key(env_path, "OPENAI_MODEL", data.openai_model)
 
+    # Refresh the AI client in quiz_service
+    refresh_client()
+
     # Return updated config
     key = settings.OPENAI_API_KEY
     masked_key = ""
@@ -671,16 +674,16 @@ async def test_llm_connection(
     admin: User = Depends(get_admin_user),
 ):
     """Test the connectivity of the current LLM configuration."""
-    from app.services.quiz_service import client
     import openai
     
-    if not client:
+    ai_client = get_client()
+    if not ai_client:
         return {"status": "error", "message": "AI 客户端未初始化，请检查 API Key 配置"}
     
     try:
         # Perform a minimal completion request to test connectivity
         # We use a very low max_tokens and high temperature to keep it cheap and fast
-        response = await client.chat.completions.create(
+        response = await ai_client.chat.completions.create(
             model=settings.OPENAI_MODEL,
             messages=[{"role": "user", "content": "ping"}],
             max_tokens=5,
