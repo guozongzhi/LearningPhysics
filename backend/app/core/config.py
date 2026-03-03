@@ -13,9 +13,9 @@ class Settings(BaseSettings):
     #   Gemini:  https://generativelanguage.googleapis.com/v1beta/openai
     #   Doubao:  https://ark.cn-beijing.volces.com/api/v3
     #   OpenAI:  https://api.openai.com/v1  (default)
-    OPENAI_API_KEY: str = "YOUR_OPENAI_API_KEY"
-    OPENAI_BASE_URL: str = ""
-    OPENAI_MODEL: str = "gpt-4-turbo-preview"
+    OPENAI_API_KEY: str = ""
+    OPENAI_BASE_URL: str = "https://ark.cn-beijing.volces.com/api/v3"
+    OPENAI_MODEL: str = "ep-xxxxxxxxxxxx-xxxxx"
 
     # Secret key for JWT tokens — override via .env in production
     SECRET_KEY: str = secrets.token_urlsafe(32)
