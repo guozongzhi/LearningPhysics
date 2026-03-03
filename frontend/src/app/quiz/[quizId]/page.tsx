@@ -102,7 +102,7 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     );
   }
 
-  if (status === "submitting") {
+  if (status === "submitting" || status === "finished") {
     const progressPercent = gradingProgress && gradingProgress.total > 0
       ? Math.round((gradingProgress.progress / gradingProgress.total) * 100)
       : 0;
