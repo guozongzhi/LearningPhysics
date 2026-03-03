@@ -88,6 +88,67 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
   }
 }
 
+/**
+ * A wrapper for apiFetch that handles NDJSON streaming responses.
+ */
+async function apiFetchStream(endpoint: string, options: RequestInit = {}, onProgress?: (data: any) => void) {
+  const url = `${API_BASE_URL}${endpoint}`;
+  const token = getAuthToken();
+
+  const defaultOptions: RequestInit = {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...options.headers,
+    },
+  };
+
+  try {
+    const response = await fetch(url, defaultOptions);
+    if (!response.ok) {
+      if (response.status === 401) removeAuthToken();
+      throw new Error(`API stream request failed with status ${response.status}`);
+    }
+
+    if (!response.body) throw new Error("No response body");
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+    let finalResult = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+
+      // Keep the last incomplete line in the buffer
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const parsed = JSON.parse(line);
+          if (parsed.result) {
+            finalResult = parsed.result;
+          } else if (onProgress) {
+            onProgress(parsed);
+          }
+        } catch (e) {
+          console.error("Failed parsing NDJSON line:", line, e);
+        }
+      }
+    }
+    return finalResult;
+  } catch (error) {
+    console.error('API Stream Error:', error);
+    throw error;
+  }
+}
+
 // --- Authentication API functions ---
 export const authApi = {
   login: async (username: string, password: string) => {
@@ -188,6 +249,18 @@ export const adminApi = {
     apiFetch(`/api/v1/admin/students/${id}/reset-password`, {
       method: 'PUT', body: JSON.stringify({ new_password: newPassword }),
     }),
+  setTokenLimit: (id: string, limit: number) =>
+    apiFetch(`/api/v1/admin/students/${id}/token-limit`, {
+      method: 'PUT', body: JSON.stringify({ token_limit: limit }),
+    }),
+  getTokensSummary: () =>
+    apiFetch('/api/v1/admin/students/tokens/summary'),
+  clearAllTokens: () =>
+    apiFetch('/api/v1/admin/students/tokens/clear', { method: 'POST' }),
+  updateGlobalTokenLimit: (limit: number) =>
+    apiFetch('/api/v1/admin/students/tokens/global-limit', { method: 'PUT', body: JSON.stringify({ global_limit: limit }) }),
+  averageDistributeTokens: () =>
+    apiFetch('/api/v1/admin/students/tokens/average-distribute', { method: 'POST' }),
 
   getQuestions: () => apiFetch('/api/v1/admin/questions'),
   createQuestion: (data: any) =>
@@ -196,6 +269,10 @@ export const adminApi = {
     apiFetch(`/api/v1/admin/questions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteQuestion: (id: string) =>
     apiFetch(`/api/v1/admin/questions/${id}`, { method: 'DELETE' }),
+  clearQuestionHistory: () =>
+    apiFetch('/api/v1/admin/questions/clear-history', { method: 'POST' }),
+  importQuestions: (mode: 'extend' | 'overwrite') =>
+    apiFetch('/api/v1/admin/questions/import', { method: 'POST', body: JSON.stringify({ mode }) }),
 
   createTopic: (data: { name: string; code: string; level: number; description?: string }) =>
     apiFetch('/api/v1/admin/topics', { method: 'POST', body: JSON.stringify(data) }),
@@ -229,11 +306,11 @@ export const api = {
     });
   },
 
-  submitQuiz: async (quizId: string, answers: any) => {
-    return apiFetch('/api/v1/quiz/submit', {
+  submitQuiz: async (quizId: string, answers: any, onProgress?: (data: any) => void) => {
+    return apiFetchStream('/api/v1/quiz/submit', {
       method: 'POST',
       body: JSON.stringify({ quiz_id: quizId, answers }),
-    });
+    }, onProgress);
   },
 
   getLastQuizRecord: async () => {

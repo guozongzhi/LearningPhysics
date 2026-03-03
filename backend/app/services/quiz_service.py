@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 import openai
 
-from app.models.models import Question, ExamRecord
+from app.models.models import Question, ExamRecord, User
 from app.schemas.quiz import QuizGenerateRequest, QuizSubmitRequest, StudentAnswer, AnalysisResult
 from app.core.config import settings
 
@@ -79,14 +79,21 @@ def _evaluate_answer(student_input: str, answer_schema: Dict[str, Any]) -> bool:
     return False
 
 
-async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is_correct: bool) -> AnalysisResult:
-    """Generates detailed feedback for any answer (correct or incorrect) using an LLM."""
+async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is_correct: bool, user: User) -> tuple[AnalysisResult, int]:
+    """Generates detailed feedback for any answer. Returns (AnalysisResult, token_usage)."""
     if not client:
         return AnalysisResult(
             is_correct=is_correct,
             feedback="AI analysis is not configured." if not is_correct else "回答正确！",
             error_tag="CONFIG_ERROR" if not is_correct else "CORRECT"
-        )
+        ), 0
+
+    if user.token_usage >= user.token_limit:
+        return AnalysisResult(
+            is_correct=is_correct,
+            feedback="Token 额度已达上限，无法提供详细 AI 分析。您的回答" + ("正确" if is_correct else "错误") + "。",
+            error_tag="CORRECT" if is_correct else "AI_ERROR"
+        ), 0
 
     if is_correct:
         prompt = f"""你是一位资深高中物理教师。一位学生正确回答了以下题目，请给出详细的解题分析。
@@ -148,26 +155,34 @@ error_tag 从以下选项中选一个：[VALUE_ERROR, UNIT_ERROR, CALCULATION_ER
         )
         # Parse the JSON and handle markdown blocks
         content = response.choices[0].message.content.strip()
+        tokens = response.usage.total_tokens if response.usage else 0
         if content.startswith("```json"):
             content = content[7:-3].strip()
         elif content.startswith("```"):
             content = content[3:-3].strip()
         
         analysis_json = json.loads(content)
-        return AnalysisResult(is_correct=is_correct, **analysis_json)
+        return AnalysisResult(is_correct=is_correct, **analysis_json), tokens
     except Exception as e:
         print(f"Error calling OpenAI for feedback: {e}")
         return AnalysisResult(
             is_correct=is_correct,
             feedback="回答正确！" if is_correct else "生成 AI 反馈时出错。",
             error_tag="CORRECT" if is_correct else "AI_ERROR"
-        )
+        ), 0
 
-
-async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id: uuid.UUID) -> Dict[str, Any]:
+async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id: uuid.UUID):
     """
     Service layer function to grade a submitted quiz and provide feedback.
+    Yields NDJSON progress chunks, and final result.
     """
+    from app.models.models import User
+    
+    # Needs to run in a db scope capable of concurrent commits if needed,
+    # but since it's an async generator, the db session remains open during iteration.
+    user_result = await db.execute(select(User).where(User.id == user_id))
+    user = user_result.scalar_one()
+
     question_ids = [answer.question_id for answer in request_data.answers]
     query = select(Question).where(Question.id.in_(question_ids))
     result = await db.execute(query)
@@ -175,11 +190,15 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
 
     analysis_results: Dict[uuid.UUID, AnalysisResult] = {}
     correct_count = 0
+    total_tokens_used = 0
+    
+    total_answers = len(request_data.answers)
+    graded_count = 0
 
     feedback_tasks = []
-    task_keys = []
+    task_map = {}
 
-    for answer in request_data.answers:
+    for i, answer in enumerate(request_data.answers):
         question = questions.get(answer.question_id)
         if not question:
             continue
@@ -187,16 +206,29 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
         is_correct = _evaluate_answer(answer.student_input, question.answer_schema)
         if is_correct:
             correct_count += 1
+            
+        # Yield 'analyzing' status chunk before kicking off the task
+        progress_data = {"progress": graded_count, "total": total_answers, "status": "analyzing", "currentIndex": i}
+        yield json.dumps(progress_data) + "\n"
 
-        # Call AI for ALL answers (both correct and incorrect)
-        feedback_tasks.append(_get_ai_feedback(question, answer, is_correct))
-        task_keys.append(answer.question_id)
+        task = asyncio.create_task(_get_ai_feedback(question, answer, is_correct, user))
+        feedback_tasks.append(task)
+        task_map[task] = answer.question_id
 
-    # Concurrently gather all AI feedbacks
-    if feedback_tasks:
-        feedbacks = await asyncio.gather(*feedback_tasks)
-        for key, fb in zip(task_keys, feedbacks):
-            analysis_results[key] = fb
+    # We use asyncio.wait instead of as_completed to keep our internal mapping
+    pending = set(feedback_tasks)
+    while pending:
+        done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+        for task in done:
+            q_id = task_map.get(task)
+            res, tokens = task.result()
+            analysis_results[q_id] = res
+            total_tokens_used += tokens
+            graded_count += 1
+            
+            # Yield progress checkpoint
+            progress_data = {"progress": graded_count, "total": total_answers}
+            yield json.dumps(progress_data) + "\n"
 
     # Save exam records based on outcomes
     for answer in request_data.answers:
@@ -215,11 +247,13 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
 
     total_score = (correct_count / len(request_data.answers)) * 100 if request_data.answers else 0
 
-    await db.commit()
-
     # Generate AI overall analysis summary
+    
+    # Yield 'summarizing' before the final API call
+    yield json.dumps({"progress": graded_count, "total": total_answers, "status": "summarizing"}) + "\n"
+    
     overall_summary = ""
-    if client and len(request_data.answers) > 0:
+    if client and len(request_data.answers) > 0 and user.token_usage + total_tokens_used < user.token_limit:
         try:
             wrong_details = []
             for answer in request_data.answers:
@@ -247,10 +281,27 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
                 max_tokens=300,
             )
             overall_summary = summary_response.choices[0].message.content.strip()
+            total_tokens_used += (summary_response.usage.total_tokens if summary_response.usage else 0)
         except Exception as e:
             overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。"
+    else:
+        if user.token_usage + total_tokens_used >= user.token_limit:
+             overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。[超额取消长分析]"
+        else:
+             overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。请配置 AI API 以获取更详细的分析。"
 
-    if not overall_summary:
-        overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。请配置 AI API 以获取更详细的分析。"
+    # Update token usage and commit
+    user.token_usage += total_tokens_used
+    await db.commit()
 
-    return {"total_score": total_score, "analysis": analysis_results, "overall_summary": overall_summary}
+    # Yield final result
+    # Pydantic dict formatting
+    serializable_analysis = {str(k): v.dict() for k, v in analysis_results.items()}
+    final_data = {
+        "result": {
+            "total_score": total_score,
+            "analysis": serializable_analysis,
+            "overall_summary": overall_summary
+        }
+    }
+    yield json.dumps(final_data) + "\n"

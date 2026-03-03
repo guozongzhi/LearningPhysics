@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from uuid import UUID
 import csv
@@ -50,12 +50,17 @@ class StudentResponse(BaseModel):
     email: str
     is_active: bool
     created_at: str
+    token_usage: int = 0
+    token_limit: int = 100000
 
     class Config:
         from_attributes = True
 
 class PasswordReset(BaseModel):
     new_password: str
+
+class TokenLimitUpdate(BaseModel):
+    token_limit: int
 
 
 @router.get("/students", response_model=List[StudentResponse])
@@ -77,6 +82,8 @@ async def list_students(
                 email=s.email,
                 is_active=s.is_active,
                 created_at=s.created_at.isoformat() if s.created_at else "",
+                token_usage=s.token_usage,
+                token_limit=s.token_limit,
             )
             for s in students
         ]
@@ -116,6 +123,8 @@ async def create_student(
         email=student.email,
         is_active=student.is_active,
         created_at=student.created_at.isoformat() if student.created_at else "",
+        token_usage=student.token_usage,
+        token_limit=student.token_limit,
     )
 
 
@@ -158,9 +167,126 @@ async def reset_student_password(
     return {"message": "Password reset successfully"}
 
 
+@router.put("/students/{student_id}/token-limit")
+async def update_student_token_limit(
+    student_id: UUID,
+    data: TokenLimitUpdate,
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_session),
+):
+    api_logger.debug(f"更新学生Token限制请求 - 管理员: {admin.username}, 学生ID: {student_id}")
+    result = await db.execute(select(User).where(User.id == student_id))
+    student = result.scalar_one_or_none()
+    if not student:
+        api_logger.warning(f"更新Token限制失败 - 学生不存在: {student_id}")
+        raise HTTPException(status_code=404, detail="Student not found")
+        
+    student.token_limit = data.token_limit
+    await db.commit()
+    api_logger.debug(f"学生Token限制更新成功 - 管理员: {admin.username}, 学生: {student.username}, 新限制: {data.token_limit}")
+    return {"message": "Token limit updated successfully", "token_limit": student.token_limit}
+
+
+@router.get("/students/tokens/summary")
+async def get_tokens_summary(
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_session),
+):
+    api_logger.debug(f"获取全局Token统计 - 管理员: {admin.username}")
+    
+    # Calculate sum of token_usage and token_limit across all non-admin users
+    result = await db.execute(
+        select(
+            func.sum(User.token_usage).label("total_usage"),
+            func.sum(User.token_limit).label("total_limit")
+        ).where(User.is_admin == False)
+    )
+    row = result.first()
+    
+    total_usage = row.total_usage or 0
+    total_limit = row.total_limit or 0
+    global_limit = settings.GLOBAL_TOKEN_LIMIT
+    
+    alert_message = None
+    if global_limit > 0 and total_usage >= global_limit * 0.8:
+        alert_message = f"警告：全平台 Token 消耗已达到系统设定总额度 ({global_limit}) 的 {(total_usage/global_limit)*100:.1f}%，请留意续费或限制使用。"
+
+    return {
+        "global_limit": global_limit,
+        "total_usage": total_usage,
+        "total_limit": total_limit,
+        "alert_message": alert_message
+    }
+
+@router.post("/students/tokens/clear")
+async def clear_all_tokens(
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_session),
+):
+    api_logger.info(f"清空所有学生Token消耗 - 管理员: {admin.username}")
+    
+    # Reset token_usage to 0 for all non-admin users
+    from sqlalchemy import update
+    stmt = update(User).where(User.is_admin == False).values(token_usage=0)
+    result = await db.execute(stmt)
+    await db.commit()
+    
+    cleared_count = result.rowcount
+    api_logger.info(f"成功清空了 {cleared_count} 个学生的Token消耗")
+    
+    return {"message": f"Successfully cleared token usage for {cleared_count} students."}
+
+
+class GlobalTokenLimitUpdate(BaseModel):
+    global_limit: int
+
+@router.put("/students/tokens/global-limit")
+async def update_global_token_limit(
+    data: GlobalTokenLimitUpdate,
+    admin: User = Depends(get_admin_user),
+):
+    import os
+    import dotenv
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
+    
+    # Update in memory and write to .env
+    settings.GLOBAL_TOKEN_LIMIT = data.global_limit
+    dotenv.set_key(env_path, "GLOBAL_TOKEN_LIMIT", str(data.global_limit))
+    
+    api_logger.info(f"全局Token上限已更新为: {data.global_limit} - 管理员: {admin.username}")
+    return {"message": "Global token limit updated successfully", "global_limit": data.global_limit}
+
+@router.post("/students/tokens/average-distribute")
+async def average_distribute_tokens(
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_session),
+):
+    api_logger.info(f"请求一键平均分配Token - 管理员: {admin.username}")
+    
+    # Get total students count
+    count_result = await db.execute(select(func.count(User.id)).where(User.is_admin == False))
+    student_count = count_result.scalar_one()
+    
+    if student_count == 0:
+        return {"message": "由于没有学生，忽略分配计算。", "per_student": 0, "students_updated": 0}
+        
+    global_limit = settings.GLOBAL_TOKEN_LIMIT
+    per_student = global_limit // student_count
+    
+    from sqlalchemy import update
+    stmt = update(User).where(User.is_admin == False).values(token_limit=per_student)
+    result = await db.execute(stmt)
+    await db.commit()
+    
+    api_logger.info(f"平均分配完成，每位学生 ({student_count}人) 新限额: {per_student}")
+    return {"message": f"Successfully distributed {per_student} tokens to {student_count} students.", "per_student": per_student, "students_updated": student_count}
+
 # ============================================================
 # Question Management
 # ============================================================
+
+class QuestionImportRequest(BaseModel):
+    mode: str = Field(..., description="Import mode: 'overwrite' or 'extend'")
 
 class QuestionCreate(BaseModel):
     content_latex: str
@@ -221,6 +347,141 @@ async def list_questions(
         )
         for q in questions
     ]
+
+
+@router.post("/questions/clear-history")
+async def clear_question_history(
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_session),
+):
+    """
+    Clears all questions from the database that don't have associated exam records.
+    """
+    api_logger.info(f"管理员 {admin.username} 请求清除题库历史")
+    
+    # 1. Fetch all questions that DO NOT have exam records
+    # Subquery: find all question_ids in exam_records
+    subq = select(ExamRecord.question_id)
+    
+    # Select questions not in the subquery
+    query_to_delete = select(Question).where(Question.id.notin_(subq))
+    result = await db.execute(query_to_delete)
+    questions_to_delete = result.scalars().all()
+    
+    deleted_count = 0
+    for q in questions_to_delete:
+        await db.delete(q)
+        deleted_count += 1
+        
+    await db.commit()
+    api_logger.info(f"题库历史清除成功，共删除 {deleted_count} 道未被使用的题目")
+    
+    return {"message": f"Successfully deleted {deleted_count} unused questions", "deleted_count": deleted_count}
+
+
+@router.post("/questions/import")
+async def import_questions(
+    request: QuestionImportRequest,
+    admin: User = Depends(get_admin_user),
+    db: AsyncSession = Depends(get_session),
+):
+    """
+    Imports questions from data/questions.json using either 'overwrite' or 'extend' mode.
+    """
+    api_logger.info(f"管理员 {admin.username} 请求导入题库，模式: {request.mode}")
+    
+    import json
+    from pathlib import Path
+    
+    # Resolve the path relative to the backend directory
+    project_root = Path(__file__).parent.parent.parent.parent.parent
+    data_path = project_root / "data" / "questions.json"
+    
+    if not data_path.exists():
+        raise HTTPException(status_code=404, detail=f"questions.json file not found at {data_path}")
+        
+    try:
+        with open(data_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read JSON: {e}")
+        
+    questions_data = data.get("questions", [])
+    if not questions_data:
+        return {"message": "No questions found in JSON"}
+        
+    from app.models.models import KnowledgeNode
+    import uuid
+    
+    # Get all topics for code -> id mapping
+    result = await db.execute(select(KnowledgeNode))
+    code_to_id = {node.code: node.id for node in result.scalars().all()}
+    
+    added_count = 0
+    updated_count = 0
+    skipped_count = 0
+    
+    if request.mode == "overwrite":
+        # Delete unused questions first
+        subq = select(ExamRecord.question_id)
+        query_to_delete = select(Question).where(Question.id.notin_(subq))
+        res = await db.execute(query_to_delete)
+        for q in res.scalars().all():
+            await db.delete(q)
+        await db.commit() # commit deletions before insert
+        
+    for q_data in questions_data:
+        topic_code = q_data.get("topic_code")
+        if topic_code not in code_to_id:
+            skipped_count += 1
+            continue
+            
+        content_latex = q_data.get("content_latex")
+        
+        # Check if question exists
+        res = await db.execute(select(Question).where(Question.content_latex == content_latex))
+        existing_q = res.scalars().first()
+        
+        if existing_q:
+            if request.mode == "extend":
+                # Update existing
+                existing_q.difficulty = q_data.get("difficulty", existing_q.difficulty)
+                existing_q.question_type = q_data.get("question_type", existing_q.question_type)
+                existing_q.answer_schema = q_data.get("answer_schema", existing_q.answer_schema)
+                existing_q.solution_steps = q_data.get("solution_steps", existing_q.solution_steps)
+                existing_q.primary_node_id = code_to_id[topic_code]
+                updated_count += 1
+            else:
+                # In overwrite mode after deleting unused, if it still exists it has exam records. 
+                # We can choose to update it or skip it. Let's update it to keep it fresh.
+                existing_q.difficulty = q_data.get("difficulty", existing_q.difficulty)
+                existing_q.question_type = q_data.get("question_type", existing_q.question_type)
+                existing_q.answer_schema = q_data.get("answer_schema", existing_q.answer_schema)
+                existing_q.solution_steps = q_data.get("solution_steps", existing_q.solution_steps)
+                existing_q.primary_node_id = code_to_id[topic_code]
+                updated_count += 1
+        else:
+            # Insert new
+            new_q = Question(
+                id=uuid.uuid4(),
+                content_latex=content_latex,
+                difficulty=q_data.get("difficulty", 1),
+                question_type=q_data.get("question_type", "CHOICE"),
+                answer_schema=q_data.get("answer_schema", {}),
+                solution_steps=q_data.get("solution_steps", ""),
+                embedding=[0.0] * 1536, # Placeholder
+                primary_node_id=code_to_id[topic_code]
+            )
+            db.add(new_q)
+            added_count += 1
+            
+    await db.commit()
+    return {
+        "message": f"Import completed in {request.mode} mode",
+        "added": added_count,
+        "updated": updated_count,
+        "skipped": skipped_count
+    }
 
 
 @router.post("/questions", response_model=QuestionResponse, status_code=201)

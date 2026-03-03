@@ -17,6 +17,7 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     answers,
     currentQuestionIndex,
     startedAt,
+    gradingProgress,
     setAnswer,
     nextQuestion,
     prevQuestion,
@@ -102,18 +103,44 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
   }
 
   if (status === "submitting") {
+    const progressPercent = gradingProgress && gradingProgress.total > 0
+      ? Math.round((gradingProgress.progress / gradingProgress.total) * 100)
+      : 0;
+
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-100">
-        <div className="relative w-24 h-24 mb-6">
-          <div className="absolute inset-0 border-4 border-slate-700 rounded-full" />
-          <div className="absolute inset-0 border-4 border-sky-500 rounded-full border-t-transparent animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-100 p-4">
+        <div className="relative w-24 h-24 mb-8">
+          <div className="absolute inset-0 border-4 border-slate-700/50 rounded-full" />
+          <div className="absolute inset-0 border-4 border-sky-400 rounded-full border-t-transparent animate-spin" />
           <div className="absolute inset-0 flex items-center justify-center text-3xl">🧠</div>
         </div>
+
         <h2 className="text-2xl font-bold text-slate-100 mb-2">AI 智能评分中</h2>
-        <p className="text-slate-400 mb-6 text-center max-w-md min-h-[3rem] transition-opacity duration-500">
-          <span className="block animate-pulse mb-2 text-slate-500">正在深度分析您的解题过程，请稍候...</span>
-          <span className="block text-sm text-sky-400 font-medium">{physicsFacts[factIndex]}</span>
-        </p>
+
+        <div className="w-full max-w-sm mb-6">
+          <div className="flex justify-between text-sm text-slate-400 mb-2">
+            <span>评分进度</span>
+            <span>{progressPercent}%</span>
+          </div>
+          <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-sky-500 to-cyan-400 transition-all duration-300 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <div className="text-center mt-3 text-sm text-sky-400 font-medium">
+            {!gradingProgress ? '准备中...' :
+              gradingProgress.status === 'analyzing' && gradingProgress.currentIndex !== undefined ? `正在分析第 ${gradingProgress.currentIndex + 1} 题...` :
+                gradingProgress.status === 'summarizing' ? '总结整体情况中，请稍等...' :
+                  `已完成 ${gradingProgress.progress} / ${gradingProgress.total} 题`}
+          </div>
+        </div>
+
+        <div className="text-center max-w-md min-h-[4rem]">
+          <span className="block mb-2 text-sm text-sky-400/80 font-medium transition-opacity duration-500">
+            {physicsFacts[factIndex]}
+          </span>
+        </div>
       </div>
     );
   }

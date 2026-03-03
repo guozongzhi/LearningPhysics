@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { adminApi, api, authApi } from "@/lib/api";
 import { Latex } from "@/components/latex";
 
-type Student = { id: string; username: string; email: string; is_active: boolean; created_at: string };
+type Student = { id: string; username: string; email: string; is_active: boolean; created_at: string; token_usage: number; token_limit: number };
 type QuestionItem = { id: string; content_latex: string; difficulty: number; question_type: string; answer_schema: any; solution_steps: string; primary_node_id: number; topic_name: string };
 type Topic = { id: number; name: string; code: string; level: number; description: string | null };
 
@@ -34,8 +34,17 @@ export default function AdminDashboard() {
     const loadStudents = useCallback(async () => {
         setStudentsLoading(true);
         try {
-            const data = await adminApi.getStudents();
+            const [data, tokenData] = await Promise.all([
+                adminApi.getStudents(),
+                adminApi.getTokensSummary()
+            ]);
             setStudents(data);
+            setTokenSummary(tokenData);
+
+            // Pop the alert if usage exceeds limits
+            if (tokenData.alert_message) {
+                alert(tokenData.alert_message);
+            }
         } catch { setStudentMsg("加载失败"); }
         finally { setStudentsLoading(false); }
     }, []);
@@ -70,6 +79,54 @@ export default function AdminDashboard() {
             await adminApi.resetPassword(id, newPwd);
             setStudentMsg(`✅ ${name} 密码已重置`);
         } catch { setStudentMsg("重置失败"); }
+    };
+
+    const handleSetTokenLimit = async (id: string, name: string, currentLimit: number) => {
+        const newLimitStr = prompt(`设定期望的 Token 限制（当前 ${currentLimit}）：`, currentLimit.toString());
+        if (!newLimitStr) return;
+        const newLimit = parseInt(newLimitStr, 10);
+        if (isNaN(newLimit) || newLimit < 0) {
+            alert("请输入有效的数字");
+            return;
+        }
+        try {
+            await adminApi.setTokenLimit(id, newLimit);
+            setStudentMsg(`✅ ${name} 的 Token 限额已更新为: ${newLimit}`);
+            loadStudents();
+        } catch { setStudentMsg("设置限额失败"); }
+    };
+
+    // ── Global Token State ──
+    const [tokenSummary, setTokenSummary] = useState({ global_limit: 0, total_usage: 0, total_limit: 0 });
+
+    const handleUpdateGlobalLimit = async () => {
+        const newLimStr = prompt("设定全平台的 System Token 额度池 (限制将按此计算警告):", tokenSummary.global_limit.toString());
+        if (!newLimStr) return;
+        const limit = parseInt(newLimStr, 10);
+        if (isNaN(limit) || limit < 0) return alert("请输入有效的数字");
+        try {
+            await adminApi.updateGlobalTokenLimit(limit);
+            setStudentMsg("✅ 全局 Token 上限已更新");
+            loadStudents();
+        } catch { setStudentMsg("设置上限失败"); }
+    };
+
+    const handleAverageDistribute = async () => {
+        if (!confirm(`确定要将当前设定的 ${tokenSummary.global_limit} Tokens 平均分配到所有非管理员账号上吗？`)) return;
+        try {
+            await adminApi.averageDistributeTokens();
+            setStudentMsg("✅ 一键平均分配成功");
+            loadStudents();
+        } catch { setStudentMsg("分配失败"); }
+    };
+
+    const handleClearAllTokens = async () => {
+        if (!confirm("确定要清空所有学生的 Token 消耗吗？")) return;
+        try {
+            await adminApi.clearAllTokens();
+            setStudentMsg("✅ 所有学生的 Token 消耗已清空");
+            loadStudents();
+        } catch { setStudentMsg("清空 Token 失败"); }
     };
 
     // ── Question State ──
@@ -162,6 +219,32 @@ export default function AdminDashboard() {
             }
             loadQuestions();
         } catch { setQuestionMsg("删除失败"); }
+    };
+
+    const handleClearHistory = async () => {
+        if (!confirm("确定清除所有未使用的历史题目吗？将会保留已经被考试记录关联的题目。")) return;
+        setQuestionMsg("");
+        try {
+            const res = await adminApi.clearQuestionHistory();
+            setQuestionMsg(`✅ 已清除 ${res.deleted_count} 道历史题目`);
+            loadQuestions();
+        } catch (err: any) {
+            setQuestionMsg("❌ 清除历史题目失败: " + err.message);
+        }
+    };
+
+    const handleImportQuestions = async (mode: 'overwrite' | 'extend') => {
+        const modeText = mode === 'overwrite' ? "覆盖 (将清除并重新导入)" : "扩展 (对现有题目进行补充)";
+        if (!confirm(`确定使用「${modeText}」模式导入题库吗？这可能需要一些时间。`)) return;
+
+        setQuestionMsg("🔄 正在导入题库，请稍候...");
+        try {
+            const res = await adminApi.importQuestions(mode);
+            setQuestionMsg(`✅ 导入成功! 新增: ${res.added}, 更新: ${res.updated}, 跳过: ${res.skipped}`);
+            loadQuestions();
+        } catch (err: any) {
+            setQuestionMsg("❌ 导入失败: " + err.message);
+        }
     };
 
     // ── Export ──
@@ -310,8 +393,39 @@ export default function AdminDashboard() {
 
                         {/* Student List */}
                         <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
-                            <CardHeader>
-                                <CardTitle className="text-base text-slate-100">学生列表 ({students.length})</CardTitle>
+                            <CardHeader className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-slate-800 pb-4">
+                                <div>
+                                    <div className="flex items-center gap-3">
+                                        <CardTitle className="text-lg text-slate-100">学生列表 <span className="text-slate-500 text-sm">({students.length}人)</span></CardTitle>
+                                    </div>
+                                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                                        <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+                                            <span className="text-slate-400 mb-1">系统全局 Token 总量</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sky-300 font-mono text-lg">{tokenSummary.global_limit.toLocaleString()}</span>
+                                                <Button variant="ghost" size="sm" onClick={handleUpdateGlobalLimit} className="h-6 px-2 text-xs text-sky-500 hover:bg-sky-500/20 hover:text-sky-300">
+                                                    修改
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+                                            <span className="text-slate-400 mb-1">已分配总量表</span>
+                                            <span className="text-slate-200 font-mono text-lg">{tokenSummary.total_limit.toLocaleString()}</span>
+                                        </div>
+                                        <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 flex flex-col justify-center">
+                                            <span className="text-slate-400 mb-1">全平台已消耗</span>
+                                            <span className="text-rose-400 font-mono text-lg">{tokenSummary.total_usage.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <Button variant="outline" size="sm" onClick={handleAverageDistribute} className="border-sky-700/50 bg-sky-500/10 text-sky-400 hover:bg-sky-500/20">
+                                        一键平均分配
+                                    </Button>
+                                    <Button variant="outline" size="sm" onClick={handleClearAllTokens} className="border-rose-700/50 text-rose-400 hover:bg-rose-900/30">
+                                        清空消耗
+                                    </Button>
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 {studentsLoading ? (
@@ -326,6 +440,7 @@ export default function AdminDashboard() {
                                                     <th className="text-left py-2 pr-4 font-medium text-slate-300">用户名</th>
                                                     <th className="text-left py-2 pr-4 font-medium text-slate-300">邮箱</th>
                                                     <th className="text-left py-2 pr-4 font-medium text-slate-300">创建时间</th>
+                                                    <th className="text-left py-2 pr-4 font-medium text-slate-300">Token 消耗/限额</th>
                                                     <th className="text-right py-2 font-medium text-slate-300">操作</th>
                                                 </tr>
                                             </thead>
@@ -335,7 +450,24 @@ export default function AdminDashboard() {
                                                         <td className="py-2 pr-4 text-slate-200">{s.username}</td>
                                                         <td className="py-2 pr-4 text-slate-400">{s.email}</td>
                                                         <td className="py-2 pr-4 text-slate-400 text-xs">{s.created_at ? new Date(s.created_at).toLocaleDateString() : "-"}</td>
+                                                        <td className="py-2 pr-4">
+                                                            <div className="flex flex-col gap-1 w-32">
+                                                                <div className="flex justify-between text-xs">
+                                                                    <span className={s.token_usage >= s.token_limit ? "text-rose-400 font-bold" : "text-slate-300"}>{s.token_usage}</span>
+                                                                    <span className="text-slate-500">/ {s.token_limit}</span>
+                                                                </div>
+                                                                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                                    <div
+                                                                        className={`h-full rounded-full ${s.token_usage >= s.token_limit ? 'bg-rose-500' : 'bg-sky-500'}`}
+                                                                        style={{ width: `${Math.min(100, Math.max(0, (s.token_usage / (s.token_limit || 1)) * 100))}%` }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </td>
                                                         <td className="py-2 text-right space-x-2">
+                                                            <Button variant="outline" size="sm" onClick={() => handleSetTokenLimit(s.id, s.username, s.token_limit)} className="border-sky-700/50 text-sky-400 hover:bg-sky-900/30">
+                                                                额度
+                                                            </Button>
                                                             <Button variant="outline" size="sm" onClick={() => handleResetPassword(s.id, s.username)} className="border-slate-600 text-slate-300 hover:bg-slate-800">
                                                                 重置密码
                                                             </Button>
@@ -357,22 +489,33 @@ export default function AdminDashboard() {
                 {/* ════════════ Questions Tab ════════════ */}
                 {activeTab === "questions" && (
                     <div className="space-y-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between flex-wrap gap-4">
                             <h2 className="text-lg font-semibold text-slate-100">题库（{questions.length} 题）</h2>
-                            <Button onClick={() => {
-                                if (showAddQuestion) {
-                                    setShowAddQuestion(false);
-                                    setEditingQuestionId(null);
-                                    setNewQ({ content_latex: "", difficulty: 2, question_type: "CALCULATION", correct_value: "", unit: "", tolerance: "0.1", solution_steps: "", primary_node_id: topics[0]?.id || 0, image_url: "" });
-                                } else {
-                                    setShowAddQuestion(true);
-                                }
-                            }} className="bg-sky-500 hover:bg-sky-600 text-slate-950">
-                                {showAddQuestion ? "取消" : "+ 添加题目"}
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button onClick={handleClearHistory} variant="outline" className="border-rose-700/50 text-rose-400 hover:bg-rose-900/30">
+                                    清除历史题库
+                                </Button>
+                                <Button onClick={() => handleImportQuestions('overwrite')} variant="outline" className="border-amber-700/50 text-amber-400 hover:bg-amber-900/30">
+                                    覆盖导入
+                                </Button>
+                                <Button onClick={() => handleImportQuestions('extend')} variant="outline" className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/30">
+                                    扩展导入
+                                </Button>
+                                <Button onClick={() => {
+                                    if (showAddQuestion) {
+                                        setShowAddQuestion(false);
+                                        setEditingQuestionId(null);
+                                        setNewQ({ content_latex: "", difficulty: 2, question_type: "CALCULATION", correct_value: "", unit: "", tolerance: "0.1", solution_steps: "", primary_node_id: topics[0]?.id || 0, image_url: "" });
+                                    } else {
+                                        setShowAddQuestion(true);
+                                    }
+                                }} className="bg-sky-500 hover:bg-sky-600 text-slate-950">
+                                    {showAddQuestion ? "取消" : "+ 手动添加"}
+                                </Button>
+                            </div>
                         </div>
 
-                        {questionMsg && <p className="text-sm text-slate-300">{questionMsg}</p>}
+                        {questionMsg && <p className={`text-sm ${questionMsg.includes('❌') ? 'text-rose-400' : 'text-emerald-400'}`}>{questionMsg}</p>}
 
                         {showAddQuestion && (
                             <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
@@ -576,7 +719,7 @@ export default function AdminDashboard() {
                                         <div className={`mt-4 p-4 rounded-lg border flex items-center gap-3 ${llmTestResult.status === "success"
                                             ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
                                             : "bg-rose-500/10 border-rose-500/30 text-rose-300"
-                                        }`}>
+                                            }`}>
                                             <span className="text-xl">{llmTestResult.status === "success" ? "✅" : "❌"}</span>
                                             <div>
                                                 <p className="font-bold text-sm">

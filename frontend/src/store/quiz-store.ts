@@ -12,6 +12,7 @@ type QuizState = {
   report: any | null;
   currentQuestionIndex: number;
   startedAt: number | null;
+  gradingProgress: { progress: number; total: number; status?: string; currentIndex?: number } | null;
 };
 
 type QuizActions = {
@@ -31,7 +32,8 @@ export const useQuizStore = create<QuizState & QuizActions>()(
     answers: {},
     report: null,
     currentQuestionIndex: 0,
-     startedAt: null,
+    startedAt: null,
+    gradingProgress: null,
 
     generateQuiz: async (topicIds, count) => {
       set({ status: 'loading' });
@@ -45,6 +47,7 @@ export const useQuizStore = create<QuizState & QuizActions>()(
           state.report = null;
           state.currentQuestionIndex = 0;
           state.startedAt = Date.now();
+          state.gradingProgress = null;
         });
       } catch (error) {
         console.error("Failed to generate quiz", error);
@@ -95,7 +98,11 @@ export const useQuizStore = create<QuizState & QuizActions>()(
       }));
 
       try {
-        const reportData = await api.submitQuiz(quizId, apiAnswers);
+        const reportData = await api.submitQuiz(quizId, apiAnswers, (progressData) => {
+          set((state) => {
+            state.gradingProgress = progressData;
+          });
+        });
         set((state) => {
           state.status = 'finished';
           state.report = reportData;
@@ -120,6 +127,7 @@ export const useQuizStore = create<QuizState & QuizActions>()(
         report: null,
         currentQuestionIndex: 0,
         startedAt: null,
+        gradingProgress: null,
       });
     }
   }))

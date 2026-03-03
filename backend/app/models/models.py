@@ -2,8 +2,11 @@ from typing import Optional, List, Dict, Any
 from sqlmodel import SQLModel, Field, Relationship, Column
 from sqlalchemy.dialects.postgresql import JSONB
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from passlib.context import CryptContext
+
+# Use UTC+8 for all datetime defaults instead of UTC
+CHINA_TZ = timezone(timedelta(hours=8))
 
 # Try to import pgvector, but allow it to fail gracefully
 try:
@@ -62,7 +65,7 @@ class UserMastery(SQLModel, table=True):
     user_id: uuid.UUID = Field(foreign_key="users.id", primary_key=True)
     node_id: int = Field(foreign_key="knowledge_nodes.id", primary_key=True)
     mastery_score: float = Field(default=0.0, ge=0.0, le=1.0)
-    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None), sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc).replace(tzinfo=None)})
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None), sa_column_kwargs={"onupdate": lambda: datetime.now(CHINA_TZ).replace(tzinfo=None)})
 
     node: KnowledgeNode = Relationship(back_populates="user_masteries")
     user: "User" = Relationship(back_populates="masteries")
@@ -75,8 +78,7 @@ class ExamRecord(SQLModel, table=True):
     student_input: str
     is_correct: bool
     ai_analysis: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSONB))
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
-
+    created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
     question_id: uuid.UUID = Field(foreign_key="questions.id")
     user: "User" = Relationship(back_populates="exam_records")
     question: Question = Relationship(back_populates="exam_records")
@@ -91,8 +93,10 @@ class User(SQLModel, table=True):
     hashed_password: str
     is_active: bool = Field(default=True)
     is_admin: bool = Field(default=False)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None), sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc).replace(tzinfo=None)})
+    created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None), sa_column_kwargs={"onupdate": lambda: datetime.now(CHINA_TZ).replace(tzinfo=None)})
+    token_usage: int = Field(default=0)
+    token_limit: int = Field(default=100000)
 
     # Relationships
     masteries: List["UserMastery"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})

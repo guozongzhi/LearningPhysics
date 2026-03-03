@@ -46,9 +46,8 @@ async def generate_quiz_endpoint(
 
 @router.post(
     "/submit",
-    response_model=QuizSubmitResponse,
-    summary="Submit a quiz for grading and analysis",
-    description="Grades the submitted answers, provides AI-powered feedback for incorrect ones, and saves the record.",
+    summary="Submit a quiz for grading and analysis (Stream)",
+    description="Grades the submitted answers, provides AI-powered feedback for incorrect ones, and streams the progress then the final result.",
 )
 async def submit_quiz_endpoint(
     request: QuizSubmitRequest,
@@ -60,14 +59,15 @@ async def submit_quiz_endpoint(
     - **quiz_id**: The ID of the quiz being submitted.
     - **answers**: A list of student answers for each question.
     """
-    api_logger.debug(f"测验提交请求 - 用户: {current_user.username}, 测验ID: {request.quiz_id}, 答案数: {len(request.answers)}")
+    from fastapi.responses import StreamingResponse
+
+    api_logger.debug(f"测验提交请求(Stream) - 用户: {current_user.username}, 测验ID: {request.quiz_id}, 答案数: {len(request.answers)}")
     try:
-        # Pass the current user's ID to the service layer
-        analysis_data = await quiz_service.submit_quiz(db=db, request_data=request, user_id=current_user.id)
-        api_logger.debug(f"测验提交成功 - 用户: {current_user.username}, 测验ID: {request.quiz_id}")
-        return analysis_data
+        # Pass the current user's ID to the service layer. The service yields NDJSON lines.
+        generator = quiz_service.submit_quiz(db=db, request_data=request, user_id=current_user.id)
+        return StreamingResponse(generator, media_type="application/x-ndjson")
     except Exception as e:
-        api_logger.error(f"测验提交失败 - 用户: {current_user.username}, 测验ID: {request.quiz_id}, 错误: {str(e)}")
+        api_logger.error(f"测验提交(流)失败 - 用户: {current_user.username}, 测验ID: {request.quiz_id}, 错误: {str(e)}")
         raise
 
 @router.get(
