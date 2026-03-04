@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from pydantic import BaseModel, Field
 
 # --- Schemas for Quiz Generation ---
