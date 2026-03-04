@@ -44,7 +44,7 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
           </div>
           <div className="text-right">
             <div className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-400">
-              {report.total_score} <span className="text-xl text-slate-400 font-normal">分</span>
+              {Math.round(report.total_score)} <span className="text-xl text-slate-400 font-normal">分</span>
             </div>
           </div>
         </div>
@@ -110,17 +110,23 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
                         你的答案
                       </p>
                       <p className={`text-base font-semibold ${isCorrect ? "text-emerald-400" : "text-rose-400"}`}>
-                        {studentInput || "未填"}
+                        {q.question_type === "TRUE_FALSE"
+                          ? (studentInput === "true" ? "正确" : studentInput === "false" ? "错误" : studentInput)
+                          : studentInput || "未填"}
                       </p>
                     </div>
-                    {analysis?.correct_answer_display && (
+                    {analysis?.correct_answer_display && q.question_type !== "CHOICE" && q.question_type !== "SINGLE_CHOICE" && q.question_type !== "MULTIPLE_CHOICE" && (
                       <div className="bg-emerald-500/5 p-4 rounded-lg border border-emerald-500/20 transition-all hover:bg-emerald-500/10">
                         <p className="text-[10px] text-emerald-500/70 font-bold mb-2 uppercase tracking-[0.1em] flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                           正确答案
                         </p>
                         <p className="text-base font-semibold text-emerald-400">
-                          {analysis.correct_answer_display}
+                          {q.question_type === "BLANK" ? (
+                            <Latex>{analysis.correct_answer_display}</Latex>
+                          ) : (
+                            analysis.correct_answer_display
+                          )}
                         </p>
                       </div>
                     )}
