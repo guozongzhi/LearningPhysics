@@ -84,16 +84,17 @@ export const useQuizStore = create<QuizState & QuizActions>()(
 
     submitQuiz: async () => {
       set({ status: 'submitting' });
-      const { quizId, answers, startedAt } = get();
+      const { quizId, answers, startedAt, questions } = get();
       if (!quizId) return;
 
       const now = Date.now();
       const totalMs = startedAt ? now - startedAt : 0;
 
       // Transform answers into the format the API expects
-      const apiAnswers = Object.entries(answers).map(([questionId, studentInput]) => ({
-        question_id: questionId,
-        student_input: studentInput,
+      // Ensure we send ALL questions, even if there is NO answer in the state
+      const apiAnswers = questions.map((q) => ({
+        question_id: q.id,
+        student_input: answers[q.id] || "",
         time_spent_ms: totalMs,
       }));
 
