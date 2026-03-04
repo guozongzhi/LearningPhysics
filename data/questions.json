@@ -1,1341 +1,2038 @@
 {
-    "knowledge_nodes": [
-        {
-            "id": 1,
-            "name": "力学",
-            "code": "mechanics",
-            "level": 1,
-            "description": "涵盖运动学、动力学、功与能、动量及圆周运动等经典力学核心概念。"
-        },
-        {
-            "id": 2,
-            "name": "热学",
-            "code": "thermodynamics",
-            "level": 1,
-            "description": "研究分子热运动、气体实验定律、热力学第一、第二定律及其宏观表现。"
-        },
-        {
-            "id": 3,
-            "name": "光学",
-            "code": "optics",
-            "level": 1,
-            "description": "包括几何光学的反射折射，以及物理光学的干涉、衍射和偏振现象。"
-        },
-        {
-            "id": 4,
-            "name": "电磁学",
-            "code": "electromagnetism",
-            "level": 1,
-            "description": "涵盖电场、磁场、欧姆定律、电磁感应及交流电等核心规律。"
-        },
-        {
-            "id": 5,
-            "name": "现代物理",
-            "code": "modern_physics",
-            "level": 1,
-            "description": "探索原子结构、原子核衰变、光电效应及波粒二象性等量子学起步知识。"
-        }
-    ],
+    "_instructions": {
+        "说明": "这是自动生成的100道题库，全面覆盖了模板要求的全部知识点与题型。",
+        "必填属性": "knowledge_code, content_latex, difficulty, question_type, answer_schema"
+    },
     "questions": [
         {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=2\\text{kg}$ 的物体，受到大小为 $F=10\\text{N}$ 的合外力作用，在光滑水平面上运动。求物体的加速度 $a$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5.0,
-                "unit": "m/s^2",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据牛顿第二定律 F=ma，得 a = F/m = 10 / 2 = 5.0 m/s²。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=5\\text{kg}$ 的物体，受到大小为 $F=20\\text{N}$ 的合外力作用，在光滑水平面上运动。求物体的加速度 $a$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 4.0,
-                "unit": "m/s^2",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据牛顿第二定律 F=ma，得 a = F/m = 20 / 5 = 4.0 m/s²。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=10\\text{kg}$ 的物体，受到大小为 $F=50\\text{N}$ 的合外力作用，在光滑水平面上运动。求物体的加速度 $a$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5.0,
-                "unit": "m/s^2",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据牛顿第二定律 F=ma，得 a = F/m = 50 / 10 = 5.0 m/s²。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=4\\text{kg}$ 的物体，受到大小为 $F=12\\text{N}$ 的合外力作用，在光滑水平面上运动。求物体的加速度 $a$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3.0,
-                "unit": "m/s^2",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据牛顿第二定律 F=ma，得 a = F/m = 12 / 4 = 3.0 m/s²。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=8\\text{kg}$ 的物体，受到大小为 $F=32\\text{N}$ 的合外力作用，在光滑水平面上运动。求物体的加速度 $a$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 4.0,
-                "unit": "m/s^2",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据牛顿第二定律 F=ma，得 a = F/m = 32 / 8 = 4.0 m/s²。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个物体从高处由静止自由下落，忽略空气阻力，经过 $t=2\\text{s}$。求此时物体的速度大小 $v$（取 $g=10\\text{m/s}^2$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 20.0,
-                "unit": "m/s",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据自由落体运动速度公式 v = gt，得 v = 10 × 2 = 20.0 m/s。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个物体从高处由静止自由下落，忽略空气阻力，经过 $t=3\\text{s}$。求此时物体的速度大小 $v$（取 $g=10\\text{m/s}^2$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 30.0,
-                "unit": "m/s",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据自由落体运动速度公式 v = gt，得 v = 10 × 3 = 30.0 m/s。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个物体从高处由静止自由下落，忽略空气阻力，经过 $t=1.5\\text{s}$。求此时物体的速度大小 $v$（取 $g=10\\text{m/s}^2$）。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 15.0,
-                "unit": "m/s",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据自由落体运动速度公式 v = gt，得 v = 10 × 1.5 = 15.0 m/s。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个物体从高处由静止自由下落，忽略空气阻力，经过 $t=4\\text{s}$。求此时物体的速度大小 $v$（取 $g=10\\text{m/s}^2$）。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 40.0,
-                "unit": "m/s",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据自由落体运动速度公式 v = gt，得 v = 10 × 4 = 40.0 m/s。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个物体从高处由静止自由下落，忽略空气阻力，经过 $t=5\\text{s}$。求此时物体的速度大小 $v$（取 $g=10\\text{m/s}^2$）。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 50.0,
-                "unit": "m/s",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据自由落体运动速度公式 v = gt，得 v = 10 × 5 = 50.0 m/s。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=2\\text{kg}$ 的物体，以 $v=4\\text{m/s}$ 的速度运动。求该物体的动能 $E_k$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 16.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据动能公式 E_k = 0.5 * m * v^2，得 E_k = 0.5 × 2 × 16 = 16.0 J。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=4\\text{kg}$ 的物体，以 $v=5\\text{m/s}$ 的速度运动。求该物体的动能 $E_k$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 50.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据动能公式 E_k = 0.5 * m * v^2，得 E_k = 0.5 × 4 × 25 = 50.0 J。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=10\\text{kg}$ 的物体，以 $v=2\\text{m/s}$ 的速度运动。求该物体的动能 $E_k$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 20.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据动能公式 E_k = 0.5 * m * v^2，得 E_k = 0.5 × 10 × 4 = 20.0 J。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=1\\text{kg}$ 的物体，以 $v=10\\text{m/s}$ 的速度运动。求该物体的动能 $E_k$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 50.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据动能公式 E_k = 0.5 * m * v^2，得 E_k = 0.5 × 1 × 100 = 50.0 J。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "一个质量为 $m=20\\text{kg}$ 的物体，以 $v=3\\text{m/s}$ 的速度运动。求该物体的动能 $E_k$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 90.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据动能公式 E_k = 0.5 * m * v^2，得 E_k = 0.5 × 20 × 9 = 90.0 J。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "恒力 $F=10\\text{N}$ 作用在物体上，使其沿力的方向移动了 $s=5\\text{m}$。求该力所做的功 $W$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 50.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据做功公式 W = Fs，得 W = 10 × 5 = 50.0 J。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "恒力 $F=20\\text{N}$ 作用在物体上，使其沿力的方向移动了 $s=3\\text{m}$。求该力所做的功 $W$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 60.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据做功公式 W = Fs，得 W = 20 × 3 = 60.0 J。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "恒力 $F=50\\text{N}$ 作用在物体上，使其沿力的方向移动了 $s=2\\text{m}$。求该力所做的功 $W$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 100.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据做功公式 W = Fs，得 W = 50 × 2 = 100.0 J。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "恒力 $F=5\\text{N}$ 作用在物体上，使其沿力的方向移动了 $s=12\\text{m}$。求该力所做的功 $W$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 60.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据做功公式 W = Fs，得 W = 5 × 12 = 60.0 J。"
-        },
-        {
-            "topic_code": "mechanics",
-            "content_latex": "恒力 $F=15\\text{N}$ 作用在物体上，使其沿力的方向移动了 $s=4\\text{m}$。求该力所做的功 $W$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 60.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据做功公式 W = Fs，得 W = 15 × 4 = 60.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的理想气体，恒温下压强为 $P_1=1.0\\times10^5\\text{Pa}$ 时体积为 $V_1=2\\text{L}$。若体积变为 $V_2=1\\text{L}$，求压强 $P_2$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 200000.0,
-                "unit": "Pa",
-                "tolerance": 100.0
-            },
-            "solution_steps": "由玻意耳定律 P1V1=P2V2，得 P2 = 1e5 × 2 / 1 = 200000 Pa。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的理想气体，恒温下压强为 $P_1=1.0\\times10^5\\text{Pa}$ 时体积为 $V_1=3\\text{L}$。若体积变为 $V_2=1.5\\text{L}$，求压强 $P_2$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 200000.0,
-                "unit": "Pa",
-                "tolerance": 100.0
-            },
-            "solution_steps": "由玻意耳定律 P1V1=P2V2，得 P2 = 1e5 × 3 / 1.5 = 200000 Pa。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的理想气体，恒温下压强为 $P_1=2.0\\times10^5\\text{Pa}$ 时体积为 $V_1=4\\text{L}$。若体积变为 $V_2=2\\text{L}$，求压强 $P_2$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 400000.0,
-                "unit": "Pa",
-                "tolerance": 100.0
-            },
-            "solution_steps": "由玻意耳定律 P1V1=P2V2，得 P2 = 2e5 × 4 / 2 = 400000 Pa。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的理想气体，恒温下压强为 $P_1=1.5\\times10^5\\text{Pa}$ 时体积为 $V_1=2\\text{L}$。若体积变为 $V_2=3\\text{L}$，求压强 $P_2$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 100000.0,
-                "unit": "Pa",
-                "tolerance": 100.0
-            },
-            "solution_steps": "由玻意耳定律 P1V1=P2V2，得 P2 = 1.5e5 × 2 / 3 = 100000 Pa。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的理想气体，恒温下压强为 $P_1=3.0\\times10^5\\text{Pa}$ 时体积为 $V_1=1\\text{L}$。若体积变为 $V_2=3\\text{L}$，求压强 $P_2$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 100000.0,
-                "unit": "Pa",
-                "tolerance": 100.0
-            },
-            "solution_steps": "由玻意耳定律 P1V1=P2V2，得 P2 = 3e5 × 1 / 3 = 100000 Pa。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的气体，在等压过程中，温度 $T_1=300\\text{K}$ 时体积为 $V_1=2\\text{L}$。若温度升高到 $T_2=600\\text{K}$，求此时体积 $V_2$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 4.0,
-                "unit": "L",
-                "tolerance": 0.1
-            },
-            "solution_steps": "由盖-吕萨克定律 V1/T1=V2/T2，得 V2 = V1 * (T2/T1) = 2 × (600/300) = 4.0 L。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的气体，在等压过程中，温度 $T_1=200\\text{K}$ 时体积为 $V_1=5\\text{L}$。若温度升高到 $T_2=400\\text{K}$，求此时体积 $V_2$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 10.0,
-                "unit": "L",
-                "tolerance": 0.1
-            },
-            "solution_steps": "由盖-吕萨克定律 V1/T1=V2/T2，得 V2 = V1 * (T2/T1) = 5 × (400/200) = 10.0 L。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的气体，在等压过程中，温度 $T_1=300\\text{K}$ 时体积为 $V_1=3\\text{L}$。若温度升高到 $T_2=400\\text{K}$，求此时体积 $V_2$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 4.0,
-                "unit": "L",
-                "tolerance": 0.1
-            },
-            "solution_steps": "由盖-吕萨克定律 V1/T1=V2/T2，得 V2 = V1 * (T2/T1) = 3 × (400/300) = 4.0 L。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的气体，在等压过程中，温度 $T_1=250\\text{K}$ 时体积为 $V_1=1\\text{L}$。若温度升高到 $T_2=500\\text{K}$，求此时体积 $V_2$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 2.0,
-                "unit": "L",
-                "tolerance": 0.1
-            },
-            "solution_steps": "由盖-吕萨克定律 V1/T1=V2/T2，得 V2 = V1 * (T2/T1) = 1 × (500/250) = 2.0 L。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "一定质量的气体，在等压过程中，温度 $T_1=400\\text{K}$ 时体积为 $V_1=4\\text{L}$。若温度降低到 $T_2=200\\text{K}$，求此时体积 $V_2$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 2.0,
-                "unit": "L",
-                "tolerance": 0.1
-            },
-            "solution_steps": "由盖-吕萨克定律 V1/T1=V2/T2，得 V2 = V1 * (T2/T1) = 4 × (200/400) = 2.0 L。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "外界对气体做功 $W=100\\text{J}$，同时气体吸收热量 $Q=50\\text{J}$。求气体内能的变化量 $\\Delta U$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 150.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据热力学第一定律 ΔU = W + Q，得 ΔU = 100 + 50 = 150.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "气体对外界做功 $W=50\\text{J}$，同时气体吸收热量 $Q=200\\text{J}$。求气体内能的变化量 $\\Delta U$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 150.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "气体对外界做功，代入 W = -50 J；吸收热量 Q = 200 J。ΔU = -50 + 200 = 150.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "外界对气体做功 $W=300\\text{J}$，同时气体放出热量 $Q=100\\text{J}$。求气体内能的变化量 $\\Delta U$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 200.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "外界做功 W = 300 J；放出热量，代入 Q = -100 J。ΔU = 300 + (-100) = 200.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "气体对外界做功 $W=200\\text{J}$，同时气体放出热量 $Q=100\\text{J}$。求气体内能的变化量 $\\Delta U$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": -300.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "气体对外界做功 W = -200 J；放出热量 Q = -100 J。ΔU = -200 - 100 = -300.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "外界对气体做功 $W=150\\text{J}$，同时气体吸收热量 $Q=150\\text{J}$。求气体内能的变化量 $\\Delta U$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 300.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据热力学第一定律 ΔU = W + Q，得 ΔU = 150 + 150 = 300.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "在压强恒为 $P=1.0\\times10^5\\text{Pa}$ 的情况下，气体体积膨胀了 $\\Delta V = 0.01\\text{m}^3$。求气体对外做的功 $W$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1000.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "等压膨胀做功 W = P * ΔV = 1.0e5 × 0.01 = 1000.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "在压强恒为 $P=2.0\\times10^5\\text{Pa}$ 的情况下，气体体积膨胀了 $\\Delta V = 0.02\\text{m}^3$。求气体对外做的功 $W$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 4000.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "等压膨胀做功 W = P * ΔV = 2.0e5 × 0.02 = 4000.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "在压强恒为 $P=1.5\\times10^5\\text{Pa}$ 的情况下，气体体积膨胀了 $\\Delta V = 0.02\\text{m}^3$。求气体对外做的功 $W$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3000.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "等压膨胀做功 W = P * ΔV = 1.5e5 × 0.02 = 3000.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "在压强恒为 $P=5.0\\times10^4\\text{Pa}$ 的情况下，气体体积膨胀了 $\\Delta V = 0.1\\text{m}^3$。求气体对外做的功 $W$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5000.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "等压膨胀做功 W = P * ΔV = 5.0e4 × 0.1 = 5000.0 J。"
-        },
-        {
-            "topic_code": "thermodynamics",
-            "content_latex": "在压强恒为 $P=3.0\\times10^5\\text{Pa}$ 的情况下，气体体积膨胀了 $\\Delta V = 0.05\\text{m}^3$。求气体对外做的功 $W$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 15000.0,
-                "unit": "J",
-                "tolerance": 0.1
-            },
-            "solution_steps": "等压膨胀做功 W = P * ΔV = 3.0e5 × 0.05 = 15000.0 J。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某透明介质的折射率为 $n=1.5$。求光在该介质中的传播速度 $v$（真空中光速 $c=3\\times10^8\\text{m/s}$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 200000000.0,
-                "unit": "m/s",
-                "tolerance": 1000.0
-            },
-            "solution_steps": "由折射率定义式 n = c/v，得 v = c/n = 3e8 / 1.5 = 2.0e8 m/s。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某透明介质的折射率为 $n=2.0$。求光在该介质中的传播速度 $v$（真空中光速 $c=3\\times10^8\\text{m/s}$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 150000000.0,
-                "unit": "m/s",
-                "tolerance": 1000.0
-            },
-            "solution_steps": "由折射率定义式 n = c/v，得 v = c/n = 3e8 / 2.0 = 1.5e8 m/s。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某透明介质的折射率为 $n=2.5$。求光在该介质中的传播速度 $v$（真空中光速 $c=3\\times10^8\\text{m/s}$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 120000000.0,
-                "unit": "m/s",
-                "tolerance": 1000.0
-            },
-            "solution_steps": "由折射率定义式 n = c/v，得 v = c/n = 3e8 / 2.5 = 1.2e8 m/s。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某透明介质的折射率为 $n=1.25$。求光在该介质中的传播速度 $v$（真空中光速 $c=3\\times10^8\\text{m/s}$）。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 240000000.0,
-                "unit": "m/s",
-                "tolerance": 1000.0
-            },
-            "solution_steps": "由折射率定义式 n = c/v，得 v = c/n = 3e8 / 1.25 = 2.4e8 m/s。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某透明介质的折射率为 $n=3.0$。求光在该介质中的传播速度 $v$（真空中光速 $c=3\\times10^8\\text{m/s}$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 100000000.0,
-                "unit": "m/s",
-                "tolerance": 1000.0
-            },
-            "solution_steps": "由折射率定义式 n = c/v，得 v = c/n = 3e8 / 3.0 = 1.0e8 m/s。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "光从真空射入某种介质，入射角的正弦值 $\\sin i=0.8$，折射角的正弦值 $\\sin r=0.4$。求该介质的折射率 $n$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 2.0,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据斯涅尔定律 n = sin(i) / sin(r)，得 n = 0.8 / 0.4 = 2.0。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "光从真空射入某种介质，入射角的正弦值 $\\sin i=0.6$，折射角的正弦值 $\\sin r=0.4$。求该介质的折射率 $n$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.5,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据斯涅尔定律 n = sin(i) / sin(r)，得 n = 0.6 / 0.4 = 1.5。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "光从真空射入某种介质，入射角的正弦值 $\\sin i=0.9$，折射角的正弦值 $\\sin r=0.6$。求该介质的折射率 $n$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.5,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据斯涅尔定律 n = sin(i) / sin(r)，得 n = 0.9 / 0.6 = 1.5。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "光从真空射入某种介质，入射角的正弦值 $\\sin i=0.5$，折射角的正弦值 $\\sin r=0.25$。求该介质的折射率 $n$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 2.0,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据斯涅尔定律 n = sin(i) / sin(r)，得 n = 0.5 / 0.25 = 2.0。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "光从真空射入某种介质，入射角的正弦值 $\\sin i=0.75$，折射角的正弦值 $\\sin r=0.5$。求该介质的折射率 $n$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.5,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据斯涅尔定律 n = sin(i) / sin(r)，得 n = 0.75 / 0.5 = 1.5。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某介质的折射率 $n=2.0$。求光从该介质射向真空时，全反射临界角的正弦值 $\\sin C$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 0.5,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据全反射临界角公式 sinC = 1/n，得 sinC = 1 / 2.0 = 0.5。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某介质的折射率 $n=1.25$。求光从该介质射向真空时，全反射临界角的正弦值 $\\sin C$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 0.8,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据全反射临界角公式 sinC = 1/n，得 sinC = 1 / 1.25 = 0.8。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某介质的折射率 $n=1.5$。求光从该介质射向真空时，全反射临界角的正弦值 $\\sin C$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 0.667,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据全反射临界角公式 sinC = 1/n，得 sinC = 1 / 1.5 ≈ 0.667。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某介质的折射率 $n=2.5$。求光从该介质射向真空时，全反射临界角的正弦值 $\\sin C$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 0.4,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据全反射临界角公式 sinC = 1/n，得 sinC = 1 / 2.5 = 0.4。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某介质的折射率 $n=1.6$。求光从该介质射向真空时，全反射临界角的正弦值 $\\sin C$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 0.625,
-                "unit": "",
-                "tolerance": 0.01
-            },
-            "solution_steps": "根据全反射临界角公式 sinC = 1/n，得 sinC = 1 / 1.6 = 0.625。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某种单色光在真空中的频率为 $f=5.0\\times10^{14}\\text{Hz}$。求其在真空中的波长 $\\lambda$（已知真空光速 $c=3.0\\times10^8\\text{m/s}$）。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 6e-7,
-                "unit": "m",
-                "tolerance": 1e-8
-            },
-            "solution_steps": "根据波速公式 c = λf，得 λ = c / f = 3.0e8 / 5.0e14 = 6.0e-7 m。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某种单色光在真空中的频率为 $f=6.0\\times10^{14}\\text{Hz}$。求其在真空中的波长 $\\lambda$（已知真空光速 $c=3.0\\times10^8\\text{m/s}$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5e-7,
-                "unit": "m",
-                "tolerance": 1e-8
-            },
-            "solution_steps": "根据波速公式 c = λf，得 λ = c / f = 3.0e8 / 6.0e14 = 5.0e-7 m。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某种单色光在真空中的频率为 $f=7.5\\times10^{14}\\text{Hz}$。求其在真空中的波长 $\\lambda$（已知真空光速 $c=3.0\\times10^8\\text{m/s}$）。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 4e-7,
-                "unit": "m",
-                "tolerance": 1e-8
-            },
-            "solution_steps": "根据波速公式 c = λf，得 λ = c / f = 3.0e8 / 7.5e14 = 4.0e-7 m。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某种单色光在真空中的频率为 $f=1.0\\times10^{15}\\text{Hz}$。求其在真空中的波长 $\\lambda$（已知真空光速 $c=3.0\\times10^8\\text{m/s}$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3e-7,
-                "unit": "m",
-                "tolerance": 1e-8
-            },
-            "solution_steps": "根据波速公式 c = λf，得 λ = c / f = 3.0e8 / 1.0e15 = 3.0e-7 m。"
-        },
-        {
-            "topic_code": "optics",
-            "content_latex": "某种单色光在真空中的频率为 $f=3.0\\times10^{14}\\text{Hz}$。求其在真空中的波长 $\\lambda$（已知真空光速 $c=3.0\\times10^8\\text{m/s}$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1e-6,
-                "unit": "m",
-                "tolerance": 1e-8
-            },
-            "solution_steps": "根据波速公式 c = λf，得 λ = c / f = 3.0e8 / 3.0e14 = 1.0e-6 m。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一段长 $L=1.0\\text{m}$ 的直导线，通有 $I=2.0\\text{A}$ 的电流。将其垂直放置在磁感应强度 $B=0.5\\text{T}$ 的匀强磁场中。求导线所受的安培力 $F$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.0,
-                "unit": "N",
-                "tolerance": 0.01
-            },
-            "solution_steps": "由安培力公式 F = BIL，得 F = 0.5 × 2.0 × 1.0 = 1.0 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一段长 $L=2.0\\text{m}$ 的直导线，通有 $I=5.0\\text{A}$ 的电流。将其垂直放置在磁感应强度 $B=0.2\\text{T}$ 的匀强磁场中。求导线所受的安培力 $F$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 2.0,
-                "unit": "N",
-                "tolerance": 0.01
-            },
-            "solution_steps": "由安培力公式 F = BIL，得 F = 0.2 × 5.0 × 2.0 = 2.0 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一段长 $L=0.5\\text{m}$ 的直导线，通有 $I=3.0\\text{A}$ 的电流。将其垂直放置在磁感应强度 $B=1.0\\text{T}$ 的匀强磁场中。求导线所受的安培力 $F$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.5,
-                "unit": "N",
-                "tolerance": 0.01
-            },
-            "solution_steps": "由安培力公式 F = BIL，得 F = 1.0 × 3.0 × 0.5 = 1.5 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一段长 $L=0.2\\text{m}$ 的直导线，通有 $I=10.0\\text{A}$ 的电流。将其垂直放置在磁感应强度 $B=0.1\\text{T}$ 的匀强磁场中。求导线所受的安培力 $F$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 0.2,
-                "unit": "N",
-                "tolerance": 0.01
-            },
-            "solution_steps": "由安培力公式 F = BIL，得 F = 0.1 × 10.0 × 0.2 = 0.2 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一段长 $L=10.0\\text{m}$ 的直导线，通有 $I=0.5\\text{A}$ 的电流。将其垂直放置在磁感应强度 $B=2.0\\text{T}$ 的匀强磁场中。求导线所受的安培力 $F$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 10.0,
-                "unit": "N",
-                "tolerance": 0.01
-            },
-            "solution_steps": "由安培力公式 F = BIL，得 F = 2.0 × 0.5 × 10.0 = 10.0 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电荷量 $q=1.6\\times10^{-19}\\text{C}$ 的粒子，以 $v=1.0\\times10^6\\text{m/s}$ 的速度垂直射入磁感应强度 $B=0.5\\text{T}$ 的磁场中。求其受到的洛伦兹力大小 $f$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 8e-14,
-                "unit": "N",
-                "tolerance": 1e-15
-            },
-            "solution_steps": "由洛伦兹力公式 f = qvB，得 f = 1.6e-19 × 1.0e6 × 0.5 = 8.0e-14 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电荷量 $q=1.6\\times10^{-19}\\text{C}$ 的粒子，以 $v=2.0\\times10^6\\text{m/s}$ 的速度垂直射入磁感应强度 $B=1.0\\text{T}$ 的磁场中。求其受到的洛伦兹力大小 $f$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3.2e-13,
-                "unit": "N",
-                "tolerance": 1e-15
-            },
-            "solution_steps": "由洛伦兹力公式 f = qvB，得 f = 1.6e-19 × 2.0e6 × 1.0 = 3.2e-13 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电荷量 $q=3.2\\times10^{-19}\\text{C}$ 的粒子，以 $v=1.0\\times10^5\\text{m/s}$ 的速度垂直射入磁感应强度 $B=0.2\\text{T}$ 的磁场中。求其受到的洛伦兹力大小 $f$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 6.4e-15,
-                "unit": "N",
-                "tolerance": 1e-16
-            },
-            "solution_steps": "由洛伦兹力公式 f = qvB，得 f = 3.2e-19 × 1.0e5 × 0.2 = 6.4e-15 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电荷量 $q=1.6\\times10^{-19}\\text{C}$ 的粒子，以 $v=5.0\\times10^5\\text{m/s}$ 的速度垂直射入磁感应强度 $B=2.0\\text{T}$ 的磁场中。求其受到的洛伦兹力大小 $f$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.6e-13,
-                "unit": "N",
-                "tolerance": 1e-15
-            },
-            "solution_steps": "由洛伦兹力公式 f = qvB，得 f = 1.6e-19 × 5.0e5 × 2.0 = 1.6e-13 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电荷量 $q=3.2\\times10^{-19}\\text{C}$ 的粒子，以 $v=4.0\\times10^6\\text{m/s}$ 的速度垂直射入磁感应强度 $B=0.5\\text{T}$ 的磁场中。求其受到的洛伦兹力大小 $f$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 6.4e-13,
-                "unit": "N",
-                "tolerance": 1e-14
-            },
-            "solution_steps": "由洛伦兹力公式 f = qvB，得 f = 3.2e-19 × 4.0e6 × 0.5 = 6.4e-13 N。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电阻 $R=2\\Omega$ 的用电器，两端施加 $U=10\\text{V}$ 的电压。求流过用电器的电流 $I$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5.0,
-                "unit": "A",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据欧姆定律 I = U/R，得 I = 10 / 2 = 5.0 A。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电阻 $R=8\\Omega$ 的用电器，两端施加 $U=24\\text{V}$ 的电压。求流过用电器的电流 $I$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3.0,
-                "unit": "A",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据欧姆定律 I = U/R，得 I = 24 / 8 = 3.0 A。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电阻 $R=44\\Omega$ 的用电器，两端施加 $U=220\\text{V}$ 的电压。求流过用电器的电流 $I$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5.0,
-                "unit": "A",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据欧姆定律 I = U/R，得 I = 220 / 44 = 5.0 A。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电阻 $R=0.5\\Omega$ 的用电器，两端施加 $U=12\\text{V}$ 的电压。求流过用电器的电流 $I$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 24.0,
-                "unit": "A",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据欧姆定律 I = U/R，得 I = 12 / 0.5 = 24.0 A。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个电阻 $R=10\\Omega$ 的用电器，两端施加 $U=5\\text{V}$ 的电压。求流过用电器的电流 $I$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 0.5,
-                "unit": "A",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据欧姆定律 I = U/R，得 I = 5 / 10 = 0.5 A。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个单匝闭合线圈，在 $\\Delta t = 0.1\\text{s}$ 内，穿过它的磁通量变化量为 $\\Delta\\Phi = 0.5\\text{Wb}$。求线圈中产生的感应电动势 $E$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5.0,
-                "unit": "V",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据法拉第电磁感应定律 E = N(ΔΦ/Δt)，其中N=1，得 E = 0.5 / 0.1 = 5.0 V。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个单匝闭合线圈，在 $\\Delta t = 0.2\\text{s}$ 内，穿过它的磁通量变化量为 $\\Delta\\Phi = 1.2\\text{Wb}$。求线圈中产生的感应电动势 $E$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 6.0,
-                "unit": "V",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据法拉第电磁感应定律 E = N(ΔΦ/Δt)，其中N=1，得 E = 1.2 / 0.2 = 6.0 V。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个单匝闭合线圈，在 $\\Delta t = 0.01\\text{s}$ 内，穿过它的磁通量变化量为 $\\Delta\\Phi = 0.04\\text{Wb}$。求线圈中产生的感应电动势 $E$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 4.0,
-                "unit": "V",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据法拉第电磁感应定律 E = N(ΔΦ/Δt)，其中N=1，得 E = 0.04 / 0.01 = 4.0 V。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个单匝闭合线圈，在 $\\Delta t = 2.0\\text{s}$ 内，穿过它的磁通量变化量为 $\\Delta\\Phi = 10.0\\text{Wb}$。求线圈中产生的感应电动势 $E$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5.0,
-                "unit": "V",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据法拉第电磁感应定律 E = N(ΔΦ/Δt)，其中N=1，得 E = 10.0 / 2.0 = 5.0 V。"
-        },
-        {
-            "topic_code": "electromagnetism",
-            "content_latex": "一个单匝闭合线圈，在 $\\Delta t = 0.5\\text{s}$ 内，穿过它的磁通量变化量为 $\\Delta\\Phi = 3.0\\text{Wb}$。求线圈中产生的感应电动势 $E$。",
+            "knowledge_code": "mechanics",
+            "content_latex": "计算题：已知物体做匀加速直线运动，初速度 $u=0$，加速度 $a=2\\text{m/s}^2$，求 $t=3\\text{s}$ 时物体的末速度大小。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
                 "correct_value": 6.0,
-                "unit": "V",
+                "unit": "m/s",
                 "tolerance": 0.1
             },
-            "solution_steps": "根据法拉第电磁感应定律 E = N(ΔΦ/Δt)，其中N=1，得 E = 3.0 / 0.5 = 6.0 V。"
+            "solution_steps": "根据速度公式 $v=u+at$，代入得到 $v=0+2\\times3=6\\text{m/s}$。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "用能量为 $h\\nu=4.0\\text{eV}$ 的光子照射某金属表面。已知该金属的逸出功为 $W=2.5\\text{eV}$，求打出的光电子的最大初动能 $E_k$。",
+            "knowledge_code": "mechanics",
+            "content_latex": "计算题：物体做匀速直线运动，速度 $v=5\\text{m/s}$，求 $t=4\\text{s}$ 内的位移大小。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 1.5,
-                "unit": "eV",
+                "correct_value": 20.0,
+                "unit": "m",
                 "tolerance": 0.1
             },
-            "solution_steps": "根据爱因斯坦光电效应方程 Ek = hν - W，得 Ek = 4.0 - 2.5 = 1.5 eV。"
+            "solution_steps": "根据位移公式 $s=vt$，代入得到 $s=5\\times4=20\\text{m}$。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "用能量为 $h\\nu=3.5\\text{eV}$ 的光子照射某金属表面。已知该金属的逸出功为 $W=2.0\\text{eV}$，求打出的光电子的最大初动能 $E_k$。",
+            "knowledge_code": "mechanics",
+            "content_latex": "单选题：决定物体惯性大小的唯一因素是物体的：",
             "difficulty": 1,
-            "question_type": "CALCULATION",
+            "question_type": "SINGLE_CHOICE",
             "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.5,
-                "unit": "eV",
-                "tolerance": 0.1
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "速度"
+                    },
+                    {
+                        "label": "B",
+                        "text": "质量"
+                    },
+                    {
+                        "label": "C",
+                        "text": "受力"
+                    },
+                    {
+                        "label": "D",
+                        "text": "加速度"
+                    }
+                ],
+                "correct_answer": "B"
             },
-            "solution_steps": "根据爱因斯坦光电效应方程 Ek = hν - W，得 Ek = 3.5 - 2.0 = 1.5 eV。"
+            "solution_steps": "质量是衡量物体惯性大小的唯一量度，与速度、受力无关。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "用能量为 $h\\nu=5.0\\text{eV}$ 的光子照射某金属表面。已知该金属的逸出功为 $W=3.2\\text{eV}$，求打出的光电子的最大初动能 $E_k$。",
+            "knowledge_code": "mechanics",
+            "content_latex": "单选题：下列关于位移和路程的说法中，正确的是：",
+            "difficulty": 2,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "位移是标量，路程是矢量"
+                    },
+                    {
+                        "label": "B",
+                        "text": "位移是矢量，路程是标量"
+                    },
+                    {
+                        "label": "C",
+                        "text": "两者在任何情况下都相等"
+                    },
+                    {
+                        "label": "D",
+                        "text": "位移没有方向"
+                    }
+                ],
+                "correct_answer": "B"
+            },
+            "solution_steps": "位移是描述位置变化的矢量，路程是实际轨迹长度的标量。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "mechanics",
+            "content_latex": "多选题：下列物理量中属于矢量的有：",
+            "difficulty": 1,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "位移"
+                    },
+                    {
+                        "label": "B",
+                        "text": "质量"
+                    },
+                    {
+                        "label": "C",
+                        "text": "加速度"
+                    },
+                    {
+                        "label": "D",
+                        "text": "时间"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "C"
+                ]
+            },
+            "solution_steps": "位移和加速度既有大小又有方向，是矢量；质量和时间是标量。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "mechanics",
+            "content_latex": "多选题：匀速直线运动的特征包括：",
+            "difficulty": 2,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "加速度为零"
+                    },
+                    {
+                        "label": "B",
+                        "text": "速度大小恒定"
+                    },
+                    {
+                        "label": "C",
+                        "text": "速度方向恒定"
+                    },
+                    {
+                        "label": "D",
+                        "text": "轨迹为曲线"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B",
+                    "C"
+                ]
+            },
+            "solution_steps": "匀速直线运动速度矢量保持不变，因此加速度为零且轨迹为直线。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "mechanics",
+            "content_latex": "判断题：速度越大的物体，其加速度也一定越大。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "加速度反映速度变化的快慢，速度很大但保持匀速时加速度为零。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "mechanics",
+            "content_latex": "判断题：自由落体运动是一种初速度为零的匀加速直线运动。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "true"
+            },
+            "solution_steps": "自由落体仅受重力，初始静止，加速度恒定为重力加速度g。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "mechanics",
+            "content_latex": "填空题：国际单位制中，加速度的单位是______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "m/s^2"
+            },
+            "solution_steps": "加速度由 $a = \\Delta v / \\Delta t$ 定义，单位是米每二次方秒(m/s^2)。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "mechanics",
+            "content_latex": "填空题：力是改变物体______状态的原因。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "运动"
+            },
+            "solution_steps": "根据牛顿定律，力不是维持运动的原因，而是改变运动状态的原因。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "thermodynamics",
+            "content_latex": "计算题：理想气体状态方程为 $PV=nRT$。若 $n=1\\text{mol}$，气体常数 $R=8.31$，绝对温度 $T=300\\text{K}$，求此时理想气体的 $PV$ 乘积值。",
             "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 1.8,
-                "unit": "eV",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据爱因斯坦光电效应方程 Ek = hν - W，得 Ek = 5.0 - 3.2 = 1.8 eV。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "用能量为 $h\\nu=4.2\\text{eV}$ 的光子照射某金属表面。已知该金属的逸出功为 $W=2.1\\text{eV}$，求打出的光电子的最大初动能 $E_k$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 2.1,
-                "unit": "eV",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据爱因斯坦光电效应方程 Ek = hν - W，得 Ek = 4.2 - 2.1 = 2.1 eV。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "用能量为 $h\\nu=3.0\\text{eV}$ 的光子照射某金属表面。已知该金属的逸出功为 $W=1.8\\text{eV}$，求打出的光电子的最大初动能 $E_k$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.2,
-                "unit": "eV",
-                "tolerance": 0.1
-            },
-            "solution_steps": "根据爱因斯坦光电效应方程 Ek = hν - W，得 Ek = 3.0 - 1.8 = 1.2 eV。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "某光子的频率为 $\\nu=5.0\\times10^{14}\\text{Hz}$，已知普朗克常量 $h=6.63\\times10^{-34}\\text{J\\cdot s}$。求该光子的能量 $E$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3.315e-19,
-                "unit": "J",
-                "tolerance": 1e-21
-            },
-            "solution_steps": "由光子能量公式 E = hν，得 E = 6.63e-34 × 5.0e14 = 3.315e-19 J。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "某光子的频率为 $\\nu=6.0\\times10^{14}\\text{Hz}$，已知普朗克常量 $h=6.63\\times10^{-34}\\text{J\\cdot s}$。求该光子的能量 $E$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 3.978e-19,
-                "unit": "J",
-                "tolerance": 1e-21
-            },
-            "solution_steps": "由光子能量公式 E = hν，得 E = 6.63e-34 × 6.0e14 = 3.978e-19 J。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "某光子的频率为 $\\nu=1.0\\times10^{15}\\text{Hz}$，已知普朗克常量 $h=6.63\\times10^{-34}\\text{J\\cdot s}$。求该光子的能量 $E$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 6.63e-19,
-                "unit": "J",
-                "tolerance": 1e-21
-            },
-            "solution_steps": "由光子能量公式 E = hν，得 E = 6.63e-34 × 1.0e15 = 6.63e-19 J。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "某光子的频率为 $\\nu=2.0\\times10^{15}\\text{Hz}$，已知普朗克常量 $h=6.63\\times10^{-34}\\text{J\\cdot s}$。求该光子的能量 $E$。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 1.326e-18,
-                "unit": "J",
-                "tolerance": 1e-20
-            },
-            "solution_steps": "由光子能量公式 E = hν，得 E = 6.63e-34 × 2.0e15 = 1.326e-18 J。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "某光子的频率为 $\\nu=8.0\\times10^{14}\\text{Hz}$，已知普朗克常量 $h=6.63\\times10^{-34}\\text{J\\cdot s}$。求该光子的能量 $E$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 5.304e-19,
-                "unit": "J",
-                "tolerance": 1e-21
-            },
-            "solution_steps": "由光子能量公式 E = hν，得 E = 6.63e-34 × 8.0e14 = 5.304e-19 J。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "在一次核反应中，发生了 $\\Delta m=1.0\\times10^{-12}\\text{kg}$ 的质量亏损。求释放的核能 $E$（取 $c=3.0\\times10^8\\text{m/s}$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 90000.0,
-                "unit": "J",
-                "tolerance": 100.0
-            },
-            "solution_steps": "根据爱因斯坦质能方程 E = Δm * c^2，得 E = 1.0e-12 × (3.0e8)^2 = 9.0e4 J。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "在一次核反应中，发生了 $\\Delta m=2.0\\times10^{-10}\\text{kg}$ 的质量亏损。求释放的核能 $E$（取 $c=3.0\\times10^8\\text{m/s}$）。",
-            "difficulty": 2,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 18000000.0,
-                "unit": "J",
-                "tolerance": 1000.0
-            },
-            "solution_steps": "根据爱因斯坦质能方程 E = Δm * c^2，得 E = 2.0e-10 × (3.0e8)^2 = 1.8e7 J。"
-        },
-        {
-            "topic_code": "modern_physics",
-            "content_latex": "在一次核反应中，发生了 $\\Delta m=5.0\\times10^{-15}\\text{kg}$ 的质量亏损。求释放的核能 $E$（取 $c=3.0\\times10^8\\text{m/s}$）。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
-            "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 450.0,
+                "correct_value": 2493.0,
                 "unit": "J",
                 "tolerance": 1.0
             },
-            "solution_steps": "根据爱因斯坦质能方程 E = Δm * c^2，得 E = 5.0e-15 × (3.0e8)^2 = 450.0 J。"
+            "solution_steps": "代入公式 $PV = 1 \\times 8.31 \\times 300 = 2493\\text{J}$。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "在一次核反应中，发生了 $\\Delta m=1.0\\times10^{-8}\\text{kg}$ 的质量亏损。求释放的核能 $E$（取 $c=3.0\\times10^8\\text{m/s}$）。",
+            "knowledge_code": "thermodynamics",
+            "content_latex": "计算题：根据热力学第一定律 $\\Delta U=Q+W$，若系统吸收热量 $Q=100\\text{J}$，对外做功 $20\\text{J}$ ($W=-20\\text{J}$)，求内能变化量。",
             "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 9e8,
+                "correct_value": 80.0,
                 "unit": "J",
-                "tolerance": 10000.0
+                "tolerance": 0.1
             },
-            "solution_steps": "根据爱因斯坦质能方程 E = Δm * c^2，得 E = 1.0e-8 × (3.0e8)^2 = 9.0e8 J。"
+            "solution_steps": "内能变化 $\\Delta U = 100 + (-20) = 80\\text{J}$。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "在一次核反应中，发生了 $\\Delta m=3.0\\times10^{-11}\\text{kg}$ 的质量亏损。求释放的核能 $E$（取 $c=3.0\\times10^8\\text{m/s}$）。",
+            "knowledge_code": "thermodynamics",
+            "content_latex": "单选题：绝对零度对应的热力学温度是：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "0 K"
+                    },
+                    {
+                        "label": "B",
+                        "text": "273 K"
+                    },
+                    {
+                        "label": "C",
+                        "text": "-273 K"
+                    },
+                    {
+                        "label": "D",
+                        "text": "100 K"
+                    }
+                ],
+                "correct_answer": "A"
+            },
+            "solution_steps": "热力学温标的零点(0 K)被称为绝对零度。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "thermodynamics",
+            "content_latex": "单选题：布朗运动间接证明了：",
+            "difficulty": 2,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "分子间存在引力"
+                    },
+                    {
+                        "label": "B",
+                        "text": "分子间存在斥力"
+                    },
+                    {
+                        "label": "C",
+                        "text": "液体分子在做无规则热运动"
+                    },
+                    {
+                        "label": "D",
+                        "text": "微粒内部有结构"
+                    }
+                ],
+                "correct_answer": "C"
+            },
+            "solution_steps": "布朗运动是悬浮微粒的无规则运动，是由液体分子的无规则撞击引起，间接反映了分子的热运动。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "thermodynamics",
+            "content_latex": "多选题：改变物体内能的方法有：",
+            "difficulty": 1,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "做功"
+                    },
+                    {
+                        "label": "B",
+                        "text": "热传递"
+                    },
+                    {
+                        "label": "C",
+                        "text": "改变物体的宏观速度"
+                    },
+                    {
+                        "label": "D",
+                        "text": "改变物体的重心高度"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B"
+                ]
+            },
+            "solution_steps": "改变系统内能的两种等效方式是做功和热传递。C、D改变的是机械能。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "thermodynamics",
+            "content_latex": "多选题：描述一定质量理想气体状态的参量包括：",
+            "difficulty": 1,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "压强"
+                    },
+                    {
+                        "label": "B",
+                        "text": "体积"
+                    },
+                    {
+                        "label": "C",
+                        "text": "温度"
+                    },
+                    {
+                        "label": "D",
+                        "text": "重力势能"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B",
+                    "C"
+                ]
+            },
+            "solution_steps": "气体的状态参量是P(压强), V(体积), T(温度)。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "thermodynamics",
+            "content_latex": "判断题：热量可以自发地从低温物体传递到高温物体，而不引起其他变化。",
+            "difficulty": 2,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "违反热力学第二定律(克劳修斯表述)，热传递具有方向性。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "thermodynamics",
+            "content_latex": "判断题：物体的内能是所有分子热运动动能和分子势能的总和。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "true"
+            },
+            "solution_steps": "内能的微观定义即为分子动能与势能之和。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "thermodynamics",
+            "content_latex": "填空题：温度是分子平均______的宏观标志。",
+            "difficulty": 2,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "动能"
+            },
+            "solution_steps": "温度越高，分子热运动越剧烈，分子平均平动动能越大。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "thermodynamics",
+            "content_latex": "填空题：物质由固态直接变为气态的过程称为______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "升华"
+            },
+            "solution_steps": "升华是物质从固态不经过液态直接转化为气态的相变过程。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "计算题：已知真空中光速 $c=3\\times 10^8\\text{m/s}$，某介质中光速为 $v=2\\times 10^8\\text{m/s}$，求该介质的折射率 $n$。",
             "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 2700000.0,
+                "correct_value": 1.5,
+                "unit": "",
+                "tolerance": 0.01
+            },
+            "solution_steps": "根据折射率定义 $n = c/v = 3/2 = 1.5$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "计算题：普朗克常量 $h=6.6\\times10^{-34}\\text{J\\cdot s}$，光子频率 $f=1\\times10^{15}\\text{Hz}$，求该光子的能量（单位：$10^{-19}\\text{J}$）。",
+            "difficulty": 3,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 6.6,
+                "unit": "10^-19 J",
+                "tolerance": 0.1
+            },
+            "solution_steps": "光子能量 $E=hf = 6.6\\times 10^{-34} \\times 10^{15} = 6.6\\times 10^{-19}\\text{J}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "单选题：光从光疏介质斜射入光密介质时，折射角与入射角的关系是：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "折射角大于入射角"
+                    },
+                    {
+                        "label": "B",
+                        "text": "折射角小于入射角"
+                    },
+                    {
+                        "label": "C",
+                        "text": "折射角等于入射角"
+                    },
+                    {
+                        "label": "D",
+                        "text": "无法比较"
+                    }
+                ],
+                "correct_answer": "B"
+            },
+            "solution_steps": "光由光疏入光密，波速减小，射线向法线偏折，折射角小于入射角。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "单选题：沙漠中产生“海市蜃楼”现象的主要光学原理是：",
+            "difficulty": 2,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "光的直线传播"
+                    },
+                    {
+                        "label": "B",
+                        "text": "光的衍射"
+                    },
+                    {
+                        "label": "C",
+                        "text": "光的全反射"
+                    },
+                    {
+                        "label": "D",
+                        "text": "光的偏振"
+                    }
+                ],
+                "correct_answer": "C"
+            },
+            "solution_steps": "地表空气温度梯度导致折射率变化，光线发生连续折射并最终发生全反射。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "多选题：要观察到明显的光的干涉现象，两束光必须满足的条件包括：",
+            "difficulty": 3,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "频率相同"
+                    },
+                    {
+                        "label": "B",
+                        "text": "相位差恒定"
+                    },
+                    {
+                        "label": "C",
+                        "text": "振动方向完全垂直"
+                    },
+                    {
+                        "label": "D",
+                        "text": "传播方向必须相反"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B"
+                ]
+            },
+            "solution_steps": "相干光必须满足频率相同、相位差恒定、振动方向有平行分量。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "多选题：发生光的全反射的必要条件是：",
+            "difficulty": 2,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "光从光密介质射向光疏介质"
+                    },
+                    {
+                        "label": "B",
+                        "text": "入射角大于或等于临界角"
+                    },
+                    {
+                        "label": "C",
+                        "text": "光从光疏介质射向光密介质"
+                    },
+                    {
+                        "label": "D",
+                        "text": "入射角必须等于0度"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B"
+                ]
+            },
+            "solution_steps": "全反射条件：1. 光密到光疏；2. 入射角不小于临界角。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "判断题：所有电磁波在真空中的传播速度都等于光速 $c$。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "true"
+            },
+            "solution_steps": "光本身就是一种电磁波，所有频率电磁波在真空中波速均为c。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "判断题：凸透镜对光线起发散作用。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "凸透镜(中间厚边缘薄)对光有会聚作用，凹透镜才起发散作用。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "填空题：杨氏双缝实验直接证明了光具有______性。",
+            "difficulty": 2,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "波动"
+            },
+            "solution_steps": "干涉是波特有的现象，双缝干涉证明了光的波动性。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "填空题：一束白光通过三棱镜后形成彩色光带的现象称为光的______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "色散"
+            },
+            "solution_steps": "不同频率的光在同一种介质中的折射率不同，导致偏折角不同，从而散开。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "计算题：一段导体两端的电压 $U=12\\text{V}$，电阻 $R=4\\Omega$，求通过导体的电流大小。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 3.0,
+                "unit": "A",
+                "tolerance": 0.1
+            },
+            "solution_steps": "根据欧姆定律 $I = U/R = 12 / 4 = 3\\text{A}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "计算题：匀强磁场中，磁感应强度 $B=2\\text{T}$，导线长 $L=1\\text{m}$ 垂直于磁场，电流 $I=3\\text{A}$，求安培力大小。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 6.0,
+                "unit": "N",
+                "tolerance": 0.1
+            },
+            "solution_steps": "安培力 $F = BIL = 2 \\times 3 \\times 1 = 6\\text{N}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "单选题：判断带电粒子在磁场中受到的洛伦兹力方向，应该使用：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "左手定则"
+                    },
+                    {
+                        "label": "B",
+                        "text": "右手定则"
+                    },
+                    {
+                        "label": "C",
+                        "text": "安培定则"
+                    },
+                    {
+                        "label": "D",
+                        "text": "楞次定律"
+                    }
+                ],
+                "correct_answer": "A"
+            },
+            "solution_steps": "判断磁场对电流(或运动电荷)的作用力使用左手定则。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "单选题：自然界中存在两种电荷，电子带有：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "正电荷"
+                    },
+                    {
+                        "label": "B",
+                        "text": "负电荷"
+                    },
+                    {
+                        "label": "C",
+                        "text": "不带电"
+                    },
+                    {
+                        "label": "D",
+                        "text": "带有磁极"
+                    }
+                ],
+                "correct_answer": "B"
+            },
+            "solution_steps": "电子是带有负基本电荷的亚原子粒子。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "多选题：静电场中电场线的性质有哪些？",
+            "difficulty": 2,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "起于正电荷，终于负电荷(或无穷远)"
+                    },
+                    {
+                        "label": "B",
+                        "text": "是闭合曲线"
+                    },
+                    {
+                        "label": "C",
+                        "text": "任意两条电场线不相交"
+                    },
+                    {
+                        "label": "D",
+                        "text": "疏密表示电场强度大小"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "C",
+                    "D"
+                ]
+            },
+            "solution_steps": "静电场不是涡旋场，电场线不闭合。方向表场强方向，疏密表场强大小，空间不相交。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "多选题：产生感应电流的条件是：",
+            "difficulty": 2,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "电路必须闭合"
+                    },
+                    {
+                        "label": "B",
+                        "text": "穿过电路的磁通量发生变化"
+                    },
+                    {
+                        "label": "C",
+                        "text": "电路中必须有电池"
+                    },
+                    {
+                        "label": "D",
+                        "text": "导体必须做直线运动"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B"
+                ]
+            },
+            "solution_steps": "闭合回路且磁通量发生变化，回路中就会产生感应电流。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "判断题：同种电荷相互排斥，异种电荷相互吸引。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "true"
+            },
+            "solution_steps": "这是库仑定律及电荷间相互作用的基本规律。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "判断题：磁感线是真实存在于磁场中的客观线条。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "磁感线是为了形象描绘磁场而假想的曲线，客观上并不存在。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "填空题：国际单位制中，电容的单位是______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "法拉"
+            },
+            "solution_steps": "电容的基本单位是法拉(F)。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "electromagnetism",
+            "content_latex": "填空题：用来描述磁场强弱和方向的物理量是______。",
+            "difficulty": 2,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "磁感应强度"
+            },
+            "solution_steps": "磁感应强度B是一个矢量，它决定了磁场在空间某点的强弱和方向。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "计算题：根据爱因斯坦质能方程 $E=mc^2$。若消耗质量 $m=1\\text{kg}$，求释放的能量（设 $c=3\\times 10^8\\text{m/s}$，单位填 $10^{16}\\text{J}$前面的系数）。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 9.0,
+                "unit": "10^16 J",
+                "tolerance": 0.1
+            },
+            "solution_steps": "$E = mc^2 = 1 \\times (3\\times 10^8)^2 = 9\\times 10^{16}\\text{J}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "计算题：某放射性元素的半衰期为 $T$，经过 $2T$ 时间后，未衰变的原子核占原来的比例是多少（用小数表示）？",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 0.25,
+                "unit": "",
+                "tolerance": 0.01
+            },
+            "solution_steps": "剩余比例 $N/N_0 = (1/2)^n = (1/2)^2 = 1/4 = 0.25$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "单选题：提出光子说并成功解释光电效应的物理学家是：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "牛顿"
+                    },
+                    {
+                        "label": "B",
+                        "text": "麦克斯韦"
+                    },
+                    {
+                        "label": "C",
+                        "text": "爱因斯坦"
+                    },
+                    {
+                        "label": "D",
+                        "text": "普朗克"
+                    }
+                ],
+                "correct_answer": "C"
+            },
+            "solution_steps": "爱因斯坦在普朗克能量子的启发下提出了光子说。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "单选题：$\\,\\alpha\\,$ 射线的本质是高速运动的：",
+            "difficulty": 2,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "电子流"
+                    },
+                    {
+                        "label": "B",
+                        "text": "质子流"
+                    },
+                    {
+                        "label": "C",
+                        "text": "氦核流"
+                    },
+                    {
+                        "label": "D",
+                        "text": "中子流"
+                    }
+                ],
+                "correct_answer": "C"
+            },
+            "solution_steps": "阿尔法射线是带正电的氦原子核束。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "多选题：玻尔原子模型的基本假设包括：",
+            "difficulty": 3,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "定态假设"
+                    },
+                    {
+                        "label": "B",
+                        "text": "跃迁假设"
+                    },
+                    {
+                        "label": "C",
+                        "text": "原子核处于绝对静止"
+                    },
+                    {
+                        "label": "D",
+                        "text": "电子在任意轨道上辐射能量"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B"
+                ]
+            },
+            "solution_steps": "玻尔理论提出轨道量子化(定态)以及能在不同能级间跃迁并辐射/吸收光子。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "多选题：天然放射现象中放出的射线包括：",
+            "difficulty": 1,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "阿尔法射线"
+                    },
+                    {
+                        "label": "B",
+                        "text": "贝塔射线"
+                    },
+                    {
+                        "label": "C",
+                        "text": "伽马射线"
+                    },
+                    {
+                        "label": "D",
+                        "text": "X射线"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B",
+                    "C"
+                ]
+            },
+            "solution_steps": "天然衰变会放射出 $\\alpha$, $\\beta$, $\\gamma$ 三种射线。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "判断题：狭义相对论的基本假设之一是光速在任何惯性系中都是不变的。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "true"
+            },
+            "solution_steps": "光速不变原理与相对性原理是狭义相对论的两大基石。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "判断题：放射性元素的半衰期会随着温度的升高而缩短。",
+            "difficulty": 2,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "半衰期由原子核内部性质决定，不受外部温度、压力及化学状态影响。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "填空题：光既具有波动性，又具有粒子性，这被称为光的______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "波粒二象性"
+            },
+            "solution_steps": "干涉衍射体现波动性，光电效应体现粒子性，合称波粒二象性。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "填空题：发生光电效应的必要条件是：入射光的频率必须______金属的极限频率。",
+            "difficulty": 2,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "大于"
+            },
+            "solution_steps": "只有入射光子的能量 $hf$ 大于金属的逸出功时，电子才能逃逸出金属表面。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "计算题：质量 $m=4\\text{kg}$ 的物体，在恒力作用下产生 $a=2.5\\text{m/s}^2$ 的加速度，求合外力大小。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 10.0,
+                "unit": "N",
+                "tolerance": 0.1
+            },
+            "solution_steps": "牛顿第二定律 $F=ma = 4 \\times 2.5 = 10\\text{N}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "计算题：物体的质量 $m=10\\text{kg}$，取重力加速度 $g=9.8\\text{m/s}^2$，求物体受到的重力大小。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 98.0,
+                "unit": "N",
+                "tolerance": 0.1
+            },
+            "solution_steps": "重力计算公式 $G=mg = 10 \\times 9.8 = 98\\text{N}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "单选题：关于作用力与反作用力，正确的是：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "大小总是相等，方向相反"
+                    },
+                    {
+                        "label": "B",
+                        "text": "主动施力物体的力更大"
+                    },
+                    {
+                        "label": "C",
+                        "text": "作用在同一个物体上"
+                    },
+                    {
+                        "label": "D",
+                        "text": "两者性质可以不同"
+                    }
+                ],
+                "correct_answer": "A"
+            },
+            "solution_steps": "牛顿第三定律指出，作用力和反作用力总是等大反向，同生同灭，同性质，作用在不同物体上。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "单选题：牛顿第一定律揭示了：",
+            "difficulty": 2,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "力是维持物体运动的原因"
+                    },
+                    {
+                        "label": "B",
+                        "text": "力是改变物体运动状态的原因"
+                    },
+                    {
+                        "label": "C",
+                        "text": "物体的速度决定其惯性"
+                    },
+                    {
+                        "label": "D",
+                        "text": "加速度与质量成反比"
+                    }
+                ],
+                "correct_answer": "B"
+            },
+            "solution_steps": "第一定律说明物体具有保持原运动状态的惯性，而力是打破惯性(改变运动状态)的原因。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "多选题：下列关于惯性的说法中，正确的是：",
+            "difficulty": 1,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "质量越大，惯性越大"
+                    },
+                    {
+                        "label": "B",
+                        "text": "一切物体都具有惯性"
+                    },
+                    {
+                        "label": "C",
+                        "text": "速度越大的物体惯性越大"
+                    },
+                    {
+                        "label": "D",
+                        "text": "失重状态下物体没有惯性"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B"
+                ]
+            },
+            "solution_steps": "惯性是物体的固有属性，存在于任何情况，其大小完全由质量决定，与速度和受力无关。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "多选题：牛顿运动定律的适用范围是：",
+            "difficulty": 2,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "宏观物体"
+                    },
+                    {
+                        "label": "B",
+                        "text": "低速运动"
+                    },
+                    {
+                        "label": "C",
+                        "text": "微观粒子"
+                    },
+                    {
+                        "label": "D",
+                        "text": "接近光速的高速运动"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B"
+                ]
+            },
+            "solution_steps": "经典力学适用于宏观世界的低速运动，不适用于微观世界和高速(近光速)情况。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "判断题：处于超重状态的物体，其受到的地球引力增大了。",
+            "difficulty": 2,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "超重是指物体对支持面的压力大于重力，物体的真实重力并没有改变。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "判断题：静摩擦力的方向总是与物体相对运动趋势的方向相反。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "true"
+            },
+            "solution_steps": "摩擦力的作用就是阻碍接触面之间的相对滑动趋势。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "填空题：牛顿第二定律的数学表达式为 $F=$______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "ma"
+            },
+            "solution_steps": "物体的加速度与合外力成正比，与质量成反比，写为 $F=ma$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "填空题：力学单位制中，基本物理量有长度、时间和______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "质量"
+            },
+            "solution_steps": "国际单位制中力学的三个基本量为长度(m)、质量(kg)和时间(s)。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "计算题：质量 $m=5\\text{kg}$ 的小球以 $v=4\\text{m/s}$ 的速度运动，求其动量大小。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 20.0,
+                "unit": "kg\\cdot m/s",
+                "tolerance": 0.1
+            },
+            "solution_steps": "动量 $p = mv = 5 \\times 4 = 20\\text{kg}\\cdot\\text{m/s}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "计算题：恒力 $F=10\\text{N}$ 作用在物体上持续 $t=2\\text{s}$，求这把力的冲量大小。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 20.0,
+                "unit": "N\\cdot s",
+                "tolerance": 0.1
+            },
+            "solution_steps": "冲量定义 $I = Ft = 10 \\times 2 = 20\\text{N}\\cdot\\text{s}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "单选题：在完全弹性碰撞过程中，系统一定守恒的物理量有：",
+            "difficulty": 2,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "仅动量守恒"
+                    },
+                    {
+                        "label": "B",
+                        "text": "仅动能守恒"
+                    },
+                    {
+                        "label": "C",
+                        "text": "动量和动能均守恒"
+                    },
+                    {
+                        "label": "D",
+                        "text": "两者都不守恒"
+                    }
+                ],
+                "correct_answer": "C"
+            },
+            "solution_steps": "完全弹性碰撞是指没有机械能损失的碰撞，动量与动能双重守恒。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "单选题：动量是矢量，其方向总是与下列哪个物理量的方向相同？",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "加速度"
+                    },
+                    {
+                        "label": "B",
+                        "text": "速度"
+                    },
+                    {
+                        "label": "C",
+                        "text": "位移"
+                    },
+                    {
+                        "label": "D",
+                        "text": "合外力"
+                    }
+                ],
+                "correct_answer": "B"
+            },
+            "solution_steps": "根据公式 $\\vec{p} = m\\vec{v}$，动量的方向与瞬时速度方向相同。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "多选题：系统动量守恒的条件是：",
+            "difficulty": 3,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "系统不受外力"
+                    },
+                    {
+                        "label": "B",
+                        "text": "系统所受合外力为零"
+                    },
+                    {
+                        "label": "C",
+                        "text": "内力远大于外力时(近似守恒)"
+                    },
+                    {
+                        "label": "D",
+                        "text": "系统内部不发生碰撞"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B",
+                    "C"
+                ]
+            },
+            "solution_steps": "动量守恒的严格条件是不受外力或合外力为零，爆炸/碰撞中内力远大于外力也可近似守恒。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "多选题：下列单位中，可以作为冲量单位的是：",
+            "difficulty": 2,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "N·s"
+                    },
+                    {
+                        "label": "B",
+                        "text": "kg·m/s"
+                    },
+                    {
+                        "label": "C",
+                        "text": "J"
+                    },
+                    {
+                        "label": "D",
+                        "text": "W"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B"
+                ]
+            },
+            "solution_steps": "由 $I=Ft$ 得单位是N·s，由动量定理 $I=\\Delta p$ 得单位等价于 kg·m/s。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "判断题：物体的动量改变时，其动能一定也随之改变。",
+            "difficulty": 2,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "动量是矢量，若物体做匀速圆周运动，速度方向改变导致动量改变，但动能大小不变。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "判断题：一个系统的总动量若为零，则该系统的总动能也必定为零。",
+            "difficulty": 2,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "如两相同小球以等大速率相向运动，系统总动量为零但总动能不为零。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "填空题：动量定理的数学表达式可以写为 $I = \\Delta$______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "p"
+            },
+            "solution_steps": "合外力的冲量等于物体动量的变化量，即 $I = \\Delta p$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "MOMENTUM",
+            "content_latex": "填空题：汽车安全气囊的作用是通过延长碰撞发生的时间，从而减小人员受到的______。",
+            "difficulty": 2,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "作用力"
+            },
+            "solution_steps": "根据动量定理 $F = \\Delta p / t$，时间t变长，冲击力F减小。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "计算题：某物体做匀速圆周运动，线速度 $v=6\\text{m/s}$，半径 $r=3\\text{m}$，求向心加速度大小。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 12.0,
+                "unit": "m/s^2",
+                "tolerance": 0.1
+            },
+            "solution_steps": "向心加速度公式 $a = v^2/r = 36 / 3 = 12\\text{m/s}^2$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "计算题：圆盘转动的角速度 $\\omega = 4\\text{rad/s}$，圆盘边缘某点距圆心 $r=2\\text{m}$，求该点的线速度大小。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 8.0,
+                "unit": "m/s",
+                "tolerance": 0.1
+            },
+            "solution_steps": "线速度和角速度关系 $v = \\omega r = 4 \\times 2 = 8\\text{m/s}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "单选题：做匀速圆周运动的物体，其受到的合外力方向总是：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "与速度方向相同"
+                    },
+                    {
+                        "label": "B",
+                        "text": "与速度方向相反"
+                    },
+                    {
+                        "label": "C",
+                        "text": "指向圆心"
+                    },
+                    {
+                        "label": "D",
+                        "text": "背离圆心"
+                    }
+                ],
+                "correct_answer": "C"
+            },
+            "solution_steps": "匀速圆周运动需要向心力，即合力始终指向圆心提供向心加速度。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "单选题：汽车在水平路面上转弯，提供向心力的主要是：",
+            "difficulty": 2,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "汽车的重力"
+                    },
+                    {
+                        "label": "B",
+                        "text": "地面的静摩擦力"
+                    },
+                    {
+                        "label": "C",
+                        "text": "地面的支持力"
+                    },
+                    {
+                        "label": "D",
+                        "text": "发动机的牵引力"
+                    }
+                ],
+                "correct_answer": "B"
+            },
+            "solution_steps": "在无倾角的水平弯道上，靠轮胎与地面的横向静摩擦力提供转弯所需的向心力。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "多选题：描述圆周运动快慢的物理量包括：",
+            "difficulty": 1,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "线速度"
+                    },
+                    {
+                        "label": "B",
+                        "text": "角速度"
+                    },
+                    {
+                        "label": "C",
+                        "text": "周期"
+                    },
+                    {
+                        "label": "D",
+                        "text": "频率"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B",
+                    "C",
+                    "D"
+                ]
+            },
+            "solution_steps": "线速度描述路程积累快慢，角速度描述转角快慢，周期和频率也反映了运动快慢。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "多选题：关于向心加速度的物理意义，正确的是：",
+            "difficulty": 2,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "它描述线速度方向变化的快慢"
+                    },
+                    {
+                        "label": "B",
+                        "text": "它描述线速度大小变化的快慢"
+                    },
+                    {
+                        "label": "C",
+                        "text": "它的方向始终指向圆心"
+                    },
+                    {
+                        "label": "D",
+                        "text": "匀速圆周运动中其大小恒定不变"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "C",
+                    "D"
+                ]
+            },
+            "solution_steps": "向心加速度只负责改变速度的方向，大小为 $v^2/r$，且时刻指向圆心。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "判断题：匀速圆周运动是一种匀速运动。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "匀速圆周运动的速度方向在时刻改变，存在加速度，因此是一种变加速曲线运动。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "判断题：物体做圆周运动时，实际上会受到一个名为“离心力”的真实力的作用。",
+            "difficulty": 2,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "离心力是一种由于处于非惯性系而引入的虚拟力，并非物体间真实的相互作用。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "填空题：角速度 $\\omega$ 与周期 $T$ 的关系式为 $\\omega =$ ______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "2\\pi/T"
+            },
+            "solution_steps": "转过一圈的弧度为 $2\\pi$，花费时间为一个周期 $T$，故 $\\omega = 2\\pi / T$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "CIRCULAR-MOTION",
+            "content_latex": "填空题：地球同步卫星绕地球运动的周期等于地球的______周期。",
+            "difficulty": 2,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "自转"
+            },
+            "solution_steps": "同步卫星要与地面位置保持相对静止，因此其公转周期必须与地球自转周期相同。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ENERGY",
+            "content_latex": "计算题：质量 $m=2\\text{kg}$ 的物体，以速度 $v=5\\text{m/s}$ 运动，求它的动能大小。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 25.0,
                 "unit": "J",
-                "tolerance": 1000.0
+                "tolerance": 0.1
             },
-            "solution_steps": "根据爱因斯坦质能方程 E = Δm * c^2，得 E = 3.0e-11 × (3.0e8)^2 = 2.7e6 J。"
+            "solution_steps": "动能 $E_k = \\frac{1}{2}mv^2 = 0.5 \\times 2 \\times 25 = 25\\text{J}$。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "氢原子从高能级跃迁到低能级，高能级能量为 $E_i=-1.51\\text{eV}$，低能级能量为 $E_f=-3.40\\text{eV}$。求辐射出的光子能量 $\\Delta E$。",
+            "knowledge_code": "ENERGY",
+            "content_latex": "计算题：质量 $m=1\\text{kg}$ 的物体，被举高 $h=5\\text{m}$，取 $g=10\\text{m/s}^2$，求相对于地面增加的重力势能。",
             "difficulty": 1,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 1.89,
-                "unit": "eV",
-                "tolerance": 0.01
+                "correct_value": 50.0,
+                "unit": "J",
+                "tolerance": 0.1
             },
-            "solution_steps": "跃迁辐射光子能量 ΔE = E_i - E_f = -1.51 - (-3.40) = 1.89 eV。"
+            "solution_steps": "重力势能 $E_p = mgh = 1 \\times 10 \\times 5 = 50\\text{J}$。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "氢原子从高能级跃迁到低能级，高能级能量为 $E_i=-0.85\\text{eV}$，低能级能量为 $E_f=-3.40\\text{eV}$。求辐射出的光子能量 $\\Delta E$。",
+            "knowledge_code": "ENERGY",
+            "content_latex": "单选题：功的计算公式 $W=Fs\\cos\\theta$ 中，若力的方向与位移方向垂直 ($\\theta=90^\\circ$)，则力做功为：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "正功"
+                    },
+                    {
+                        "label": "B",
+                        "text": "负功"
+                    },
+                    {
+                        "label": "C",
+                        "text": "零"
+                    },
+                    {
+                        "label": "D",
+                        "text": "最大功"
+                    }
+                ],
+                "correct_answer": "C"
+            },
+            "solution_steps": "因为 $\\cos(90^\\circ)=0$，所以该力在此位移上不做功。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ENERGY",
+            "content_latex": "单选题：功率是表示物体做功______的物理量。",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "多少"
+                    },
+                    {
+                        "label": "B",
+                        "text": "快慢"
+                    },
+                    {
+                        "label": "C",
+                        "text": "大小"
+                    },
+                    {
+                        "label": "D",
+                        "text": "方向"
+                    }
+                ],
+                "correct_answer": "B"
+            },
+            "solution_steps": "功率是单位时间内完成的功，反映了做功的快慢程度。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ENERGY",
+            "content_latex": "多选题：机械能守恒定律适用的条件包括：",
+            "difficulty": 3,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "系统内只有重力做功"
+                    },
+                    {
+                        "label": "B",
+                        "text": "系统内只有弹力做功"
+                    },
+                    {
+                        "label": "C",
+                        "text": "系统受到除重力弹力外的合外力为零"
+                    },
+                    {
+                        "label": "D",
+                        "text": "只有摩擦力做负功"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B"
+                ]
+            },
+            "solution_steps": "机械能守恒的核心条件是只有保守力(重力、弹力等)参与做功，不存在耗散力做功。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ENERGY",
+            "content_latex": "多选题：下列力做功与路径无关的(属于保守力)有：",
+            "difficulty": 2,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "重力"
+                    },
+                    {
+                        "label": "B",
+                        "text": "滑动摩擦力"
+                    },
+                    {
+                        "label": "C",
+                        "text": "弹簧弹力"
+                    },
+                    {
+                        "label": "D",
+                        "text": "空气阻力"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "C"
+                ]
+            },
+            "solution_steps": "重力和理想弹力做功都只与初末位置有关，与路径无关，摩擦力和阻力做功与路径有关。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ENERGY",
+            "content_latex": "判断题：重力对物体做正功时，物体的重力势能一定增加。",
+            "difficulty": 2,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "重力做正功表示物体高度下降，势能转化为动能等，重力势能应该减少。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ENERGY",
+            "content_latex": "判断题：能量既不会凭空产生，也不会凭空消失，它只能转化或转移，总能量保持不变。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "true"
+            },
+            "solution_steps": "这是能量守恒定律的经典表述，适用于所有自然科学领域。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ENERGY",
+            "content_latex": "填空题：国际单位制中，功和能量的单位都是______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "焦耳"
+            },
+            "solution_steps": "为了纪念物理学家焦耳，做功和能量的国际单位被定为焦耳(J)。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ENERGY",
+            "content_latex": "填空题：动能定理的表达式为 $W_{\\text{合}} = \\Delta$______。",
+            "difficulty": 2,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "E_k"
+            },
+            "solution_steps": "合外力对物体所做的功等于物体动能的变化量，即 $W = E_{k2} - E_{k1}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "计算题：用电器两端电压 $U=220\\text{V}$，通过电流 $I=5\\text{A}$，求其消耗的电功率。",
+            "difficulty": 1,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 1100.0,
+                "unit": "W",
+                "tolerance": 1.0
+            },
+            "solution_steps": "电功率 $P = UI = 220 \\times 5 = 1100\\text{W}$。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "计算题：单匝线圈回路内的磁通量在 $\\Delta t = 2\\text{s}$ 内变化了 $\\Delta \\Phi = 10\\text{Wb}$，求平均感应电动势大小。",
             "difficulty": 2,
             "question_type": "CALCULATION",
             "answer_schema": {
                 "type": "value_unit",
-                "correct_value": 2.55,
-                "unit": "eV",
-                "tolerance": 0.01
+                "correct_value": 5.0,
+                "unit": "V",
+                "tolerance": 0.1
             },
-            "solution_steps": "跃迁辐射光子能量 ΔE = E_i - E_f = -0.85 - (-3.40) = 2.55 eV。"
+            "solution_steps": "法拉第电磁感应定律 $E = \\Delta \\Phi / \\Delta t = 10 / 2 = 5\\text{V}$。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "氢原子从高能级跃迁到低能级，高能级能量为 $E_i=-1.51\\text{eV}$，低能级能量为 $E_f=-13.6\\text{eV}$。求辐射出的光子能量 $\\Delta E$。",
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "单选题：用来判断感应电流方向的物理规律是：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "牛顿定律"
+                    },
+                    {
+                        "label": "B",
+                        "text": "楞次定律"
+                    },
+                    {
+                        "label": "C",
+                        "text": "库仑定律"
+                    },
+                    {
+                        "label": "D",
+                        "text": "安培定则"
+                    }
+                ],
+                "correct_answer": "B"
+            },
+            "solution_steps": "楞次定律指出感应电流具有阻碍引起它的磁通量变化的特性，专门用于判向。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "单选题：理想变压器能够改变交流电的哪个物理量？",
             "difficulty": 2,
-            "question_type": "CALCULATION",
+            "question_type": "SINGLE_CHOICE",
             "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 12.09,
-                "unit": "eV",
-                "tolerance": 0.01
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "频率"
+                    },
+                    {
+                        "label": "B",
+                        "text": "功率"
+                    },
+                    {
+                        "label": "C",
+                        "text": "电压"
+                    },
+                    {
+                        "label": "D",
+                        "text": "以上都可以改变"
+                    }
+                ],
+                "correct_answer": "C"
             },
-            "solution_steps": "跃迁辐射光子能量 ΔE = E_i - E_f = -1.51 - (-13.6) = 12.09 eV。"
+            "solution_steps": "变压器基于电磁感应改变交流电压和电流，但频率不变，理想状态下功率不损耗。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "氢原子从高能级跃迁到低能级，高能级能量为 $E_i=-0.85\\text{eV}$，低能级能量为 $E_f=-1.51\\text{eV}$。求辐射出的光子能量 $\\Delta E$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "多选题：在闭合线圈中产生感应电动势大小的决定因素有：",
+            "difficulty": 3,
+            "question_type": "MULTIPLE_CHOICE",
             "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 0.66,
-                "unit": "eV",
-                "tolerance": 0.01
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "线圈的匝数"
+                    },
+                    {
+                        "label": "B",
+                        "text": "磁通量的变化量"
+                    },
+                    {
+                        "label": "C",
+                        "text": "磁通量变化所用的时间"
+                    },
+                    {
+                        "label": "D",
+                        "text": "线圈的电阻"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "B",
+                    "C"
+                ]
             },
-            "solution_steps": "跃迁辐射光子能量 ΔE = E_i - E_f = -0.85 - (-1.51) = 0.66 eV。"
+            "solution_steps": "由 $E=N\\Delta \\Phi / \\Delta t$ 可知，与匝数及磁通量的变化率有关，与自身电阻无关。",
+            "image_url": null
         },
         {
-            "topic_code": "modern_physics",
-            "content_latex": "氢原子从高能级跃迁到低能级，高能级能量为 $E_i=-3.40\\text{eV}$，低能级能量为 $E_f=-13.6\\text{eV}$。求辐射出的光子能量 $\\Delta E$。",
-            "difficulty": 1,
-            "question_type": "CALCULATION",
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "多选题：磁场产生的来源可以包括：",
+            "difficulty": 2,
+            "question_type": "MULTIPLE_CHOICE",
             "answer_schema": {
-                "type": "value_unit",
-                "correct_value": 10.2,
-                "unit": "eV",
-                "tolerance": 0.01
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "永磁体"
+                    },
+                    {
+                        "label": "B",
+                        "text": "静止电荷"
+                    },
+                    {
+                        "label": "C",
+                        "text": "运动电荷(电流)"
+                    },
+                    {
+                        "label": "D",
+                        "text": "变化电场"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "C",
+                    "D"
+                ]
             },
-            "solution_steps": "跃迁辐射光子能量 ΔE = E_i - E_f = -3.40 - (-13.6) = 10.2 eV。"
+            "solution_steps": "静止电荷只产生电场；磁场由磁体、电流或变化的电场(麦克斯韦理论)产生。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "判断题：变压器既可以改变交流电的电压，也可以改变直流电的电压。",
+            "difficulty": 1,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "false"
+            },
+            "solution_steps": "变压器必须依赖磁通量的持续变化来工作，恒定的直流电无法实现互感。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "判断题：块状金属在变化的磁场中会产生旋涡状的感应电流，这种现象称为涡流现象。",
+            "difficulty": 2,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "true"
+            },
+            "solution_steps": "涡流(Eddy Current)是电磁感应现象在整块导体中的体现，常用于电磁炉发热或电磁阻尼。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "填空题：判断通电直导线周围磁场方向，通常使用的是______定则。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "安培"
+            },
+            "solution_steps": "安培定则（右手螺旋定则）用于判断电流与磁感线方向的关系。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ELECTROMAGNETISM",
+            "content_latex": "填空题：磁通量的国际单位是______。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "韦伯"
+            },
+            "solution_steps": "磁通量 $\\Phi=BS$，单位是特斯拉乘平方米，定义为韦伯(Wb)。",
+            "image_url": null
         }
     ]
 }
