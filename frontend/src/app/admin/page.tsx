@@ -139,6 +139,13 @@ export default function AdminDashboard() {
     const [questionMsg, setQuestionMsg] = useState("");
     const [showAddQuestion, setShowAddQuestion] = useState(false);
     const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
+    const questionTypeLabels: Record<string, string> = {
+        CALCULATION: "计算题",
+        SINGLE_CHOICE: "单选题",
+        MULTIPLE_CHOICE: "多选题",
+        TRUE_FALSE: "判断题",
+        BLANK: "填空题",
+    };
     const [newQ, setNewQ] = useState({
         content_latex: "", difficulty: 2, question_type: "CALCULATION",
         correct_value: "", unit: "", tolerance: "0.1",
@@ -863,6 +870,7 @@ export default function AdminDashboard() {
                                                     </div>
                                                     <div className="flex gap-2 mt-2">
                                                         <span className="text-xs px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300">{q.topic_name}</span>
+                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">{questionTypeLabels[q.question_type] || q.question_type}</span>
                                                         <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-400">难度 {q.difficulty}</span>
                                                     </div>
                                                 </div>

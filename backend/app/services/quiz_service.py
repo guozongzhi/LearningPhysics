@@ -1,11 +1,5 @@
-import uuid
-import json
-import re
-from typing import List, Dict, Any, Optional
-import asyncio
-from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func
 import openai
 
 from app.models.models import Question, ExamRecord, User
@@ -46,6 +40,7 @@ async def generate_quiz(
     query = (
         select(Question)
         .where(Question.primary_node_id.in_(request_data.topic_ids))
+        .order_by(func.random())
         .limit(request_data.count)
     )
 
