@@ -21,7 +21,7 @@ class QuestionResponse(BaseModel):
     """
     id: uuid.UUID
     content_latex: str = Field(..., max_length=10000, description="LaTeX formatted question content")
-    question_type: str = Field(..., pattern=r"^(CHOICE|BLANK|CALCULATION)$", description="Type of the question")
+    question_type: str = Field(..., pattern=r"^(CHOICE|SINGLE_CHOICE|MULTIPLE_CHOICE|TRUE_FALSE|BLANK|CALCULATION)$", description="Type of the question")
     difficulty: int = Field(..., ge=1, le=5, description="Difficulty level of the question")
     image_url: Optional[str] = None
 
