@@ -1,0 +1,129 @@
+{
+    "_instructions": {
+        "说明": "这是一个标准的题库导入模板。系统会自动识别 'questions' 数组内的题目进行导入，您可以在此保留本段说明文字作为参考。",
+        "必填属性": "knowledge_code, content_latex, difficulty, question_type, answer_schema",
+        "知识点编码 (knowledge_code)": [
+            "请填写系统【知识点管理】界面中已存在的编码，否则题目会在导入时被跳过。",
+            "当前系统支持的示例编码：",
+            "- mechanics (力学)",
+            "- thermodynamics (热学)",
+            "- optics (光学)",
+            "- electromagnetism (电磁学), ELECTROMAGNETISM (电磁学)",
+            "- modern_physics (现代物理)",
+            "- NEWTON-LAWS (牛顿定律)",
+            "- MOMENTUM (动量守恒)",
+            "- CIRCULAR-MOTION (圆周运动)",
+            "- ENERGY (能量守恒)"
+        ],
+        "难度 (difficulty)": "整数类型 (如 1, 2, 3，数值越大难度越高)。",
+        "题型1_CALCULATION (计算题/文字题)": "需在 answer_schema 中指定正确的数值 (correct_value)、物理单位 (unit) 和允许的数值计算误差 (tolerance)。",
+        "题型2_SINGLE_CHOICE (单选题)": "需在 answer_schema 中提供 options 数组 (需包含 label如A/B/C/D, text选项文字, 可选的image_url)，以及 correct_answer (如 'B')。",
+        "题型3_MULTIPLE_CHOICE (多选题)": "与单选类似，但在 answer_schema 中使用 correct_answers 数组 (如 ['A', 'C']) 提供多个正确选项。",
+        "题型4_TRUE_FALSE (判断题)": "在 answer_schema 中直接写 correct_answer 为 'true' 或 'false' (必须是小写字母字符串)。",
+        "题型5_BLANK (填空题)": "在 answer_schema 中直接填写 correct_answer 为填空的具体文字。",
+        "图片说明 (image_url)": "题目图片或选项图片均可通过提供完整的外链 URL 来显示，如果没有图片请填写 null。"
+    },
+    "questions": [
+        {
+            "knowledge_code": "mechanics",
+            "content_latex": "示例计算题：一个物体从静止开始以 $a=2\\text{m/s}^2$ 的加速度做匀加速直线运动，求 $t=3\\text{s}$ 时物体的速度大小。",
+            "difficulty": 2,
+            "question_type": "CALCULATION",
+            "answer_schema": {
+                "type": "value_unit",
+                "correct_value": 6.0,
+                "unit": "m/s",
+                "tolerance": 0.1
+            },
+            "solution_steps": "根据匀变速直线运动的速度公式：$$v = v_0 + at$$ 代入得到 $$v = 0 + 2 \\times 3 = 6\\text{m/s}$$",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "NEWTON-LAWS",
+            "content_latex": "示例单选题：下列关于牛顿第一定律的说法，正确的是：",
+            "difficulty": 1,
+            "question_type": "SINGLE_CHOICE",
+            "answer_schema": {
+                "type": "single_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "力是维持物体运动的原因"
+                    },
+                    {
+                        "label": "B",
+                        "text": "力是改变物体运动状态的原因"
+                    },
+                    {
+                        "label": "C",
+                        "text": "只有不受力的物体才具有惯性"
+                    },
+                    {
+                        "label": "D",
+                        "text": "物体的速度越大，其惯性就越大"
+                    }
+                ],
+                "correct_answer": "B"
+            },
+            "solution_steps": "力是改变物体运动状态的原因，而不是维持物体运动的原因（A错误，B正确）。一切物体都具有惯性，与是否受力、速度大小无关（C、D错误）。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "ENERGY",
+            "content_latex": "示例多选题：下列哪些物理过程满足机械能守恒？",
+            "difficulty": 3,
+            "question_type": "MULTIPLE_CHOICE",
+            "answer_schema": {
+                "type": "multiple_choice",
+                "options": [
+                    {
+                        "label": "A",
+                        "text": "物体沿光滑斜面下滑"
+                    },
+                    {
+                        "label": "B",
+                        "text": "跳伞运动员匀速下落"
+                    },
+                    {
+                        "label": "C",
+                        "text": "物体在真空中自由下落"
+                    },
+                    {
+                        "label": "D",
+                        "text": "用手匀速向上提升重物"
+                    }
+                ],
+                "correct_answers": [
+                    "A",
+                    "C"
+                ]
+            },
+            "solution_steps": "A中只有重力做功；C中只有重力做功，机械能守恒。B中有阻力做负功，D中有拉力做正功。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "modern_physics",
+            "content_latex": "示例判断题：在狭义相对论中，真空中的光速不随惯性参考系的选择而改变。",
+            "difficulty": 2,
+            "question_type": "TRUE_FALSE",
+            "answer_schema": {
+                "type": "true_false",
+                "correct_answer": "true"
+            },
+            "solution_steps": "光速不变原理是狭义相对论的两条基本假设之一。",
+            "image_url": null
+        },
+        {
+            "knowledge_code": "optics",
+            "content_latex": "示例填空题：光从空气斜射入水中时，折射角______（填“大于”、“等于”或“小于”）入射角。",
+            "difficulty": 1,
+            "question_type": "BLANK",
+            "answer_schema": {
+                "type": "blank",
+                "correct_answer": "小于"
+            },
+            "solution_steps": "光从光疏介质进入光密介质时，折射角小于入射角。",
+            "image_url": null
+        }
+    ]
+}

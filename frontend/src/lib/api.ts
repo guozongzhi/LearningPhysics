@@ -42,25 +42,37 @@ function removeAuthToken(): void {
   }
 }
 
+interface CustomRequestInit extends RequestInit {
+  isFormData?: boolean;
+}
+
 /**
  * A wrapper for the native fetch function to handle common API request logic.
  * @param endpoint The API endpoint to call (e.g., '/api/v1/quiz/generate').
- * @param options The options for the fetch request (e.g., method, headers, body).
+ * @param options The options for the fetch request (e.g., method, headers, body, isFormData).
  * @returns The JSON response from the API.
  */
-async function apiFetch(endpoint: string, options: RequestInit = {}) {
+async function apiFetch(endpoint: string, options: CustomRequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
 
   // Get auth token if available
   const token = getAuthToken();
 
+  const headers: any = {
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...options.headers,
+  };
+
+  if (!options.isFormData) {
+    headers['Content-Type'] = 'application/json';
+  } else {
+    // If it's formData, ensure we don't accidentally send application/json
+    delete headers['Content-Type'];
+  }
+
   const defaultOptions: RequestInit = {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-      ...options.headers,
-    },
+    headers,
   };
 
   try {
@@ -271,8 +283,15 @@ export const adminApi = {
     apiFetch(`/api/v1/admin/questions/${id}`, { method: 'DELETE' }),
   clearQuestionHistory: () =>
     apiFetch('/api/v1/admin/questions/clear-history', { method: 'POST' }),
-  importQuestions: (mode: 'extend' | 'overwrite') =>
-    apiFetch('/api/v1/admin/questions/import', { method: 'POST', body: JSON.stringify({ mode }) }),
+  importQuestions: (mode: 'extend' | 'overwrite', file: File) => {
+    const formData = new FormData();
+    formData.append('mode', mode);
+    formData.append('file', file);
+    return apiFetch('/api/v1/admin/questions/import', { method: 'POST', body: formData, isFormData: true });
+  },
+  exportQuestions: () => {
+    return `${API_BASE_URL}/api/v1/admin/questions/export`;
+  },
 
   createTopic: (data: { name: string; code: string; level: number; description?: string }) =>
     apiFetch('/api/v1/admin/topics', { method: 'POST', body: JSON.stringify(data) }),

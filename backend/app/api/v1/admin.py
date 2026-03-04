@@ -2,7 +2,7 @@
 Admin API Endpoints
 All endpoints require admin privileges (is_admin=True).
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -381,47 +381,49 @@ async def clear_question_history(
 
 @router.post("/questions/import")
 async def import_questions(
-    request: QuestionImportRequest,
+    file: UploadFile = File(...),
+    mode: str = Form(...),
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_session),
 ):
     """
-    Imports questions from data/questions.json using either 'overwrite' or 'extend' mode.
+    Imports questions from an uploaded JSON file using either 'overwrite' or 'extend' mode.
     """
-    api_logger.info(f"管理员 {admin.username} 请求导入题库，模式: {request.mode}")
+    api_logger.info(f"管理员 {admin.username} 请求导入题库，模式: {mode}")
     
     import json
-    from pathlib import Path
     
-    # Resolve the path relative to the backend directory
-    project_root = Path(__file__).parent.parent.parent.parent.parent
-    data_path = project_root / "data" / "questions.json"
-    
-    if not data_path.exists():
-        raise HTTPException(status_code=404, detail=f"questions.json file not found at {data_path}")
+    if not file.filename.endswith('.json'):
+        raise HTTPException(status_code=400, detail="Only JSON files are supported.")
         
     try:
-        with open(data_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        content = await file.read()
+        # Handle cases where the JSON isn't wrapped in a "questions" key (e.g. standard array export)
+        parsed_data = json.loads(content)
+        if isinstance(parsed_data, list):
+            questions_data = parsed_data
+        else:
+            questions_data = parsed_data.get("questions", [])
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to read JSON: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to parse JSON file: {e}")
         
-    questions_data = data.get("questions", [])
     if not questions_data:
-        return {"message": "No questions found in JSON"}
+        return {"message": "No questions found in the uploaded JSON file."}
         
     from app.models.models import KnowledgeNode
     import uuid
     
     # Get all topics for code -> id mapping
     result = await db.execute(select(KnowledgeNode))
-    code_to_id = {node.code: node.id for node in result.scalars().all()}
+    nodes = result.scalars().all()
+    code_to_id = {node.code: node.id for node in nodes}
+    id_to_code = {node.id: node.code for node in nodes} # for fallback
     
     added_count = 0
     updated_count = 0
     skipped_count = 0
     
-    if request.mode == "overwrite":
+    if mode == "overwrite":
         # Delete unused questions first
         subq = select(ExamRecord.question_id)
         query_to_delete = select(Question).where(Question.id.notin_(subq))
@@ -431,34 +433,48 @@ async def import_questions(
         await db.commit() # commit deletions before insert
         
     for q_data in questions_data:
-        topic_code = q_data.get("topic_code")
-        if topic_code not in code_to_id:
+        # Determine topic code: use knowledge_code if provided, else topic_code, else skip
+        topic_code = q_data.get("knowledge_code") or q_data.get("topic_code")
+        if not topic_code:
+             # Try to map from old primary_node_id if exists in the imported file
+             old_node_id = q_data.get("primary_node_id")
+             if old_node_id and old_node_id in id_to_code:
+                 topic_code = id_to_code[old_node_id]
+             
+        if not topic_code or topic_code not in code_to_id:
             skipped_count += 1
             continue
             
         content_latex = q_data.get("content_latex")
+        if not content_latex:
+            skipped_count += 1
+            continue
         
         # Check if question exists
         res = await db.execute(select(Question).where(Question.content_latex == content_latex))
         existing_q = res.scalars().first()
         
         if existing_q:
-            if request.mode == "extend":
+            if mode == "extend":
                 # Update existing
                 existing_q.difficulty = q_data.get("difficulty", existing_q.difficulty)
                 existing_q.question_type = q_data.get("question_type", existing_q.question_type)
                 existing_q.answer_schema = q_data.get("answer_schema", existing_q.answer_schema)
                 existing_q.solution_steps = q_data.get("solution_steps", existing_q.solution_steps)
                 existing_q.primary_node_id = code_to_id[topic_code]
+                if q_data.get("image_url"):
+                    existing_q.image_url = q_data.get("image_url")
                 updated_count += 1
             else:
                 # In overwrite mode after deleting unused, if it still exists it has exam records. 
-                # We can choose to update it or skip it. Let's update it to keep it fresh.
+                # Update it to keep it fresh.
                 existing_q.difficulty = q_data.get("difficulty", existing_q.difficulty)
                 existing_q.question_type = q_data.get("question_type", existing_q.question_type)
                 existing_q.answer_schema = q_data.get("answer_schema", existing_q.answer_schema)
                 existing_q.solution_steps = q_data.get("solution_steps", existing_q.solution_steps)
                 existing_q.primary_node_id = code_to_id[topic_code]
+                if q_data.get("image_url"):
+                    existing_q.image_url = q_data.get("image_url")
                 updated_count += 1
         else:
             # Insert new
@@ -470,18 +486,82 @@ async def import_questions(
                 answer_schema=q_data.get("answer_schema", {}),
                 solution_steps=q_data.get("solution_steps", ""),
                 embedding=[0.0] * 1536, # Placeholder
-                primary_node_id=code_to_id[topic_code]
+                primary_node_id=code_to_id[topic_code],
+                image_url=q_data.get("image_url")
             )
             db.add(new_q)
             added_count += 1
             
     await db.commit()
     return {
-        "message": f"Import completed in {request.mode} mode",
+        "message": f"Import completed in {mode} mode",
         "added": added_count,
         "updated": updated_count,
         "skipped": skipped_count
     }
+
+
+@router.get("/questions/export")
+async def export_questions(
+    token: str = "",
+    db: AsyncSession = Depends(get_session),
+):
+    """
+    Exports all questions to a JSON file format. Accepts token as query param for browser download.
+    """
+    from app.models.models import KnowledgeNode
+    import json
+    
+    # Verify admin via token query param
+    if not token:
+        raise HTTPException(status_code=401, detail="Token required")
+
+    from jose import JWTError, jwt as jose_jwt
+    from app.core.auth import SECRET_KEY, ALGORITHM
+    try:
+        payload = jose_jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user or not user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    from app.models.models import KnowledgeNode
+    import json
+    
+    # Get all topics for id -> code mapping
+    result = await db.execute(select(KnowledgeNode))
+    id_to_code = {node.id: node.code for node in result.scalars().all()}
+    
+    # Fetch all questions
+    result = await db.execute(select(Question))
+    questions = result.scalars().all()
+    
+    # Format for export
+    export_data = []
+    for q in questions:
+        q_dict = {
+            "knowledge_code": id_to_code.get(q.primary_node_id, "UNKNOWN"),
+            "content_latex": q.content_latex,
+            "difficulty": q.difficulty,
+            "question_type": q.question_type,
+            "answer_schema": q.answer_schema,
+            "solution_steps": q.solution_steps,
+            "image_url": q.image_url
+        }
+        export_data.append(q_dict)
+        
+    json_str = json.dumps(export_data, ensure_ascii=False, indent=2)
+    
+    return StreamingResponse(
+        io.StringIO(json_str),
+        media_type="application/json",
+        headers={"Content-Disposition": "attachment; filename=questions_export.json"}
+    )
 
 
 @router.post("/questions", response_model=QuestionResponse, status_code=201)
@@ -570,10 +650,15 @@ async def delete_question(
     admin: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_session),
 ):
+    from sqlalchemy import delete
     result = await db.execute(select(Question).where(Question.id == question_id))
     question = result.scalar_one_or_none()
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
+        
+    # Manually delete dependent exam records first to prevent foreign key cascade errors
+    await db.execute(delete(ExamRecord).where(ExamRecord.question_id == question_id))
+    
     await db.delete(question)
     await db.commit()
 

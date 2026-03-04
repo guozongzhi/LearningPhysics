@@ -45,7 +45,7 @@ class Question(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     content_latex: str
     difficulty: int = Field(ge=1, le=5)
-    question_type: str  # ENUM: "CHOICE", "BLANK", "CALCULATION"
+    question_type: str  # ENUM: "CHOICE", "SINGLE_CHOICE", "MULTIPLE_CHOICE", "TRUE_FALSE", "BLANK", "CALCULATION"
     answer_schema: Dict[str, Any] = Field(sa_column=Column(JSONB))
     solution_steps: str
     image_url: Optional[str] = Field(default=None)  # URL to diagram/illustration
@@ -56,7 +56,7 @@ class Question(SQLModel, table=True):
     primary_node_id: int = Field(foreign_key="knowledge_nodes.id")
     primary_node: "KnowledgeNode" = Relationship(back_populates="questions")
 
-    exam_records: List["ExamRecord"] = Relationship(back_populates="question")
+    exam_records: List["ExamRecord"] = Relationship(back_populates="question", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 
 
 class UserMastery(SQLModel, table=True):

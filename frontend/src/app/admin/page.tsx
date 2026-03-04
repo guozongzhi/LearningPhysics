@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,7 +143,22 @@ export default function AdminDashboard() {
         content_latex: "", difficulty: 2, question_type: "CALCULATION",
         correct_value: "", unit: "", tolerance: "0.1",
         solution_steps: "", primary_node_id: 0, image_url: "",
+        // New fields
+        options: [{ label: "A", text: "", image_url: "" }, { label: "B", text: "", image_url: "" }],
+        correct_answer: "",
+        correct_answers: [] as string[],
     });
+
+    const resetNewQ = () => {
+        setNewQ({
+            content_latex: "", difficulty: 2, question_type: "CALCULATION",
+            correct_value: "", unit: "", tolerance: "0.1",
+            solution_steps: "", primary_node_id: topics[0]?.id || 0, image_url: "",
+            options: [{ label: "A", text: "", image_url: "" }, { label: "B", text: "", image_url: "" }],
+            correct_answer: "",
+            correct_answers: [],
+        });
+    };
 
     const loadQuestions = useCallback(async () => {
         setQuestionsLoading(true);
@@ -164,16 +179,39 @@ export default function AdminDashboard() {
         e.preventDefault();
         setQuestionMsg("");
         try {
-            const questionPayload = {
-                content_latex: newQ.content_latex,
-                difficulty: newQ.difficulty,
-                question_type: newQ.question_type,
-                answer_schema: {
+            let answerSchema: any = {};
+
+            if (newQ.question_type === "CALCULATION" || newQ.question_type === "BLANK") {
+                answerSchema = {
                     type: "value_unit",
                     correct_value: parseFloat(newQ.correct_value),
                     unit: newQ.unit,
                     tolerance: parseFloat(newQ.tolerance),
-                },
+                };
+            } else if (newQ.question_type === "CHOICE" || newQ.question_type === "SINGLE_CHOICE") {
+                answerSchema = {
+                    type: "single_choice",
+                    options: newQ.options,
+                    correct_answer: newQ.correct_answer,
+                };
+            } else if (newQ.question_type === "MULTIPLE_CHOICE") {
+                answerSchema = {
+                    type: "multiple_choice",
+                    options: newQ.options,
+                    correct_answers: newQ.correct_answers,
+                };
+            } else if (newQ.question_type === "TRUE_FALSE") {
+                answerSchema = {
+                    type: "true_false",
+                    correct_answer: newQ.correct_answer,
+                };
+            }
+
+            const questionPayload = {
+                content_latex: newQ.content_latex,
+                difficulty: newQ.difficulty,
+                question_type: newQ.question_type,
+                answer_schema: answerSchema,
                 solution_steps: newQ.solution_steps,
                 primary_node_id: newQ.primary_node_id,
                 image_url: newQ.image_url || null,
@@ -187,7 +225,7 @@ export default function AdminDashboard() {
                 setQuestionMsg("✅ 题目添加成功");
             }
 
-            setNewQ({ content_latex: "", difficulty: 2, question_type: "CALCULATION", correct_value: "", unit: "", tolerance: "0.1", solution_steps: "", primary_node_id: topics[0]?.id || 0, image_url: "" });
+            resetNewQ();
             setShowAddQuestion(false);
             setEditingQuestionId(null);
             loadQuestions();
@@ -196,17 +234,21 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleEditQuestion = (q: QuestionItem) => {
+    const handleEditQuestion = (q: any) => {
+        const schema = q.answer_schema || {};
         setNewQ({
             content_latex: q.content_latex,
             difficulty: q.difficulty,
             question_type: q.question_type,
-            correct_value: q.answer_schema?.correct_value?.toString() || "",
-            unit: q.answer_schema?.unit || "",
-            tolerance: q.answer_schema?.tolerance?.toString() || "0.1",
+            correct_value: schema.correct_value?.toString() || "",
+            unit: schema.unit || "",
+            tolerance: schema.tolerance?.toString() || "0.1",
             solution_steps: q.solution_steps,
             primary_node_id: q.primary_node_id,
-            image_url: q.answer_schema?.image_url || "", // Adjust logic if image_url is stored differently
+            image_url: q.image_url || "",
+            options: schema.options || [{ label: "A", text: "", image_url: "" }, { label: "B", text: "", image_url: "" }],
+            correct_answer: schema.correct_answer || "",
+            correct_answers: schema.correct_answers || [],
         });
         setEditingQuestionId(q.id);
         setShowAddQuestion(true);
@@ -236,18 +278,40 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleImportQuestions = async (mode: 'overwrite' | 'extend') => {
-        const modeText = mode === 'overwrite' ? "覆盖 (将清除并重新导入)" : "扩展 (对现有题目进行补充)";
-        if (!confirm(`确定使用「${modeText}」模式导入题库吗？这可能需要一些时间。`)) return;
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [importMode, setImportMode] = useState<'overwrite' | 'extend'>('extend');
 
-        setQuestionMsg("🔄 正在导入题库，请稍候...");
+    const handleImportClick = (mode: 'overwrite' | 'extend') => {
+        setImportMode(mode);
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const modeText = importMode === 'overwrite' ? "覆盖 (将清除并重新导入)" : "扩展 (对现有题目进行补充)";
+        if (!confirm(`确定使用「${modeText}」模式导入 ${file.name} 吗？`)) {
+            // reset file input
+            if (fileInputRef.current) fileInputRef.current.value = "";
+            return;
+        }
+
+        setQuestionMsg("🔄 正在上传并导入题库，请稍候...");
         try {
-            const res = await adminApi.importQuestions(mode);
+            const res = await adminApi.importQuestions(importMode, file);
             setQuestionMsg(`✅ 导入成功! 新增: ${res.added}, 更新: ${res.updated}, 跳过: ${res.skipped}`);
             loadQuestions();
         } catch (err: any) {
             setQuestionMsg("❌ 导入失败: " + err.message);
+        } finally {
+            if (fileInputRef.current) fileInputRef.current.value = "";
         }
+    };
+
+    const handleExportQuestions = () => {
+        const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : "";
+        window.open(`${adminApi.exportQuestions()}?token=${token}`, "_blank");
     };
 
     // ── Export ──
@@ -529,17 +593,30 @@ export default function AdminDashboard() {
                                 <Button onClick={handleClearHistory} variant="outline" className="border-rose-700/50 text-rose-400 hover:bg-rose-900/30">
                                     清除历史题库
                                 </Button>
-                                <Button onClick={() => handleImportQuestions('overwrite')} variant="outline" className="border-amber-700/50 text-amber-400 hover:bg-amber-900/30">
-                                    覆盖导入
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    style={{ display: 'none' }}
+                                    accept=".json"
+                                    onChange={handleFileChange}
+                                />
+                                <a href="/templates/questions_template.json" download className="text-sm font-medium text-sky-400 hover:text-sky-300 underline underline-offset-4 decoration-sky-400/30 mr-2 flex items-center">
+                                    📄 下载标准 JSON 模板
+                                </a>
+                                <Button onClick={() => handleImportClick('overwrite')} variant="outline" className="border-amber-700/50 text-amber-400 hover:bg-amber-900/30">
+                                    ↑ 覆盖导入
                                 </Button>
-                                <Button onClick={() => handleImportQuestions('extend')} variant="outline" className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/30">
-                                    扩展导入
+                                <Button onClick={() => handleImportClick('extend')} variant="outline" className="border-emerald-700/50 text-emerald-400 hover:bg-emerald-900/30">
+                                    ↑ 扩展导入
+                                </Button>
+                                <Button onClick={handleExportQuestions} variant="outline" className="border-indigo-700/50 text-indigo-400 hover:bg-indigo-900/30">
+                                    ↓ 导出全部题库
                                 </Button>
                                 <Button onClick={() => {
                                     if (showAddQuestion) {
                                         setShowAddQuestion(false);
                                         setEditingQuestionId(null);
-                                        setNewQ({ content_latex: "", difficulty: 2, question_type: "CALCULATION", correct_value: "", unit: "", tolerance: "0.1", solution_steps: "", primary_node_id: topics[0]?.id || 0, image_url: "" });
+                                        resetNewQ();
                                     } else {
                                         setShowAddQuestion(true);
                                     }
@@ -575,7 +652,21 @@ export default function AdminDashboard() {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                            <div className="space-y-1">
+                                                <Label className="text-slate-300">题型</Label>
+                                                <select
+                                                    value={newQ.question_type}
+                                                    onChange={(e) => setNewQ(q => ({ ...q, question_type: e.target.value }))}
+                                                    className="w-full rounded-md border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm h-10 text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                                                >
+                                                    <option value="CALCULATION">计算题</option>
+                                                    <option value="CHOICE">单选题</option>
+                                                    <option value="MULTIPLE_CHOICE">多选题</option>
+                                                    <option value="TRUE_FALSE">判断题</option>
+                                                    <option value="BLANK">填空题</option>
+                                                </select>
+                                            </div>
                                             <div className="space-y-1">
                                                 <Label className="text-slate-300">知识点</Label>
                                                 <select value={newQ.primary_node_id} onChange={(e) => setNewQ(q => ({ ...q, primary_node_id: parseInt(e.target.value) }))} className="w-full rounded-md border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm h-10 text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
@@ -586,15 +677,142 @@ export default function AdminDashboard() {
                                                 <Label className="text-slate-300">难度 (1-5)</Label>
                                                 <Input type="number" min={1} max={5} value={newQ.difficulty} onChange={(e) => setNewQ(q => ({ ...q, difficulty: parseInt(e.target.value) }))} className="bg-slate-800/80 border-slate-600 text-slate-100" />
                                             </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-slate-300">正确答案</Label>
-                                                <Input value={newQ.correct_value} onChange={(e) => setNewQ(q => ({ ...q, correct_value: e.target.value }))} placeholder="5" required className="bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500" />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-slate-300">单位</Label>
-                                                <Input value={newQ.unit} onChange={(e) => setNewQ(q => ({ ...q, unit: e.target.value }))} placeholder="m/s^2" required className="bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500" />
-                                            </div>
+
+                                            {(newQ.question_type === "CALCULATION" || newQ.question_type === "BLANK") && (
+                                                <>
+                                                    <div className="space-y-1">
+                                                        <Label className="text-slate-300">正确答案</Label>
+                                                        <Input value={newQ.correct_value} onChange={(e) => setNewQ(q => ({ ...q, correct_value: e.target.value }))} placeholder="5" required className="bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <Label className="text-slate-300">单位</Label>
+                                                        <Input value={newQ.unit} onChange={(e) => setNewQ(q => ({ ...q, unit: e.target.value }))} placeholder="m/s^2" required className="bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500" />
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {newQ.question_type === "TRUE_FALSE" && (
+                                                <div className="space-y-1">
+                                                    <Label className="text-slate-300">正确答案</Label>
+                                                    <select
+                                                        value={newQ.correct_answer}
+                                                        onChange={(e) => setNewQ(q => ({ ...q, correct_answer: e.target.value }))}
+                                                        className="w-full rounded-md border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm h-10 text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                                                        required
+                                                    >
+                                                        <option value="">请选择</option>
+                                                        <option value="true">正确</option>
+                                                        <option value="false">错误</option>
+                                                    </select>
+                                                </div>
+                                            )}
                                         </div>
+
+                                        {(newQ.question_type === "CHOICE" || newQ.question_type === "SINGLE_CHOICE" || newQ.question_type === "MULTIPLE_CHOICE") && (
+                                            <div className="space-y-3 p-4 bg-slate-800/30 border border-slate-700 rounded-lg">
+                                                <div className="flex justify-between items-center">
+                                                    <Label className="text-slate-300 font-bold">选项配置</Label>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => setNewQ(q => ({
+                                                            ...q,
+                                                            options: [...q.options, { label: String.fromCharCode(65 + q.options.length), text: "", image_url: "" }]
+                                                        }))}
+                                                        className="h-7 px-2 text-xs border-slate-600 text-sky-400 hover:bg-sky-500/10"
+                                                    >
+                                                        + 添加选项
+                                                    </Button>
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {newQ.options.map((opt, idx) => (
+                                                        <div key={idx} className="flex gap-2 items-start bg-slate-900/40 p-3 rounded border border-slate-800">
+                                                            <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-slate-300 shrink-0">
+                                                                {opt.label}
+                                                            </div>
+                                                            <div className="flex-1 space-y-2">
+                                                                <Input
+                                                                    value={opt.text}
+                                                                    onChange={(e) => {
+                                                                        const next = [...newQ.options];
+                                                                        next[idx] = { ...next[idx], text: e.target.value };
+                                                                        setNewQ(q => ({ ...q, options: next }));
+                                                                    }}
+                                                                    placeholder={`选项 ${opt.label} 内容`}
+                                                                    className="h-8 bg-slate-800/50 border-slate-700 text-slate-200"
+                                                                />
+                                                                <Input
+                                                                    value={opt.image_url}
+                                                                    onChange={(e) => {
+                                                                        const next = [...newQ.options];
+                                                                        next[idx] = { ...next[idx], image_url: e.target.value };
+                                                                        setNewQ(q => ({ ...q, options: next }));
+                                                                    }}
+                                                                    placeholder="选项图片 URL (可选)"
+                                                                    className="h-7 text-xs bg-slate-800/30 border-slate-700 text-slate-400"
+                                                                />
+                                                            </div>
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    const next = newQ.options.filter((_, i) => i !== idx)
+                                                                        .map((o, i) => ({ ...o, label: String.fromCharCode(65 + i) }));
+                                                                    setNewQ(q => ({ ...q, options: next }));
+                                                                }}
+                                                                className="text-slate-500 hover:text-rose-400 h-8 w-8 p-0"
+                                                            >
+                                                                ✕
+                                                            </Button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="pt-2 border-t border-slate-700">
+                                                    <Label className="text-slate-300 text-xs mb-2 block">设置正确答案：</Label>
+                                                    {newQ.question_type === "MULTIPLE_CHOICE" ? (
+                                                        <div className="flex flex-wrap gap-2 text-xs">
+                                                            {newQ.options.map((opt) => (
+                                                                <button
+                                                                    type="button"
+                                                                    key={opt.label}
+                                                                    onClick={() => {
+                                                                        const current = newQ.correct_answers || [];
+                                                                        const next = current.includes(opt.label)
+                                                                            ? current.filter(l => l !== opt.label)
+                                                                            : [...current, opt.label].sort();
+                                                                        setNewQ(q => ({ ...q, correct_answers: next }));
+                                                                    }}
+                                                                    className={`px-3 py-1.5 rounded-md border transition-all ${newQ.correct_answers?.includes(opt.label)
+                                                                        ? "bg-sky-500/20 border-sky-500 text-sky-300"
+                                                                        : "bg-slate-800/50 border-slate-700 text-slate-500"
+                                                                        }`}
+                                                                >
+                                                                    {opt.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-wrap gap-2 text-xs">
+                                                            {newQ.options.map((opt) => (
+                                                                <button
+                                                                    type="button"
+                                                                    key={opt.label}
+                                                                    onClick={() => setNewQ(q => ({ ...q, correct_answer: opt.label }))}
+                                                                    className={`px-3 py-1.5 rounded-md border transition-all ${newQ.correct_answer === opt.label
+                                                                        ? "bg-sky-500/20 border-sky-500 text-sky-300"
+                                                                        : "bg-slate-800/50 border-slate-700 text-slate-500"
+                                                                        }`}
+                                                                >
+                                                                    {opt.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="space-y-1">
                                             <Label className="text-slate-300">解题步骤</Label>
                                             <textarea

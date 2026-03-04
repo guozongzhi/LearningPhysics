@@ -251,17 +251,108 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
               <CardHeader className="pb-3 relative z-10">
                 <CardTitle className="text-lg text-slate-100">你的答案</CardTitle>
                 <CardDescription className="text-slate-400">
-                  对于计算题，请写出最终数值和单位。
+                  {currentQuestion.question_type === "MULTIPLE_CHOICE"
+                    ? "请选择所有正确选项。"
+                    : currentQuestion.question_type === "TRUE_FALSE"
+                      ? "请判断正误。"
+                      : (currentQuestion.question_type === "CHOICE" || currentQuestion.question_type === "SINGLE_CHOICE")
+                        ? "请选择一个最符合题意的选项。"
+                        : "对于计算题，请写出最终数值和单位。"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Input
-                  type="text"
-                  placeholder="例如: 15 m/s"
-                  value={studentAnswer}
-                  onChange={(e) => setAnswer(currentQuestion.id, e.target.value)}
-                  className="text-lg bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"
-                />
+                {(currentQuestion.question_type === "CHOICE" || currentQuestion.question_type === "SINGLE_CHOICE" || currentQuestion.question_type === "MULTIPLE_CHOICE") ? (
+                  <div className="grid grid-cols-1 gap-3">
+                    {currentQuestion.answer_schema?.options?.map((option: any) => {
+                      const isSelected = currentQuestion.question_type === "MULTIPLE_CHOICE"
+                        ? studentAnswer.split(',').includes(option.label)
+                        : studentAnswer === option.label;
+
+                      const handleToggle = () => {
+                        if (currentQuestion.question_type === "MULTIPLE_CHOICE") {
+                          const currentSelected = studentAnswer ? studentAnswer.split(',') : [];
+                          const newSelected = currentSelected.includes(option.label)
+                            ? currentSelected.filter(l => l !== option.label)
+                            : [...currentSelected, option.label].sort();
+                          setAnswer(currentQuestion.id, newSelected.join(','));
+                        } else {
+                          setAnswer(currentQuestion.id, option.label);
+                        }
+                      };
+
+                      return (
+                        <Button
+                          key={option.label}
+                          variant="outline"
+                          onClick={handleToggle}
+                          className={`h-auto min-h-[3rem] justify-start text-left px-4 py-3 relative overflow-hidden transition-all duration-200 border-slate-700 ${isSelected
+                            ? "bg-sky-500/10 border-sky-500/50 text-sky-200 ring-1 ring-sky-500/30"
+                            : "bg-slate-800/40 hover:bg-slate-800/80 text-slate-300 hover:border-slate-600"
+                            }`}
+                        >
+                          <div className="flex items-center gap-4 w-full">
+                            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold border ${isSelected
+                              ? "bg-sky-500 text-slate-950 border-sky-400"
+                              : "bg-slate-700 text-slate-400 border-slate-600"
+                              }`}>
+                              {option.label}
+                            </div>
+                            <div className="flex-1">
+                              <div className="text-sm sm:text-base mb-1">
+                                <Latex>{option.text}</Latex>
+                              </div>
+                              {option.image_url && (
+                                <img
+                                  src={option.image_url}
+                                  alt={`选项 ${option.label}`}
+                                  className="mt-2 max-h-32 rounded border border-slate-700"
+                                />
+                              )}
+                            </div>
+                            {isSelected && (
+                              <div className="flex-shrink-0 text-sky-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                              </div>
+                            )}
+                          </div>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                ) : currentQuestion.question_type === "TRUE_FALSE" ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      { label: "true", text: "正确", icon: "✓", color: "emerald" },
+                      { label: "false", text: "错误", icon: "✕", color: "rose" }
+                    ].map((opt) => {
+                      const isSelected = studentAnswer.toLowerCase() === opt.label;
+                      return (
+                        <Button
+                          key={opt.label}
+                          variant="outline"
+                          onClick={() => setAnswer(currentQuestion.id, opt.label)}
+                          className={`h-24 flex-col gap-2 border-2 transition-all duration-300 ${isSelected
+                            ? opt.label === "true"
+                              ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-300"
+                              : "bg-rose-500/10 border-rose-500/50 text-rose-300"
+                            : "bg-slate-800/40 border-slate-700 text-slate-400 hover:bg-slate-800/80 hover:border-slate-600"
+                            }`}
+                        >
+                          <span className={`text-2xl font-bold ${isSelected ? "" : "opacity-50"}`}>{opt.icon}</span>
+                          <span className="font-bold text-lg">{opt.text}</span>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <Input
+                    type="text"
+                    placeholder="例如: 15 m/s"
+                    value={studentAnswer}
+                    onChange={(e) => setAnswer(currentQuestion.id, e.target.value)}
+                    className="text-lg bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"
+                  />
+                )}
                 {/* Small rotating physics fact to enrich UI */}
                 <div className="mt-2 pt-3 border-t border-slate-800 text-xs text-slate-400 flex items-start gap-2">
                   <span className="text-sky-400/80 text-base leading-none">✦</span>

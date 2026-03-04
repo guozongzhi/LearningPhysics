@@ -60,10 +60,14 @@ async def generate_quiz(
 
 def _evaluate_answer(student_input: str, answer_schema: Dict[str, Any]) -> bool:
     """A simple evaluator for student answers."""
+    if not student_input:
+        return False
+        
     schema_type = answer_schema.get("type")
+    
+    # 1. Calculation / Numeric with Unit
     if schema_type == "value_unit":
         try:
-            # Extract the first number found in the student's input
             student_value_match = re.search(r'[-+]?\d*\.\d+|\d+', student_input)
             if not student_value_match:
                 return False
@@ -72,23 +76,40 @@ def _evaluate_answer(student_input: str, answer_schema: Dict[str, Any]) -> bool:
             correct_value = float(answer_schema["correct_value"])
             tolerance = float(answer_schema.get("tolerance", 0.01))
 
-            # Check value within tolerance
             if not (correct_value - tolerance <= student_value <= correct_value + tolerance):
                 return False
 
-            # Check unit (case-insensitive, basic matching)
             correct_unit = answer_schema["unit"]
-            # A simple check if the unit string is present
             if correct_unit.lower() not in student_input.lower():
-                # Allow for some flexibility, e.g. m/s^2 vs m/s2
                 normalized_input = student_input.replace("^", "").lower()
                 normalized_unit = correct_unit.replace("^", "").lower()
                 if normalized_unit not in normalized_input:
                     return False
-
             return True
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, KeyError):
             return False
+
+    # 2. True/False
+    elif schema_type == "true_false":
+        correct = str(answer_schema.get("correct_answer")).lower()
+        return student_input.strip().lower() == correct
+
+    # 3. Single Choice (e.g., A, B, C, D)
+    elif schema_type == "single_choice":
+        correct = str(answer_schema.get("correct_answer")).strip().upper()
+        return student_input.strip().upper() == correct
+
+    # 4. Multiple Choice (e.g., A, C)
+    elif schema_type == "multiple_choice":
+        # Format can be "A,C" or "A, C"
+        correct_list = [s.strip().upper() for s in answer_schema.get("correct_answers", [])]
+        student_list = [s.strip().upper() for s in student_input.split(",") if s.strip()]
+        
+        if not correct_list or not student_list:
+            return False
+            
+        return set(correct_list) == set(student_list)
+
     return False
 
 
