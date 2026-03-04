@@ -71,17 +71,15 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
             return (
               <Card
                 key={q.id}
-                className={`bg-slate-900/70 border-slate-700/60 overflow-hidden ${
-                  isCorrect ? "border-l-4 border-l-emerald-500" : "border-l-4 border-l-rose-500"
-                }`}
+                className={`bg-slate-900/70 border-slate-700/60 overflow-hidden ${isCorrect ? "border-l-4 border-l-emerald-500" : "border-l-4 border-l-rose-500"
+                  }`}
               >
                 <CardHeader className="pb-3 border-b border-slate-700/60">
                   <div className="flex justify-between items-start flex-wrap gap-2">
                     <CardTitle className="text-lg text-slate-100">第 {idx + 1} 题</CardTitle>
                     <span
-                      className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                        isCorrect ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-rose-500/20 text-rose-300 border border-rose-500/40"
-                      }`}
+                      className={`px-2.5 py-1 rounded-full text-xs font-bold ${isCorrect ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                        }`}
                     >
                       {isCorrect ? "完全正确" : "存在谬误"}
                     </span>
@@ -106,13 +104,77 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700/60">
-                      <p className="text-xs text-slate-500 font-bold mb-1 uppercase tracking-wider">你的答案</p>
-                      <p className={`font-mono font-medium ${isCorrect ? "text-emerald-400" : "text-rose-400"}`}>
-                        {studentInput}
+                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700/60 transition-all hover:bg-slate-800/80">
+                      <p className="text-[10px] text-slate-500 font-bold mb-2 uppercase tracking-[0.1em] flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                        你的答案
+                      </p>
+                      <p className={`text-base font-semibold ${isCorrect ? "text-emerald-400" : "text-rose-400"}`}>
+                        {studentInput || "未填"}
                       </p>
                     </div>
+                    {analysis?.correct_answer_display && (
+                      <div className="bg-emerald-500/5 p-4 rounded-lg border border-emerald-500/20 transition-all hover:bg-emerald-500/10">
+                        <p className="text-[10px] text-emerald-500/70 font-bold mb-2 uppercase tracking-[0.1em] flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          正确答案
+                        </p>
+                        <p className="text-base font-semibold text-emerald-400">
+                          {analysis.correct_answer_display}
+                        </p>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Options List for Choice Questions */}
+                  {(q.question_type === "CHOICE" || q.question_type === "SINGLE_CHOICE" || q.question_type === "MULTIPLE_CHOICE") && q.answer_schema?.options && (
+                    <div className="mt-4 space-y-2">
+                      <p className="text-xs text-slate-500 font-bold mb-3 uppercase tracking-wider">选项回顾</p>
+                      <div className="grid grid-cols-1 gap-2">
+                        {q.answer_schema.options.map((opt: any) => {
+                          const isCorrectOption = q.question_type === "MULTIPLE_CHOICE"
+                            ? (analysis?.correct_answer_display?.split(",").map((s: string) => s.trim()).includes(opt.label))
+                            : (analysis?.correct_answer_display === opt.label);
+
+                          const isStudentSelected = q.question_type === "MULTIPLE_CHOICE"
+                            ? (studentInput.split(",").map((s: string) => s.trim()).includes(opt.label))
+                            : (studentInput === opt.label);
+
+                          return (
+                            <div
+                              key={opt.label}
+                              className={`flex items-start gap-3 p-3 rounded-lg border text-sm transition-all ${isCorrectOption
+                                ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-200"
+                                : isStudentSelected && !isCorrect
+                                  ? "bg-rose-500/10 border-rose-500/40 text-rose-200"
+                                  : "bg-slate-800/30 border-slate-700/40 text-slate-400"
+                                }`}
+                            >
+                              <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs border ${isCorrectOption
+                                ? "bg-emerald-500 text-slate-950 border-emerald-400"
+                                : "bg-slate-700 text-slate-400 border-slate-600"
+                                }`}>
+                                {opt.label}
+                              </div>
+                              <div className="flex-1">
+                                <Latex>{opt.text}</Latex>
+                              </div>
+                              <div className="flex-shrink-0 flex gap-2">
+                                {isCorrectOption && (
+                                  <span className="text-emerald-400" title="正确选项">✓</span>
+                                )}
+                                {isStudentSelected && (
+                                  <span className={isCorrect ? "text-emerald-400" : "text-rose-400"} title="你的选择">
+                                    {isCorrect ? "" : "✕"}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {analysis?.feedback && (
                     <div className="mt-4 bg-sky-500/10 p-5 rounded-lg border border-sky-500/20">

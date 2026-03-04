@@ -153,15 +153,38 @@ async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is
             error_tag="CORRECT" if is_correct else "AI_ERROR"
         ), 0
 
-    if is_correct:
-        prompt = f"""你是一位资深高中物理教师。一位学生正确回答了以下题目，请给出详细的解题分析。
+    # Determine the correct answer string for the prompt
+    correct_answer_str = ""
+    ans_schema = question.answer_schema or {}
+    q_type = question.question_type
+    
+    if q_type in ["CHOICE", "SINGLE_CHOICE"]:
+        correct_answer_str = f"正确选项是: {ans_schema.get('correct_answer')}"
+        if "options" in ans_schema:
+            options_str = "\n".join([f"{o['label']}: {o['text']}" for o in ans_schema["options"]])
+            correct_answer_str += f"\n选项列表:\n{options_str}"
+    elif q_type == "MULTIPLE_CHOICE":
+        correct_answer_str = f"正确选项是: {', '.join(ans_schema.get('correct_answers', []))}"
+        if "options" in ans_schema:
+            options_str = "\n".join([f"{o['label']}: {o['text']}" for o in ans_schema["options"]])
+            correct_answer_str += f"\n选项列表:\n{options_str}"
+    elif q_type == "TRUE_FALSE":
+        val = "正确" if str(ans_schema.get("correct_answer")).lower() == "true" else "错误"
+        correct_answer_str = f"正确答案是: {val}"
+    elif q_type == "BLANK":
+        correct_answer_str = f"正确填空内容是: {ans_schema.get('correct_answer')}"
+    elif q_type == "CALCULATION":
+        correct_answer_str = f"正确数值: {ans_schema.get('correct_value')}, 单位: {ans_schema.get('unit')}"
+
+    status_str = "正确回答" if is_correct else "错误回答"
+    
+    prompt = f"""你是一位资深高中物理教师。一位学生{status_str}了以下题目，请给出详细的解析。
 
 --- 题目 ---
 {question.content_latex}
 
---- 正确答案 ---
-数值: {question.answer_schema.get('correct_value')}
-单位: {question.answer_schema.get('unit')}
+--- 正确答案信息 ---
+{correct_answer_str}
 
 --- 参考解题步骤 ---
 {question.solution_steps}
@@ -170,40 +193,15 @@ async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is
 {student_answer.student_input}
 
 请用中文写出详细的解析（3-5句话），包含：
-1. 肯定学生的正确回答
-2. 详细的解题思路和关键步骤
-3. 涉及的核心物理知识点和公式
-4. 易错点提醒或拓展延伸（如有）
-
-以 JSON 格式返回，包含 "feedback" 和 "error_tag" 两个字段。error_tag 固定为 "CORRECT"。
-不要包含 markdown 格式或其他多余的文本。
-示例：{{"feedback": "回答正确！本题考查牛顿第二定律 F=ma。由已知条件 F=10N、m=2kg，代入公式得 a=F/m=10/2=5m/s²。注意此题假设了光滑表面，如果存在摩擦力，需要先求合力。", "error_tag": "CORRECT"}}"""
-    else:
-        prompt = f"""你是一位资深高中物理教师。一位学生错误回答了以下题目，请给出详细的分析和解题指导。
-
---- 题目 ---
-{question.content_latex}
-
---- 正确答案 ---
-数值: {question.answer_schema.get('correct_value')}
-单位: {question.answer_schema.get('unit')}
-
---- 参考解题步骤 ---
-{question.solution_steps}
-
---- 学生的答案 ---
-{student_answer.student_input}
-
-请用中文写出详细的解析（3-5句话），包含：
-1. 分析学生答案的错误原因（数值错误、单位错误、概念错误等）
-2. 给出完整的正确解题过程
-3. 涉及的核心物理知识点和公式
-4. 鼓励性的建议
+1. {"肯定学生的表现并深化理解" if is_correct else "分析错误原因（如概念混淆、计算失误等）并给出指引"}
+2. 详细的物理思路和关联的知识点
+3. 如果是多选题或单选题，请解释为什么选项正确或错误
+4. 鼓励性的结尾
 
 以 JSON 格式返回，包含 "feedback" 和 "error_tag" 两个字段。
-error_tag 从以下选项中选一个：[VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR]
-不要包含 markdown 格式或其他多余的文本。
-示例：{{"feedback": "你的计算过程有误。本题应用牛顿第二定律 F=ma，已知 F=10N、m=2kg，正确计算为 a=F/m=10/2=5m/s²，而非你给出的 10m/s²。看起来你可能忘记了除以质量，建议复习 F=ma 的推导过程。", "error_tag": "CALCULATION_ERROR"}}"""
+如果回答正确，error_tag 固定为 "CORRECT"。
+如果回答错误，从以下选项中选一个最贴切的 error_tag：[VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR]
+不要包含 markdown 格式或其他多余的文本。"""
 
     try:
         response = await get_client().chat.completions.create(
@@ -281,6 +279,23 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
             q_id = task_map.get(task)
             res, tokens = task.result()
             analysis_results[q_id] = res
+            
+            # Add correct_answer_display
+            q = questions.get(q_id)
+            if q:
+                ans_schema = q.answer_schema or {}
+                q_type = q.question_type
+                if q_type in ["CHOICE", "SINGLE_CHOICE"]:
+                    res.correct_answer_display = str(ans_schema.get("correct_answer", ""))
+                elif q_type == "MULTIPLE_CHOICE":
+                    res.correct_answer_display = ", ".join(ans_schema.get("correct_answers", []))
+                elif q_type == "TRUE_FALSE":
+                    res.correct_answer_display = "正确" if str(ans_schema.get("correct_answer")).lower() == "true" else "错误"
+                elif q_type == "BLANK":
+                    res.correct_answer_display = str(ans_schema.get("correct_answer", ""))
+                elif q_type == "CALCULATION":
+                    res.correct_answer_display = f"{ans_schema.get('correct_value')} {ans_schema.get('unit')}"
+
             total_tokens_used += tokens
             graded_count += 1
             

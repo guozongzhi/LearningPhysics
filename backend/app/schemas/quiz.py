@@ -63,6 +63,7 @@ class AnalysisResult(BaseModel):
     """
     is_correct: bool
     feedback: str = Field(..., max_length=2000, description="Feedback for the student")
+    correct_answer_display: Optional[str] = Field(None, description="The correct answer to display to the student")
     error_tag: str = Field(..., pattern=r"^(CORRECT|VALUE_ERROR|UNIT_ERROR|CALCULATION_ERROR|CONCEPT_ERROR|FORMAT_ERROR|CONFIG_ERROR|AI_ERROR)$",
                           description="Tag categorizing the type of error")
 
