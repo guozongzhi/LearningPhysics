@@ -70,6 +70,25 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     };
   }, [status, physicsFacts.length]);
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't navigate if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (e.key === "ArrowRight" && currentQuestionIndex < questions.length - 1) {
+        nextQuestion();
+      } else if (e.key === "ArrowLeft" && currentQuestionIndex > 0) {
+        prevQuestion();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentQuestionIndex, questions.length, nextQuestion, prevQuestion]);
+
   // Update elapsed time based on startedAt from store
   useEffect(() => {
     if (status !== "in-progress" || !startedAt) return;
@@ -279,6 +298,10 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
                           setAnswer(currentQuestion.id, newSelected.join(','));
                         } else {
                           setAnswer(currentQuestion.id, option.label);
+                          // Auto-advance for single choice
+                          if (currentQuestionIndex < questions.length - 1) {
+                            setTimeout(nextQuestion, 600);
+                          }
                         }
                       };
 
@@ -332,7 +355,13 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
                         <Button
                           key={opt.label}
                           variant="outline"
-                          onClick={() => setAnswer(currentQuestion.id, opt.label)}
+                          onClick={() => {
+                            setAnswer(currentQuestion.id, opt.label);
+                            // Auto-advance for true/false
+                            if (currentQuestionIndex < questions.length - 1) {
+                              setTimeout(nextQuestion, 600);
+                            }
+                          }}
                           className={`h-24 flex-col gap-2 border-2 transition-all duration-300 ${isSelected
                             ? opt.label === "true"
                               ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-300"
@@ -388,6 +417,13 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
                   }`}
               />
             ))}
+          </div>
+
+          <div className="hidden sm:flex items-center gap-4 text-[10px] text-slate-500 font-medium tracking-wider uppercase">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-900 border border-slate-800">
+              <span className="text-slate-400">← / →</span>
+              <span>切换题目</span>
+            </div>
           </div>
 
           {currentQuestionIndex < questions.length - 1 ? (
