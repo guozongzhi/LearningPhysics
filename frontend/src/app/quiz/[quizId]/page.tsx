@@ -257,7 +257,9 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
                       ? "请判断正误。"
                       : (currentQuestion.question_type === "CHOICE" || currentQuestion.question_type === "SINGLE_CHOICE")
                         ? "请选择一个最符合题意的选项。"
-                        : "对于计算题，请写出最终数值和单位。"}
+                        : currentQuestion.question_type === "BLANK"
+                          ? "请在下方填入正确答案。"
+                          : "对于计算题，请写出最终数值和单位。"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -347,7 +349,7 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
                 ) : (
                   <Input
                     type="text"
-                    placeholder="例如: 15 m/s"
+                    placeholder={currentQuestion.question_type === "BLANK" ? "输入答案..." : "例如: 15 m/s"}
                     value={studentAnswer}
                     onChange={(e) => setAnswer(currentQuestion.id, e.target.value)}
                     className="text-lg bg-slate-800/80 border-slate-600 text-slate-100 placeholder:text-slate-500 focus-visible:ring-sky-500 focus-visible:border-sky-500"

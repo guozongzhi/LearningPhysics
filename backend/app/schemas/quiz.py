@@ -23,6 +23,7 @@ class QuestionResponse(BaseModel):
     content_latex: str = Field(..., max_length=10000, description="LaTeX formatted question content")
     question_type: str = Field(..., pattern=r"^(CHOICE|SINGLE_CHOICE|MULTIPLE_CHOICE|TRUE_FALSE|BLANK|CALCULATION)$", description="Type of the question")
     difficulty: int = Field(..., ge=1, le=5, description="Difficulty level of the question")
+    answer_schema: Optional[Dict[str, Any]] = Field(None, description="Schema for the answer (sanitized, no correct value)")
     image_url: Optional[str] = None
 
     class Config:

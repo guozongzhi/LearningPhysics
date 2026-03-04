@@ -55,7 +55,23 @@ async def generate_quiz(
     questions = result.scalars().all()
 
     new_quiz_id = uuid.uuid4()
-    return {"quiz_id": new_quiz_id, "questions": questions}
+    
+    # Sanitize questions for the response (remove correct answers from answer_schema)
+    sanitized_questions = []
+    for q in questions:
+        # Create a shallow copy of the question-like dict or use pydantic if possible
+        # Since 'questions' are SQLModel instances, we can modify them or create a dict
+        q_data = q.model_dump()
+        if "answer_schema" in q_data and q_data["answer_schema"]:
+            # Remove sensitive fields
+            s = q_data["answer_schema"].copy()
+            s.pop("correct_answer", None)
+            s.pop("correct_answers", None)
+            s.pop("correct_value", None)
+            q_data["answer_schema"] = s
+        sanitized_questions.append(q_data)
+
+    return {"quiz_id": new_quiz_id, "questions": sanitized_questions}
 
 
 # --- Quiz Submission and Analysis Logic ---
@@ -111,6 +127,11 @@ def _evaluate_answer(student_input: str, answer_schema: Dict[str, Any]) -> bool:
             return False
             
         return set(correct_list) == set(student_list)
+
+    # 5. Fill in the Blank
+    elif schema_type == "blank":
+        correct = str(answer_schema.get("correct_answer", "")).strip().lower()
+        return student_input.strip().lower() == correct
 
     return False
 
