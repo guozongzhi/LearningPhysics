@@ -81,6 +81,12 @@ export default function Home() {
 
   const handleStartQuiz = async () => {
     if (selectedTopics.size === 0) return;
+    if (!isLoggedIn) {
+      alert("请先登录，再生成测验！");
+      router.push("/login");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
