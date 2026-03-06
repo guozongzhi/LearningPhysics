@@ -19,6 +19,7 @@ type Topic = {
   description: string | null;
   level: number;
   question_count: number;
+  difficulty_counts?: Record<string, number>;
 };
 
 export default function Home() {
@@ -274,13 +275,28 @@ export default function Home() {
                             {topic.description}
                           </div>
                         )}
-                        <div className="mt-4 flex gap-2">
+                        <div className="mt-4 flex flex-wrap gap-2">
                           <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full ${isSelected ? "bg-sky-500/30 text-sky-100" : "bg-slate-700 text-slate-300"}`}>
                             Level {topic.level}
                           </span>
-                          <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full ${isSelected ? "bg-cyan-500/20 text-cyan-200" : "bg-slate-700/80 text-slate-400"}`}>
-                            {topic.question_count || 0} 题
-                          </span>
+
+                          {topic.difficulty_counts && Object.keys(topic.difficulty_counts).length > 0 ? (
+                            Object.entries(topic.difficulty_counts)
+                              .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                              .map(([difficulty, count]) => (
+                                <span
+                                  key={difficulty}
+                                  className={`inline-flex items-center text-xs font-bold px-2 py-1 rounded-full ${isSelected ? "bg-cyan-500/20 text-cyan-200" : "bg-slate-700/80 text-slate-400"}`}
+                                  title={`难度 ${difficulty}`}
+                                >
+                                  难度{difficulty}: {count}题
+                                </span>
+                              ))
+                          ) : (
+                            <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full ${isSelected ? "bg-cyan-500/20 text-cyan-200" : "bg-slate-700/80 text-slate-400"}`}>
+                              {topic.question_count || 0} 题
+                            </span>
+                          )}
                         </div>
                       </div>
                     </button>
