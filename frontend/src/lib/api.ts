@@ -1,3 +1,5 @@
+import { useAuthStore } from '@/store/auth-store';
+
 const getApiBaseUrl = () => {
   // If the environment variable is injected during build, always prioritize it.
   if (process.env.NEXT_PUBLIC_API_URL) {
@@ -14,33 +16,6 @@ const getApiBaseUrl = () => {
 };
 
 const API_BASE_URL = getApiBaseUrl();
-/**
- * Gets the authentication token from localStorage
- */
-function getAuthToken(): string | null {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken');
-  }
-  return null;
-}
-
-/**
- * Sets the authentication token in localStorage
- */
-function setAuthToken(token: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('authToken', token);
-  }
-}
-
-/**
- * Removes the authentication token from localStorage
- */
-function removeAuthToken(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('authToken');
-  }
-}
 
 interface CustomRequestInit extends RequestInit {
   isFormData?: boolean;
@@ -55,8 +30,8 @@ interface CustomRequestInit extends RequestInit {
 async function apiFetch(endpoint: string, options: CustomRequestInit = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
 
-  // Get auth token if available
-  const token = getAuthToken();
+  // Get auth token from the unified store
+  const token = useAuthStore.getState().token;
 
   const headers: any = {
     ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -82,9 +57,9 @@ async function apiFetch(endpoint: string, options: CustomRequestInit = {}) {
       const errorBody = await response.text();
       console.error(`API Error ${response.status}: ${errorBody}`);
 
-      // If the error is 401 Unauthorized, remove the token
+      // If the error is 401 Unauthorized, clear the entire auth state
       if (response.status === 401) {
-        removeAuthToken();
+        useAuthStore.getState().clearAuth();
       }
 
       throw new Error(`API request failed with status ${response.status}`);
@@ -105,7 +80,7 @@ async function apiFetch(endpoint: string, options: CustomRequestInit = {}) {
  */
 async function apiFetchStream(endpoint: string, options: RequestInit = {}, onProgress?: (data: any) => void) {
   const url = `${API_BASE_URL}${endpoint}`;
-  const token = getAuthToken();
+  const token = useAuthStore.getState().token;
 
   const defaultOptions: RequestInit = {
     ...options,
@@ -119,7 +94,7 @@ async function apiFetchStream(endpoint: string, options: RequestInit = {}, onPro
   try {
     const response = await fetch(url, defaultOptions);
     if (!response.ok) {
-      if (response.status === 401) removeAuthToken();
+      if (response.status === 401) useAuthStore.getState().clearAuth();
       throw new Error(`API stream request failed with status ${response.status}`);
     }
 
@@ -164,45 +139,33 @@ async function apiFetchStream(endpoint: string, options: RequestInit = {}, onPro
 // --- Authentication API functions ---
 export const authApi = {
   login: async (username: string, password: string) => {
-    console.log(`[DEBUG] 开始登录: 用户名=${username}`);
-    console.log(`[DEBUG] API URL: ${API_BASE_URL}/api/v1/auth/login`);
-
     const formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
 
     try {
-      console.log(`[DEBUG] 发送登录请求...`);
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: 'POST',
         body: formData,
       });
 
-      console.log(`[DEBUG] 响应状态码: ${response.status}`);
-      console.log(`[DEBUG] 响应头:`, response.headers);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`[DEBUG] 登录失败: ${response.status} - ${errorText}`);
         throw new Error(`Login failed: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log(`[DEBUG] 登录成功:`, data);
 
       if (data.access_token) {
-        setAuthToken(data.access_token);
-        console.log(`[DEBUG] Token已保存`);
-      }
-      if (data.is_admin !== undefined) {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('isAdmin', JSON.stringify(data.is_admin));
-          console.log(`[DEBUG] Admin状态已保存: ${data.is_admin}`);
-        }
+        useAuthStore.getState().setAuth(
+          data.access_token,
+          username,
+          data.is_admin || false
+        );
       }
       return data;
     } catch (error) {
-      console.error('[DEBUG] 登录错误:', error);
+      console.error('Login error:', error);
       throw error;
     }
   },
@@ -224,7 +187,11 @@ export const authApi = {
 
       const data = await response.json();
       if (data.access_token) {
-        setAuthToken(data.access_token);
+        useAuthStore.getState().setAuth(
+          data.access_token,
+          username,
+          false // New users are students by default
+        );
       }
       return data;
     } catch (error) {
@@ -234,12 +201,7 @@ export const authApi = {
   },
 
   logout: () => {
-    removeAuthToken();
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('isAdmin');
-      localStorage.removeItem('username');
-      localStorage.removeItem('lastQuizSeconds');
-    }
+    useAuthStore.getState().clearAuth();
   },
 
   changePassword: async (oldPassword: string, newPassword: string) => {

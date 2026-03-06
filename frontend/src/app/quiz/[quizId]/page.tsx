@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Latex } from "@/components/latex";
 import { useQuizStore } from "@/store/quiz-store";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function QuizPage({ params }: { params: Promise<{ quizId: string }> }) {
   const { quizId } = use(params);
@@ -24,15 +25,8 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     submitQuiz,
   } = useQuizStore();
 
-  const [username, setUsername] = useState<string | null>(null);
+  const { username } = useAuthStore();
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedName = localStorage.getItem("username");
-      if (storedName) setUsername(storedName);
-    }
-  }, []);
 
   useEffect(() => {
     if (status === "idle") {
@@ -164,10 +158,10 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
     );
   }
 
-  if (status !== "in-progress" || questions.length === 0) {
+  if (status !== "in-progress" || questions.length === 0 || !questions[currentQuestionIndex]) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-300">
-        <p className="text-slate-400">无法加载测验，请尝试重新生成。</p>
+        <p className="text-slate-400">无法加载测验或题目已空，请尝试重新生成。</p>
         <Button onClick={() => router.push("/")} className="mt-4 bg-sky-500 hover:bg-sky-600 text-slate-950">
           返回首页
         </Button>
@@ -176,7 +170,7 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
   }
 
   const currentQuestion = questions[currentQuestionIndex];
-  const studentAnswer = answers[currentQuestion.id] || "";
+  const studentAnswer = answers?.[currentQuestion?.id] || "";
 
   const handleSubmitWithTime = async () => {
     if (typeof window !== "undefined" && startedAt) {

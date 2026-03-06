@@ -10,6 +10,8 @@ import Link from "next/link";
 import { api, authApi } from "@/lib/api";
 import { SiteLogo } from "@/components/site-logo";
 
+import { useAuthStore } from "@/store/auth-store";
+
 type Topic = {
   id: number;
   name: string;
@@ -22,25 +24,17 @@ type Topic = {
 export default function Home() {
   const router = useRouter();
   const { generateQuiz } = useQuizStore();
+  const { isLoggedIn, username, token } = useAuthStore();
+
   const [isLoading, setIsLoading] = useState(false);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [selectedTopics, setSelectedTopics] = useState<Set<number>>(new Set());
   const [questionCount, setQuestionCount] = useState(10);
   const [isCustomCount, setIsCustomCount] = useState(false);
   const [topicsLoading, setTopicsLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState<string | null>(null);
   const [lastQuizDate, setLastQuizDate] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
-    setIsLoggedIn(!!token);
-
-    if (typeof window !== "undefined") {
-      const storedName = localStorage.getItem("username");
-      if (storedName) setUsername(storedName);
-    }
-
     if (token) {
       api.getLastQuizRecord()
         .then((data) => {
@@ -65,7 +59,7 @@ export default function Home() {
       })
       .catch(console.error)
       .finally(() => setTopicsLoading(false));
-  }, []);
+  }, [token]);
 
   const toggleTopic = (id: number) => {
     setSelectedTopics((prev) => {
@@ -108,9 +102,8 @@ export default function Home() {
 
   const handleLogout = () => {
     authApi.logout();
-    setIsLoggedIn(false);
-    setUsername(null);
     setLastQuizDate(null);
+    router.refresh();
   };
 
   const formatDateBrief = (isoString: string) => {
@@ -136,7 +129,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3 sm:gap-4">
             {isLoggedIn && username && (
-              <span className="hidden sm:inline text-xs text-slate-300">
+              <span className="text-xs text-slate-300">
                 欢迎，<span className="font-medium text-sky-300">{username}</span>
               </span>
             )}

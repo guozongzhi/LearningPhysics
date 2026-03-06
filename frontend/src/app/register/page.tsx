@@ -36,9 +36,6 @@ export default function RegisterPage() {
 
     try {
       await authApi.register(email, username, password);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("username", username);
-      }
       router.push("/login");
     } catch (err) {
       console.error("Registration failed:", err);

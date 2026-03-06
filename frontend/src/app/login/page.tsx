@@ -23,9 +23,6 @@ export default function LoginPage() {
 
     try {
       await authApi.login(username, password);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("username", username);
-      }
       router.push("/");
       router.refresh();
     } catch (err) {
