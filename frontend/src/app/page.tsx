@@ -276,9 +276,7 @@ export default function Home() {
                           </div>
                         )}
                         <div className="mt-4 flex flex-wrap gap-2">
-                          <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full ${isSelected ? "bg-sky-500/30 text-sky-100" : "bg-slate-700 text-slate-300"}`}>
-                            Level {topic.level}
-                          </span>
+
 
                           {topic.difficulty_counts && Object.keys(topic.difficulty_counts).length > 0 ? (
                             Object.entries(topic.difficulty_counts)
