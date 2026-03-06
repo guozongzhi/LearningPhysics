@@ -39,7 +39,7 @@ class RateLimiter:
 
 
 # Global rate limiter instance
-rate_limiter = RateLimiter(max_requests=600, window_size=3600)  # 600 requests per hour per IP (dev-friendly)
+rate_limiter = RateLimiter(max_requests=3600, window_size=3600)  # 3600 requests per hour per IP (standard safe limit)
 
 
 def rate_limit_middleware(request: Request):
