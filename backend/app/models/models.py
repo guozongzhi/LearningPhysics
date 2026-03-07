@@ -109,6 +109,51 @@ class User(SQLModel, table=True):
         return verify_password(password, self.hashed_password)
 
 
+class TopicDocument(SQLModel, table=True):
+    __tablename__ = "topic_documents"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    title: str = Field(index=True)
+    summary: Optional[str] = Field(default=None)
+    content_markdown: str = Field(default="")
+    owner_id: uuid.UUID = Field(foreign_key="users.id", index=True)
+    visibility: str = Field(default="private")
+    is_archived: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None),
+        sa_column_kwargs={"onupdate": lambda: datetime.now(CHINA_TZ).replace(tzinfo=None)},
+    )
+
+
+class TopicDocumentNode(SQLModel, table=True):
+    __tablename__ = "topic_document_nodes"
+
+    document_id: uuid.UUID = Field(foreign_key="topic_documents.id", primary_key=True)
+    node_id: int = Field(foreign_key="knowledge_nodes.id", primary_key=True)
+
+
+class TopicDocumentCollaborator(SQLModel, table=True):
+    __tablename__ = "topic_document_collaborators"
+
+    document_id: uuid.UUID = Field(foreign_key="topic_documents.id", primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key="users.id", primary_key=True)
+    role: str = Field(default="viewer")
+    invited_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
+
+
+class TopicDocumentVersion(SQLModel, table=True):
+    __tablename__ = "topic_document_versions"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    document_id: uuid.UUID = Field(foreign_key="topic_documents.id", index=True)
+    version_no: int = Field(default=1)
+    title: str
+    content_markdown: str
+    edited_by: uuid.UUID = Field(foreign_key="users.id")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 

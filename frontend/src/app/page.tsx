@@ -191,6 +191,9 @@ export default function Home() {
               <Button asChild variant="outline" size="lg" className="w-full sm:w-auto border-sky-500/50 text-sky-300 hover:bg-sky-500/20 rounded-xl">
                 <Link href="#topics">查看主题</Link>
               </Button>
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto border-cyan-500/40 bg-slate-900/40 text-cyan-200 hover:bg-cyan-500/10 rounded-xl">
+                <Link href="/notes">主题共创</Link>
+              </Button>
             </div>
           </div>
         </div>

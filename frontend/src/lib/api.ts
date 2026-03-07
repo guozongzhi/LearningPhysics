@@ -299,4 +299,101 @@ export const api = {
       method: 'GET',
     });
   },
+
+  getDocuments: async () => {
+    return apiFetch('/api/v1/documents', {
+      method: 'GET',
+    });
+  },
+
+  getDocument: async (documentId: string) => {
+    return apiFetch(`/api/v1/documents/${documentId}`, {
+      method: 'GET',
+    });
+  },
+
+  getDocumentVersions: async (documentId: string) => {
+    return apiFetch(`/api/v1/documents/${documentId}/versions`, {
+      method: 'GET',
+    });
+  },
+
+  createDocument: async (data: {
+    title: string;
+    summary?: string;
+    content_markdown: string;
+    visibility: 'private' | 'class' | 'public';
+    node_ids: number[];
+  }) => {
+    return apiFetch('/api/v1/documents', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateDocument: async (
+    documentId: string,
+    data: {
+      title?: string;
+      summary?: string;
+      content_markdown?: string;
+      visibility?: 'private' | 'class' | 'public';
+      node_ids?: number[];
+    }
+  ) => {
+    return apiFetch(`/api/v1/documents/${documentId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteDocument: async (documentId: string) => {
+    return apiFetch(`/api/v1/documents/${documentId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  getCollaboratorCandidates: async () => {
+    return apiFetch('/api/v1/users/collaborators', {
+      method: 'GET',
+    });
+  },
+
+  addDocumentCollaborator: async (
+    documentId: string,
+    data: {
+      username: string;
+      role: 'editor' | 'viewer';
+    }
+  ) => {
+    return apiFetch(`/api/v1/documents/${documentId}/collaborators`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateDocumentCollaborator: async (
+    documentId: string,
+    userId: string,
+    data: {
+      role: 'editor' | 'viewer';
+    }
+  ) => {
+    return apiFetch(`/api/v1/documents/${documentId}/collaborators/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteDocumentCollaborator: async (documentId: string, userId: string) => {
+    return apiFetch(`/api/v1/documents/${documentId}/collaborators/${userId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  restoreDocumentVersion: async (documentId: string, versionId: string) => {
+    return apiFetch(`/api/v1/documents/${documentId}/versions/${versionId}/restore`, {
+      method: 'POST',
+    });
+  },
 };

@@ -14,6 +14,8 @@ from app.api.v1 import quiz as quiz_router_v1
 from app.api.v1 import auth as auth_router_v1
 from app.api.v1 import topics as topics_router_v1
 from app.api.v1 import admin as admin_router_v1
+from app.api.v1 import documents as documents_router_v1
+from app.api.v1 import users as users_router_v1
 from app.core.exceptions import (
     http_exception_handler,
     validation_exception_handler,
@@ -119,8 +121,6 @@ async def lifespan(app: FastAPI):
             api_logger.info("✓ 管理员用户已存在")
             
         api_logger.info("初始化白名单默认用户...")
-        from app.core.auth import get_password_hash
-        import uuid
         created_count = 0
         for student in users_config.students:
             res = await session.execute(select(User).where(User.username == student.username))
@@ -186,6 +186,8 @@ api_router_v1 = APIRouter()
 
 # Protect quiz endpoints by requiring authentication
 api_router_v1.include_router(quiz_router_v1.router, prefix="/quiz", tags=["Quiz"])
+api_router_v1.include_router(documents_router_v1.router, prefix="/documents", tags=["Documents"])
+api_router_v1.include_router(users_router_v1.router, prefix="/users", tags=["Users"])
 
 # Include the v1 router into the main app
 app.include_router(api_router_v1, prefix="/api/v1")

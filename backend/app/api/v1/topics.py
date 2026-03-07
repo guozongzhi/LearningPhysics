@@ -16,6 +16,7 @@ class TopicResponse(BaseModel):
     name: str
     code: str
     description: Optional[str] = None
+    parent_id: Optional[int] = None
     level: int
     question_count: int = 0
     difficulty_counts: dict[str, int] = {}
