@@ -83,7 +83,7 @@ export default function NoteDetailPage() {
   const [mutatingCollaborator, setMutatingCollaborator] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewTab, setPreviewTab] = useState<"preview" | "whiteboard" | "edit">("preview");
+  const [previewTab, setPreviewTab] = useState<"preview" | "whiteboard">("preview");
   const [showQuestionPicker, setShowQuestionPicker] = useState(false);
   const [availableQuestions, setAvailableQuestions] = useState<Array<{ id: string; content_latex: string; question_type: string; difficulty: number }>>([]);
   const [pendingQuestionId, setPendingQuestionId] = useState<string | null>(null);
@@ -219,6 +219,7 @@ export default function NoteDetailPage() {
 
     try {
       await api.updateDocument(documentId, {
+        base_updated_at: document.updated_at,
         title: title.trim(),
         summary: summary.trim(),
         content_markdown: content,
@@ -230,8 +231,13 @@ export default function NoteDetailPage() {
       await refreshDocument();
       setIsEditing(false);
       setPreviewTab("preview");
-    } catch {
-      setError("保存失败。请确认当前账号具备编辑权限，并且后端服务正常。");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "";
+      if (message.includes("409")) {
+        setError("保存冲突：该文档已被其他人更新，请先刷新页面后再保存。");
+      } else {
+        setError("保存失败。请确认当前账号具备编辑权限，并且后端服务正常。");
+      }
     } finally {
       setSaving(false);
     }
@@ -252,12 +258,18 @@ export default function NoteDetailPage() {
     setError(null);
     try {
       await api.updateDocument(documentId, {
+        base_updated_at: document.updated_at,
         node_ids: selectedNodeIds,
       });
       await refreshDocument();
       setIsEditingNodes(false);
-    } catch {
-      setError("更新知识点失败。");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "";
+      if (message.includes("409")) {
+        setError("更新冲突：该文档已被其他人更新，请先刷新页面后再编辑知识点。");
+      } else {
+        setError("更新知识点失败。");
+      }
     } finally {
       setSavingNodes(false);
     }
@@ -508,27 +520,6 @@ export default function NoteDetailPage() {
                 {togglingTemplate ? "切换中..." : document.is_template ? "✅ 已设为模板" : "📚 设为模板"}
               </Button>
             )}
-            {canEdit && (
-              <Button
-                onClick={() => {
-                  if (isEditing) {
-                    handleSave();
-                  } else {
-                    setIsEditing(true);
-                    setPreviewTab("edit");
-                  }
-                }}
-                disabled={saving}
-                className={isEditing ? "bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90" : "bg-slate-800 text-slate-200 hover:bg-slate-700"}
-              >
-                {saving ? "保存中..." : isEditing ? "保存修改" : "✏️ 编辑文档"}
-              </Button>
-            )}
-            {canEdit && isEditing && (
-              <Button onClick={handleCancelEditing} variant="outline" className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800">
-                取消编辑
-              </Button>
-            )}
           </div>
         </div>
 
@@ -716,22 +707,13 @@ export default function NoteDetailPage() {
                 </div>
                 <div className="flex flex-col gap-5">
                   <div className="space-y-2">
-                    <div className="flex items-center justify-start">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex gap-2">
                         <button
                           onClick={() => setPreviewTab("preview")}
                           className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "preview" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
                         >
-                          📝 正文预览
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsEditing(true);
-                            setPreviewTab("edit");
-                          }}
-                          className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "edit" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
-                        >
-                          ✏️ 编辑模式
+                          📝 正文
                         </button>
                         <button
                           onClick={() => setPreviewTab("whiteboard")}
@@ -740,10 +722,32 @@ export default function NoteDetailPage() {
                           🎨 白板空间
                         </button>
                       </div>
+                      {canEdit && (
+                        <div className="flex items-center gap-2 sm:justify-end">
+                          <Button
+                            onClick={() => {
+                              if (isEditing) {
+                                handleSave();
+                              } else {
+                                setIsEditing(true);
+                              }
+                            }}
+                            disabled={saving}
+                            className={isEditing ? "bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90" : "bg-slate-800 text-slate-200 hover:bg-slate-700"}
+                          >
+                            {saving ? "保存中..." : isEditing ? "保存修改" : "✏️ 编辑文档"}
+                          </Button>
+                          {isEditing && (
+                            <Button onClick={handleCancelEditing} variant="outline" className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800">
+                              取消编辑
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {previewTab === "edit" && isEditing && (
+                  {isEditing && previewTab === "preview" && (
                     <div className="space-y-4">
                       <div className="flex justify-end">
                         <Button
@@ -786,7 +790,7 @@ export default function NoteDetailPage() {
                     </div>
                   )}
 
-                  {previewTab === "preview" && (
+                  {!isEditing && previewTab === "preview" && (
                     <div className={`mt-4 rounded-xl border border-slate-800 bg-slate-900/40 ${isEditing ? "p-4 min-h-[500px]" : "p-6 lg:p-10 min-h-[600px]"}`}>
                       <MarkdownPreview content={content} emptyText="内容为空。" />
                     </div>

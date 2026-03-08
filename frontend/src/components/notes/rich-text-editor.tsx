@@ -82,7 +82,7 @@ export function RichTextEditor({
             try {
                 const cursorPosition = editor.getTextCursorPosition();
                 const referenceBlock = cursorPosition.block.id ?? editor.document.at(-1)?.id;
-                const questionBlock = {
+                const questionBlock: PartialBlock = {
                     type: "paragraph",
                     content: `:::question{id=${pendingQuestionId}}`,
                 };

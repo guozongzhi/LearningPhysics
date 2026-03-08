@@ -336,6 +336,7 @@ export const api = {
   updateDocument: async (
     documentId: string,
     data: {
+      base_updated_at?: string;
       title?: string;
       summary?: string;
       content_markdown?: string;

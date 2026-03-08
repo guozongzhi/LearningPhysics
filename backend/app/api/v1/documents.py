@@ -353,6 +353,12 @@ async def update_document(
     document = await _get_document_or_404(db, document_id)
     role = await _require_edit_access(db, document, current_user)
 
+    if payload.base_updated_at is not None and document.updated_at != payload.base_updated_at:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Document has been updated by another user. Please refresh and try again.",
+        )
+
     next_node_ids = payload.node_ids if payload.node_ids is not None else await _get_node_ids(db, document.id)
     await _ensure_node_ids_exist(db, next_node_ids)
 

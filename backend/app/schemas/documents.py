@@ -73,6 +73,7 @@ class DocumentCreateRequest(BaseModel):
 
 
 class DocumentUpdateRequest(BaseModel):
+    base_updated_at: Optional[datetime] = None
     title: Optional[str] = None
     summary: Optional[str] = None
     content_markdown: Optional[str] = None
