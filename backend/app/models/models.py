@@ -1,5 +1,6 @@
 from typing import Optional, List, Dict, Any
 from sqlmodel import SQLModel, Field, Relationship, Column
+from sqlalchemy import JSON, LargeBinary
 from sqlalchemy.dialects.postgresql import JSONB
 import uuid
 from datetime import datetime, timezone, timedelta
@@ -50,7 +51,7 @@ class Question(SQLModel, table=True):
     solution_steps: str
     image_url: Optional[str] = Field(default=None)  # URL to diagram/illustration
     
-    # Store embedding as JSON (JSONB) instead of vector type
+    # Store embedding as JSON instead of vector type
     embedding: Optional[List[float]] = Field(default=None, sa_column=Column(JSONB))
 
     primary_node_id: int = Field(foreign_key="knowledge_nodes.id")
@@ -116,6 +117,8 @@ class TopicDocument(SQLModel, table=True):
     title: str = Field(index=True)
     summary: Optional[str] = Field(default=None)
     content_markdown: str = Field(default="")
+    content_blocks: Optional[List[Dict[str, Any]]] = Field(default=None, sa_column=Column(JSONB))
+    whiteboard_data: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSONB))
     owner_id: uuid.UUID = Field(foreign_key="users.id", index=True)
     visibility: str = Field(default="private")
     is_archived: bool = Field(default=False)
@@ -151,6 +154,8 @@ class TopicDocumentVersion(SQLModel, table=True):
     version_no: int = Field(default=1)
     title: str
     content_markdown: str
+    content_blocks: Optional[List[Dict[str, Any]]] = Field(default=None, sa_column=Column(JSONB))
+    whiteboard_data: Optional[Dict[str, Any]] = Field(default=None, sa_column=Column(JSONB))
     edited_by: uuid.UUID = Field(foreign_key="users.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
 
@@ -163,6 +168,17 @@ class TopicDocumentActivity(SQLModel, table=True):
     user_id: uuid.UUID = Field(foreign_key="users.id")
     action: str  # "created", "updated", "collaborator_added", "collaborator_removed", "collaborator_updated", "version_restored"
     detail: Optional[str] = Field(default=None)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
+
+
+class Media(SQLModel, table=True):
+    __tablename__ = "media"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    filename: str
+    content_type: str
+    data: bytes = Field(sa_column=Column(LargeBinary))
+    owner_id: uuid.UUID = Field(foreign_key="users.id", index=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
 
 

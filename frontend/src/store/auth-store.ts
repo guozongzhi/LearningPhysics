@@ -6,6 +6,8 @@ interface AuthState {
     username: string | null;
     isAdmin: boolean;
     isLoggedIn: boolean;
+    _hasHydrated: boolean; // Add this
+    setHydrated: (state: boolean) => void;
     setAuth: (token: string, username: string, isAdmin: boolean) => void;
     clearAuth: () => void;
 }
@@ -17,6 +19,9 @@ export const useAuthStore = create<AuthState>()(
             username: null,
             isAdmin: false,
             isLoggedIn: false,
+            _hasHydrated: false,
+
+            setHydrated: (state) => set({ _hasHydrated: state }),
 
             setAuth: (token, username, isAdmin) =>
                 set({
@@ -37,6 +42,9 @@ export const useAuthStore = create<AuthState>()(
         {
             name: 'auth-storage',
             storage: createJSONStorage(() => localStorage),
+            onRehydrateStorage: (state) => {
+                return () => state.setHydrated(true);
+            }
         }
     )
 );

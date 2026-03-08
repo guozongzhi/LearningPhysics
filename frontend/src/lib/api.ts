@@ -322,6 +322,8 @@ export const api = {
     title: string;
     summary?: string;
     content_markdown: string;
+    content_blocks?: unknown;
+    whiteboard_data?: unknown;
     visibility: 'private' | 'class' | 'public';
     node_ids: number[];
   }) => {
@@ -337,6 +339,8 @@ export const api = {
       title?: string;
       summary?: string;
       content_markdown?: string;
+      content_blocks?: unknown;
+      whiteboard_data?: unknown;
       visibility?: 'private' | 'class' | 'public';
       node_ids?: number[];
     }
@@ -420,4 +424,17 @@ export const api = {
   },
   updateKnowledgeNode: (nodeId: number, data: { name?: string; description?: string }) =>
     apiFetch(`/api/v1/knowledge_nodes/${nodeId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+  uploadMedia: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const result = await apiFetch('/api/v1/media/upload', {
+      method: 'POST',
+      body: formData,
+      isFormData: true,
+    });
+    // Ensure the URL is absolute for the editor if needed, 
+    // but relative to the same origin usually works.
+    return result;
+  },
 };

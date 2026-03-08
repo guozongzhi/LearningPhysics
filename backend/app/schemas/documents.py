@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -35,6 +35,8 @@ class DocumentVersionResponse(BaseModel):
     edited_by: str
     title: str
     content_markdown: str
+    content_blocks: Optional[List[Dict[str, Any]]] = None
+    whiteboard_data: Optional[Dict[str, Any]] = None
     created_at: datetime
 
 
@@ -54,6 +56,8 @@ class DocumentListItemResponse(BaseModel):
 
 class DocumentDetailResponse(DocumentListItemResponse):
     content_markdown: str
+    content_blocks: Optional[List[Dict[str, Any]]] = None
+    whiteboard_data: Optional[Dict[str, Any]] = None
     current_user_role: DocumentRole
     versions: List[DocumentVersionResponse] = Field(default_factory=list)
 
@@ -62,6 +66,8 @@ class DocumentCreateRequest(BaseModel):
     title: str
     summary: Optional[str] = None
     content_markdown: str = ""
+    content_blocks: Optional[List[Dict[str, Any]]] = None
+    whiteboard_data: Optional[Dict[str, Any]] = None
     visibility: DocumentVisibility = DocumentVisibility.PRIVATE
     node_ids: List[int] = Field(default_factory=list)
 
@@ -70,6 +76,8 @@ class DocumentUpdateRequest(BaseModel):
     title: Optional[str] = None
     summary: Optional[str] = None
     content_markdown: Optional[str] = None
+    content_blocks: Optional[List[Dict[str, Any]]] = None
+    whiteboard_data: Optional[Dict[str, Any]] = None
     visibility: Optional[DocumentVisibility] = None
     node_ids: Optional[List[int]] = None
 

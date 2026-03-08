@@ -4,16 +4,20 @@
 
 现在所有操作都通过根目录下的 `./manage.sh` 脚本完成。
 
+> 说明：`start` / `stop` / `restart` / `status` / `diagnose` / `init` 仅用于本地开发。Linux 服务器生产部署请使用 `prod` / `prod-stop`。
+
 ### 常用命令
 
 | 命令 | 说明 |
 |------|------|
-| `./manage.sh start` | **启动服务**：在后台启动前端和后端 |
-| `./manage.sh stop` | **停止服务**：强行停止所有相关进程 |
-| `./manage.sh restart` | **重启服务**：先停止，再启动 |
-| `./manage.sh status` | **查看状态**：显示服务是否正在运行 |
-| `./manage.sh diagnose` | **系统诊断**：检查各组件健康状况 |
-| `./manage.sh init` | **初始化**：初始化数据库并导入题库 |
+| `./manage.sh start` | **本地开发启动**：在后台启动前端和后端 |
+| `./manage.sh stop` | **本地开发停止**：强行停止所有相关进程 |
+| `./manage.sh restart` | **本地开发重启**：先停止，再启动 |
+| `./manage.sh status` | **本地开发状态**：显示服务是否正在运行 |
+| `./manage.sh diagnose` | **本地开发诊断**：检查各组件健康状况 |
+| `./manage.sh init` | **本地开发初始化**：初始化数据库并导入题库 |
+| `./manage.sh prod` | **生产部署启动**：使用 Docker Compose 启动生产环境 |
+| `./manage.sh prod-stop` | **生产部署停止**：停止 Docker Compose 生产环境 |
 | `./manage.sh help` | **帮助**：查看所有可用命令 |
 
 ---

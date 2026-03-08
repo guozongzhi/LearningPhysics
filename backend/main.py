@@ -18,6 +18,7 @@ from app.api.v1 import admin as admin_router_v1
 from app.api.v1 import documents as documents_router_v1
 from app.api.v1 import users as users_router_v1
 from app.api.v1 import question_embed as question_embed_router_v1
+from app.api.v1 import media as media_router_v1
 from app.core.exceptions import (
     http_exception_handler,
     validation_exception_handler,
@@ -74,8 +75,8 @@ class APILoggingMiddleware(BaseHTTPMiddleware):
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
-        # Skip rate limiting for authentication endpoints to allow login/register
-        if request.url.path.startswith("/api/v1/auth"):
+        # Skip rate limiting for OPTIONS requests and authentication endpoints
+        if request.method == "OPTIONS" or request.url.path.startswith("/api/v1/auth"):
             response = await call_next(request)
             return response
 
@@ -160,10 +161,16 @@ app.add_middleware(APILoggingMiddleware)
 # Add rate limiting middleware
 app.add_middleware(RateLimitMiddleware)
 
-# Set up CORS middleware with specific allowed origins
+# Set up CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+|198\.18\.\d+\.\d+|.*tensor-orbit\.top)(:\d+)?$",
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://localhost:3000",
+        "https://127.0.0.1:3000",
+    ],
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+|.*tensor-orbit\.top)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -192,7 +199,7 @@ api_router_v1.include_router(documents_router_v1.router, prefix="/documents", ta
 api_router_v1.include_router(knowledge_nodes_router_v1.router, prefix="/knowledge_nodes", tags=["knowledge_nodes"])
 api_router_v1.include_router(users_router_v1.router, prefix="/users", tags=["Users"])
 api_router_v1.include_router(question_embed_router_v1.router, prefix="/questions", tags=["Questions"])
-
+api_router_v1.include_router(media_router_v1.router, prefix="/media", tags=["Media"])
 # Include the v1 router into the main app
 app.include_router(api_router_v1, prefix="/api/v1")
 

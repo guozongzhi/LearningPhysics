@@ -40,7 +40,7 @@ export default function NotesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const { isLoggedIn, token } = useAuthStore();
+  const { isLoggedIn, token, _hasHydrated } = useAuthStore();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -48,9 +48,11 @@ export default function NotesPage() {
   }, []);
 
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || !_hasHydrated) return; // Wait for hydration
 
-    if (!isLoggedIn || !token) {
+    const hasToken = !!token;
+
+    if (!hasToken) {
       setDocuments([]);
       setError("需登录后探索。");
       setLoading(false);

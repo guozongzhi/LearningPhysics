@@ -5,14 +5,15 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { MarkdownPreview } from "@/components/notes/markdown-preview";
-import { MindmapView } from "@/components/notes/mindmap-view";
-import { TopicTreeSelector } from "@/components/notes/topic-tree-selector";
+import { RichTextEditor } from "@/components/notes/rich-text-editor";
+import { WhiteboardView } from "@/components/notes/whiteboard-view";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { KnowledgeTag } from "@/components/KnowledgeTag";
 import { useAuthStore } from "@/store/auth-store";
+import { PartialBlock } from "@blocknote/core";
 
 type TopicItem = {
   id: number;
@@ -34,6 +35,8 @@ type DocumentDetail = {
   title: string;
   summary: string | null;
   content_markdown: string;
+  content_blocks?: PartialBlock[];
+  whiteboard_data?: unknown;
   visibility: "private" | "class" | "public";
   owner_id: string;
   owner_username: string;
@@ -56,12 +59,6 @@ const visibilityLabel: Record<DocumentDetail["visibility"], string> = {
   public: "公开",
 };
 
-const collaboratorRoleLabel: Record<Collaborator["role"], string> = {
-  owner: "Owner",
-  editor: "Editor",
-  viewer: "Viewer",
-};
-
 export default function NoteDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -71,6 +68,8 @@ export default function NoteDetailPage() {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
+  const [contentBlocks, setContentBlocks] = useState<PartialBlock[] | undefined>(undefined);
+  const [whiteboardData, setWhiteboardData] = useState<unknown>(undefined);
   const [visibility, setVisibility] = useState<"private" | "class" | "public">("private");
   const [selectedNodeIds, setSelectedNodeIds] = useState<number[]>([]);
   const [topics, setTopics] = useState<TopicItem[]>([]);
@@ -84,14 +83,14 @@ export default function NoteDetailPage() {
   const [mutatingCollaborator, setMutatingCollaborator] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewTab, setPreviewTab] = useState<"preview" | "mindmap" | "edit">("preview");
-  const [activities, setActivities] = useState<Array<{ id: string; user_name: string; action: string; detail: string | null; created_at: string }>>([]);
+  const [previewTab, setPreviewTab] = useState<"preview" | "whiteboard" | "edit">("preview");
   const [showQuestionPicker, setShowQuestionPicker] = useState(false);
   const [availableQuestions, setAvailableQuestions] = useState<Array<{ id: string; content_latex: string; question_type: string; difficulty: number }>>([]);
+  const [pendingQuestionId, setPendingQuestionId] = useState<string | null>(null);
   const [togglingTemplate, setTogglingTemplate] = useState(false);
   const [isEditingNodes, setIsEditingNodes] = useState(false);
   const [savingNodes, setSavingNodes] = useState(false);
-  const { isLoggedIn, token } = useAuthStore();
+  const { isLoggedIn, token, _hasHydrated } = useAuthStore();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -114,12 +113,14 @@ export default function NoteDetailPage() {
     setTitle(enhancedData.title);
     setSummary(enhancedData.summary || "");
     setContent(enhancedData.content_markdown || "");
+    setContentBlocks(enhancedData.content_blocks);
+    setWhiteboardData(enhancedData.whiteboard_data);
     setVisibility(enhancedData.visibility);
     setSelectedNodeIds(enhancedData.node_ids || []);
   };
 
   useEffect(() => {
-    if (!documentId || !isMounted) {
+    if (!documentId || !isMounted || !_hasHydrated) {
       return;
     }
 
@@ -153,7 +154,7 @@ export default function NoteDetailPage() {
     return () => {
       active = false;
     };
-  }, [documentId, isMounted, isLoggedIn, token]);
+  }, [documentId, isMounted, isLoggedIn, token, _hasHydrated]);
 
   useEffect(() => {
     Promise.all([
@@ -172,18 +173,19 @@ export default function NoteDetailPage() {
       });
   }, []);
 
-  // Load activities
-  useEffect(() => {
-    if (!documentId) return;
-    api.getDocumentActivities(documentId)
-      .then(setActivities)
-      .catch(() => { });
-  }, [documentId, document?.updated_at]);;
-
   const canEdit = document?.current_user_role === "owner" || document?.current_user_role === "editor";
   const isOwner = document?.current_user_role === "owner";
+  const contentBlocksSignature = useMemo(() => JSON.stringify(contentBlocks ?? null), [contentBlocks]);
+  const documentBlocksSignature = useMemo(() => JSON.stringify(document?.content_blocks ?? null), [document?.content_blocks]);
+  const whiteboardSignature = useMemo(() => JSON.stringify(whiteboardData ?? null), [whiteboardData]);
+  const documentWhiteboardSignature = useMemo(() => JSON.stringify(document?.whiteboard_data ?? null), [document?.whiteboard_data]);
   const hasUnsavedChanges = document
-    ? title !== document.title || summary !== (document.summary || "") || content !== (document.content_markdown || "") || visibility !== document.visibility
+    ? title !== document.title ||
+      summary !== (document.summary || "") ||
+      content !== (document.content_markdown || "") ||
+      visibility !== document.visibility ||
+      contentBlocksSignature !== documentBlocksSignature ||
+      whiteboardSignature !== documentWhiteboardSignature
     : false;
   // Warn on page leave if unsaved changes exist
   useEffect(() => {
@@ -220,15 +222,28 @@ export default function NoteDetailPage() {
         title: title.trim(),
         summary: summary.trim(),
         content_markdown: content,
+        content_blocks: contentBlocks,
+        whiteboard_data: whiteboardData,
         visibility,
         node_ids: selectedNodeIds,
       });
       await refreshDocument();
+      setIsEditing(false);
+      setPreviewTab("preview");
     } catch {
       setError("保存失败。请确认当前账号具备编辑权限，并且后端服务正常。");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleCancelEditing = () => {
+    if (document) {
+      applyDocumentData(document);
+    }
+    setPendingQuestionId(null);
+    setIsEditing(false);
+    setPreviewTab("preview");
   };
 
   const handleSaveNodes = async () => {
@@ -333,7 +348,7 @@ export default function NoteDetailPage() {
     (candidate) => !document?.collaborators.some((collaborator) => collaborator.username === candidate.username)
   );
 
-  if (loading) {
+  if (loading || !_hasHydrated) {
     return <div className="px-6 py-16 text-center text-slate-400">正在加载主题文档...</div>;
   }
 
@@ -398,8 +413,8 @@ export default function NoteDetailPage() {
                       <div className="text-sm text-slate-500 py-2">加载知识大纲中...</div>
                     ) : (
                       <div className="flex flex-wrap items-center gap-2">
-                        {selectedNodeIds.map(nodeId => {
-                          const nodeTitle = topics.find((t: any) => t.id === nodeId)?.name || `知识点 #${nodeId}`;
+                          {selectedNodeIds.map(nodeId => {
+                            const nodeTitle = topics.find((t) => t.id === nodeId)?.name || `知识点 #${nodeId}`;
                           return (
                             <span key={nodeId} className="flex items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 pl-2.5 pr-1.5 py-1 text-xs text-sky-200">
                               {nodeTitle}
@@ -418,10 +433,10 @@ export default function NoteDetailPage() {
                           className="rounded-full border border-slate-700 border-dashed bg-slate-800/50 px-2 py-1 text-xs text-slate-400 outline-none transition focus:border-sky-500 hover:text-slate-200 cursor-pointer w-32"
                         >
                           <option value="">+ 添加知识点...</option>
-                          {topics.filter((t: any) => !t.parent_id).map((topic: any) => (
+                          {topics.filter((t) => !t.parent_id).map((topic) => (
                             <optgroup key={topic.id} label={topic.name}>
                               {!selectedNodeIds.includes(topic.id) && <option value={topic.id}>{topic.name}</option>}
-                              {topics.filter((n: any) => n.parent_id === topic.id && !selectedNodeIds.includes(n.id)).map((node: any) => (
+                              {topics.filter((n) => n.parent_id === topic.id && !selectedNodeIds.includes(n.id)).map((node) => (
                                 <option key={node.id} value={node.id}>{node.name}</option>
                               ))}
                             </optgroup>
@@ -434,7 +449,7 @@ export default function NoteDetailPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     {document.node_ids.length > 0 ? (
                       document.node_ids.map((nodeId) => {
-                        const nodeTitle = topics.find((t: any) => t.id === nodeId)?.name || `知识点 #${nodeId}`;
+                        const nodeTitle = topics.find((t) => t.id === nodeId)?.name || `知识点 #${nodeId}`;
                         return (
                           <KnowledgeTag
                             key={nodeId}
@@ -510,7 +525,7 @@ export default function NoteDetailPage() {
               </Button>
             )}
             {canEdit && isEditing && (
-              <Button onClick={() => { setIsEditing(false); setPreviewTab("preview"); }} variant="outline" className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800">
+              <Button onClick={handleCancelEditing} variant="outline" className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800">
                 取消编辑
               </Button>
             )}
@@ -551,7 +566,7 @@ export default function NoteDetailPage() {
                       ) : canEdit ? (
                         <div className="flex flex-wrap items-center gap-2">
                           {selectedNodeIds.map(nodeId => {
-                            const nodeTitle = topics.find((t: any) => t.id === nodeId)?.name || `知识点 #${nodeId}`;
+                            const nodeTitle = topics.find((t) => t.id === nodeId)?.name || `知识点 #${nodeId}`;
                             return (
                               <span key={nodeId} className="flex items-center gap-1 rounded-md border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-300">
                                 {nodeTitle}
@@ -570,10 +585,10 @@ export default function NoteDetailPage() {
                             className="rounded-md border border-slate-700 border-dashed bg-slate-950 px-2 py-1 text-xs text-slate-400 outline-none transition focus:border-sky-500 hover:text-slate-200 cursor-pointer w-32"
                           >
                             <option value="">+ 添加知识点...</option>
-                            {topics.filter((t: any) => !t.parent_id).map((topic: any) => (
+                            {topics.filter((t) => !t.parent_id).map((topic) => (
                               <optgroup key={topic.id} label={topic.name}>
                                 {!selectedNodeIds.includes(topic.id) && <option value={topic.id}>{topic.name}</option>}
-                                {topics.filter((n: any) => n.parent_id === topic.id && !selectedNodeIds.includes(n.id)).map((node: any) => (
+                                {topics.filter((n) => n.parent_id === topic.id && !selectedNodeIds.includes(n.id)).map((node) => (
                                   <option key={node.id} value={node.id}>{node.name}</option>
                                 ))}
                               </optgroup>
@@ -719,10 +734,10 @@ export default function NoteDetailPage() {
                           ✏️ 编辑模式
                         </button>
                         <button
-                          onClick={() => setPreviewTab("mindmap")}
-                          className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "mindmap" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
+                          onClick={() => setPreviewTab("whiteboard")}
+                          className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "whiteboard" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
                         >
-                          🧠 思维导图
+                          🎨 白板空间
                         </button>
                       </div>
                     </div>
@@ -751,17 +766,22 @@ export default function NoteDetailPage() {
                           + 插入题目到光标处
                         </Button>
                       </div>
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <textarea
-                          value={content}
-                          onChange={(event) => setContent(event.target.value)}
-                          rows={26}
-                          disabled={!canEdit}
-                          className="w-full rounded-md border border-slate-700 bg-slate-900/70 px-4 py-3 font-mono text-sm leading-6 text-slate-100 outline-none transition focus:border-sky-500 disabled:cursor-not-allowed disabled:opacity-60 resize-y"
+                      <div className="w-full">
+                        <RichTextEditor
+                          key={`${document.id}:${document.updated_at}`}
+                          initialBlocks={contentBlocks}
+                          initialMarkdown={content}
+                          onChange={(blocks, markdown) => {
+                            setContentBlocks(blocks);
+                            setContent(markdown);
+                          }}
+                          readOnly={!isEditing || !canEdit}
+                          pendingQuestionId={pendingQuestionId}
+                          onQuestionInserted={() => {
+                            setPendingQuestionId(null);
+                            setShowQuestionPicker(false);
+                          }}
                         />
-                        <div className="rounded-md border border-slate-800 bg-slate-900/40 p-4 h-full overflow-y-auto max-h-[600px]">
-                          <MarkdownPreview content={content} emptyText="预览区域..." />
-                        </div>
                       </div>
                     </div>
                   )}
@@ -772,9 +792,14 @@ export default function NoteDetailPage() {
                     </div>
                   )}
 
-                  {previewTab === "mindmap" && (
+                  {previewTab === "whiteboard" && (
                     <div className={`mt-4 rounded-xl border border-slate-800 bg-slate-900/40 ${isEditing ? "p-4 min-h-[500px]" : "p-6 lg:p-10 min-h-[600px]"}`}>
-                      <MindmapView content={content} />
+                      <WhiteboardView
+                        key={`${document.id}:${document.updated_at}:whiteboard`}
+                        initialData={whiteboardData}
+                        onChange={(data) => setWhiteboardData(data)}
+                        readOnly={!isEditing || !canEdit}
+                      />
                     </div>
                   )}
                 </div>
@@ -801,8 +826,7 @@ export default function NoteDetailPage() {
                             <button
                               key={q.id}
                               onClick={() => {
-                                setContent((prev) => prev + `\n\n:::question{id=${q.id}}\n`);
-                                setShowQuestionPicker(false);
+                                setPendingQuestionId(q.id);
                               }}
                               className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 p-4 text-left text-sm text-slate-200 hover:border-sky-500/40 hover:bg-sky-950/30 hover:shadow-md transition-all group"
                             >

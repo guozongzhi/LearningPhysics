@@ -160,6 +160,8 @@ async def _create_document_version(
         version_no=next_version_no,
         title=document.title,
         content_markdown=document.content_markdown,
+        content_blocks=document.content_blocks,
+        whiteboard_data=document.whiteboard_data,
         edited_by=edited_by,
         created_at=document.updated_at,
     )
@@ -198,6 +200,8 @@ async def _serialize_document(
             edited_by=users_by_id.get(version.edited_by).username if users_by_id.get(version.edited_by) else "unknown",
             title=version.title,
             content_markdown=version.content_markdown,
+            content_blocks=version.content_blocks,
+            whiteboard_data=version.whiteboard_data,
             created_at=version.created_at,
         )
         for version in versions
@@ -214,6 +218,8 @@ async def _serialize_document(
         node_ids=node_ids,
         collaborator_count=len(collaborator_responses),
         content_markdown=document.content_markdown,
+        content_blocks=document.content_blocks,
+        whiteboard_data=document.whiteboard_data,
         current_user_role=current_user_role,
         collaborators=collaborator_responses,
         versions=version_responses,
@@ -301,6 +307,8 @@ async def create_document(
         title=payload.title,
         summary=payload.summary,
         content_markdown=payload.content_markdown,
+        content_blocks=payload.content_blocks,
+        whiteboard_data=payload.whiteboard_data,
         owner_id=current_user.id,
         visibility=payload.visibility.value,
         created_at=timestamp,
@@ -354,6 +362,10 @@ async def update_document(
         document.summary = payload.summary
     if payload.content_markdown is not None:
         document.content_markdown = payload.content_markdown
+    if payload.content_blocks is not None:
+        document.content_blocks = payload.content_blocks
+    if payload.whiteboard_data is not None:
+        document.whiteboard_data = payload.whiteboard_data
     if payload.visibility is not None:
         document.visibility = payload.visibility.value
     document.updated_at = now_cn()
@@ -546,6 +558,8 @@ async def restore_document_version(
 
     document.title = version.title
     document.content_markdown = version.content_markdown
+    document.content_blocks = version.content_blocks
+    document.whiteboard_data = version.whiteboard_data
     document.updated_at = now_cn()
     db.add(document)
     await _create_document_version(db, document, current_user.id)

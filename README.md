@@ -88,9 +88,11 @@ cp frontend/.env.example frontend/.env.local
 # 赋予执行权限
 chmod +x manage.sh
 
-# 一键构建镜像并拉起服务（后台运行）
+# 生产部署：一键构建镜像并拉起服务（后台运行）
 ./manage.sh prod
 ```
+
+> `./manage.sh start` / `restart` / `status` / `diagnose` / `init` 仅用于本地开发调试；服务器生产部署请使用 `./manage.sh prod`。
 
 ### 5. 加载出厂知识图谱与题库
 如果是第一次运行，您需要向数据库中导入默认的高中物理测试题库：
