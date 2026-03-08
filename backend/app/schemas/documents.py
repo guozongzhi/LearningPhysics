@@ -43,16 +43,18 @@ class DocumentListItemResponse(BaseModel):
     title: str
     summary: Optional[str] = None
     visibility: DocumentVisibility
-    owner_name: str
+    owner_id: UUID
+    owner_username: str
     updated_at: datetime
     node_ids: List[int] = Field(default_factory=list)
     collaborator_count: int = 0
+    collaborators: List[DocumentCollaboratorResponse] = Field(default_factory=list)
+    is_template: bool = False
 
 
 class DocumentDetailResponse(DocumentListItemResponse):
     content_markdown: str
     current_user_role: DocumentRole
-    collaborators: List[DocumentCollaboratorResponse] = Field(default_factory=list)
     versions: List[DocumentVersionResponse] = Field(default_factory=list)
 
 
@@ -79,3 +81,21 @@ class DocumentCollaboratorCreateRequest(BaseModel):
 
 class DocumentCollaboratorUpdateRequest(BaseModel):
     role: DocumentRole
+
+
+class DocumentActivityResponse(BaseModel):
+    id: UUID
+    user_name: str
+    action: str
+    detail: Optional[str] = None
+    created_at: datetime
+
+
+class DocumentTemplateResponse(BaseModel):
+    id: UUID
+    title: str
+    summary: Optional[str] = None
+    content_markdown: str
+    owner_name: str
+    node_ids: List[int] = Field(default_factory=list)
+    updated_at: datetime

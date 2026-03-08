@@ -111,7 +111,7 @@ async def _get_role_for_user(
         return DocumentRole(collaborator.role)
 
     if document.visibility == DocumentVisibility.PUBLIC.value:
-        return DocumentRole.VIEWER
+        return DocumentRole.EDITOR
 
     return None
 
@@ -208,7 +208,8 @@ async def _serialize_document(
         title=document.title,
         summary=document.summary,
         visibility=DocumentVisibility(document.visibility),
-        owner_name=owner.username if owner else "unknown",
+        owner_id=document.owner_id,
+        owner_username=owner.username if owner else "unknown",
         updated_at=document.updated_at,
         node_ids=node_ids,
         collaborator_count=len(collaborator_responses),
@@ -225,17 +226,36 @@ async def _serialize_list_item(
 ) -> DocumentListItemResponse:
     node_ids = await _get_node_ids(db, document.id)
     collaborators = await _get_collaborators(db, document.id)
-    users_by_id = await _get_user_map(db, [document.owner_id])
+    
+    # Needs all users
+    user_ids = [document.owner_id, *(c.user_id for c in collaborators)]
+    users_by_id = await _get_user_map(db, user_ids)
     owner = users_by_id.get(document.owner_id)
+
+    collab_responses = [
+        DocumentCollaboratorResponse(
+            user_id=c.user_id,
+            username=users_by_id.get(c.user_id).username if users_by_id.get(c.user_id) else "unknown",
+            role=DocumentRole(c.role),
+        )
+        for c in sorted(
+            collaborators,
+            key=lambda item: (0 if item.role == DocumentRole.OWNER.value else 1, users_by_id.get(item.user_id).username if users_by_id.get(item.user_id) else ""),
+        )
+    ]
+
     return DocumentListItemResponse(
         id=document.id,
         title=document.title,
         summary=document.summary,
         visibility=DocumentVisibility(document.visibility),
-        owner_name=owner.username if owner else "unknown",
+        owner_id=document.owner_id,
+        owner_username=owner.username if owner else "unknown",
         updated_at=document.updated_at,
         node_ids=node_ids,
-        collaborator_count=len(collaborators),
+        collaborator_count=len(collab_responses),
+        collaborators=collab_responses,
+        is_template=document.is_template,
     )
 
 
@@ -391,7 +411,7 @@ async def add_document_collaborator(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot assign owner role")
 
     document = await _get_document_or_404(db, document_id)
-    await _require_owner(db, document, current_user)
+    await _require_edit_access(db, document, current_user)
 
     result = await db.execute(
         select(User).where(and_(User.username == payload.username, User.is_admin == False))
@@ -441,7 +461,7 @@ async def update_document_collaborator(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot assign owner role")
 
     document = await _get_document_or_404(db, document_id)
-    await _require_owner(db, document, current_user)
+    await _require_edit_access(db, document, current_user)
 
     if user_id == document.owner_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot modify owner role")
@@ -476,7 +496,7 @@ async def delete_document_collaborator(
     db: AsyncSession = Depends(get_session),
 ):
     document = await _get_document_or_404(db, document_id)
-    await _require_owner(db, document, current_user)
+    await _require_edit_access(db, document, current_user)
 
     if user_id == document.owner_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot remove owner")
@@ -510,7 +530,7 @@ async def restore_document_version(
     db: AsyncSession = Depends(get_session),
 ):
     document = await _get_document_or_404(db, document_id)
-    await _require_owner(db, document, current_user)
+    await _require_edit_access(db, document, current_user)
 
     result = await db.execute(
         select(TopicDocumentVersion).where(

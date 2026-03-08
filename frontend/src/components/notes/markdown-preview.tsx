@@ -12,7 +12,8 @@ type Block =
   | { type: "paragraph"; content: string }
   | { type: "bullet-list"; items: string[] }
   | { type: "ordered-list"; items: string[] }
-  | { type: "code"; content: string };
+  | { type: "code"; content: string }
+  | { type: "question-embed"; questionId: string };
 
 function parseBlocks(content: string): Block[] {
   const lines = content.replace(/\r\n/g, "\n").split("\n");
@@ -24,6 +25,14 @@ function parseBlocks(content: string): Block[] {
     const trimmed = line.trim();
 
     if (!trimmed) {
+      index += 1;
+      continue;
+    }
+
+    // Question embed block: :::question{id=<uuid>}
+    const questionMatch = trimmed.match(/^:::question\{id=([a-f0-9-]+)\}$/i);
+    if (questionMatch) {
+      blocks.push({ type: "question-embed", questionId: questionMatch[1] });
       index += 1;
       continue;
     }
@@ -75,7 +84,7 @@ function parseBlocks(content: string): Block[] {
     index += 1;
     while (index < lines.length) {
       const next = lines[index].trim();
-      if (!next || next.startsWith("```") || next.startsWith("- ") || /^\d+\.\s+/.test(next) || /^#{1,6}\s+/.test(next)) {
+      if (!next || next.startsWith("```") || next.startsWith("- ") || /^\d+\.\s+/.test(next) || /^#{1,6}\s+/.test(next) || /^:::question\{/.test(next)) {
         break;
       }
       paragraphLines.push(next);
@@ -87,11 +96,48 @@ function parseBlocks(content: string): Block[] {
   return blocks;
 }
 
-function renderInline(content: string) {
-  if (/[$]/.test(content)) {
-    return <Latex>{content}</Latex>;
+/**
+ * Parse inline Markdown: LaTeX ($...$, $$...$$), **bold**, *italic*, `code`.
+ * Returns an array of React nodes for mixed rendering.
+ */
+function renderInline(text: string) {
+  // Regex to split on: $$...$$, $...$, **...**, *...*, `...`
+  const inlineRegex = /(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$|\*\*[^*]+?\*\*|\*[^*]+?\*|`[^`]+?`)/g;
+  const parts = text.split(inlineRegex);
+
+  if (parts.length === 1 && !inlineRegex.test(text)) {
+    return text;
   }
-  return content;
+
+  return parts.map((part, index) => {
+    if (!part) return null;
+
+    // Display math: $$...$$
+    if (part.startsWith("$$") && part.endsWith("$$")) {
+      return <Latex key={index}>{part}</Latex>;
+    }
+    // Inline math: $...$
+    if (part.startsWith("$") && part.endsWith("$") && part.length > 1) {
+      return <Latex key={index}>{part}</Latex>;
+    }
+    // Bold: **...**
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return <strong key={index} className="font-semibold text-slate-100">{part.slice(2, -2)}</strong>;
+    }
+    // Italic: *...*
+    if (part.startsWith("*") && part.endsWith("*") && part.length > 1) {
+      return <em key={index} className="italic text-slate-300">{part.slice(1, -1)}</em>;
+    }
+    // Inline code: `...`
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return (
+        <code key={index} className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-cyan-300">
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    return <span key={index}>{part}</span>;
+  });
 }
 
 export function MarkdownPreview({ content, emptyText = "开始输入内容后，这里会显示预览。" }: MarkdownPreviewProps) {
@@ -152,6 +198,18 @@ export function MarkdownPreview({ content, emptyText = "开始输入内容后，
             >
               {block.content}
             </pre>
+          );
+        }
+
+        if (block.type === "question-embed") {
+          return (
+            <div
+              key={`${block.type}-${index}`}
+              className="rounded-xl border border-sky-500/30 bg-sky-950/20 p-4 text-sm text-sky-200"
+            >
+              📝 题目引用: <code className="text-xs text-sky-300">{block.questionId}</code>
+              <span className="ml-2 text-xs text-slate-500">(加载中...)</span>
+            </div>
           );
         }
 

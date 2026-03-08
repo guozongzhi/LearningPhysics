@@ -8,16 +8,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/store/auth-store";
+
+type Collaborator = {
+  user_id: string;
+  username: string;
+  role: "owner" | "editor" | "viewer";
+};
 
 type DocumentListItem = {
   id: string;
   title: string;
   summary: string | null;
   visibility: "private" | "class" | "public";
-  owner_name: string;
+  owner_id: string;
+  owner_username: string;
   updated_at: string;
   node_ids: number[];
   collaborator_count: number;
+  collaborators: Collaborator[];
 };
 
 const visibilityLabel: Record<DocumentListItem["visibility"], string> = {
@@ -31,8 +40,25 @@ export default function NotesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const { isLoggedIn, token } = useAuthStore();
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
+    if (!isLoggedIn || !token) {
+      setDocuments([]);
+      setError("需登录后探索。");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
     api.getDocuments()
       .then((data) => {
         setDocuments(data);
@@ -43,7 +69,7 @@ export default function NotesPage() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [isMounted, isLoggedIn, token]);
 
   const filteredDocuments = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -91,8 +117,8 @@ export default function NotesPage() {
             </Card>
             <Card className="border-slate-700/60 bg-slate-900/40">
               <CardContent className="p-5">
-                <div className="text-sm text-slate-400">MVP 能力</div>
-                <div className="mt-2 text-sm leading-6 text-slate-200">支持知识点绑定、协作者管理、版本历史与恢复。</div>
+                <div className="text-sm text-slate-400">系统能力</div>
+                <div className="mt-2 text-sm leading-6 text-slate-200">全员知识库：所有人可查看与共同编辑历史文档，支持题目嵌入与思维导图。</div>
               </CardContent>
             </Card>
           </div>
@@ -112,8 +138,15 @@ export default function NotesPage() {
             正在加载主题文档...
           </div>
         ) : error ? (
-          <div className="rounded-2xl border border-rose-500/30 bg-rose-950/30 px-6 py-10 text-center text-rose-200">
-            {error}
+          <div className="rounded-3xl border border-slate-700/60 bg-slate-900/50 px-6 py-20 text-center shadow-2xl flex flex-col items-center transition-colors">
+            <div className="mb-6 text-6xl drop-shadow-[0_0_15px_rgba(56,189,248,0.3)]">🔒</div>
+            <h3 className="mb-3 text-2xl font-semibold text-slate-100">请先登录</h3>
+            <p className="mb-8 max-w-sm text-slate-400 leading-relaxed">
+              {error}
+            </p>
+            <Button asChild size="lg" className="bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90 font-medium shadow-lg shadow-sky-500/20 px-8">
+              <Link href="/login">前往登录 →</Link>
+            </Button>
           </div>
         ) : filteredDocuments.length === 0 ? (
           <div className="rounded-2xl border border-slate-700/60 bg-slate-900/50 px-6 py-14 text-center text-slate-400">
@@ -152,11 +185,37 @@ export default function NotesPage() {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center justify-between text-sm text-slate-400">
-                      <span>协作者 {document.collaborator_count} 人</span>
-                      <span>{new Date(document.updated_at).toLocaleString("zh-CN")}</span>
+                    <div className="flex flex-col gap-3 mt-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {(() => {
+                          const collabs = [...(document.collaborators || [])];
+                          if (!collabs.find(c => c.role === "owner")) {
+                            collabs.unshift({
+                              user_id: document.owner_id,
+                              username: document.owner_username || "发起人",
+                              role: "owner"
+                            });
+                          }
+                          const shown = collabs.slice(0, 3);
+                          const hidden = collabs.length > 3;
+                          return (
+                            <>
+                              <span className="text-sm text-slate-400 mr-1">成员</span>
+                              {shown.map(c => (
+                                <span key={c.user_id} className="text-xs font-medium text-slate-200 bg-slate-800/80 border border-slate-700 rounded-md px-2 py-0.5">
+                                  {c.username}
+                                </span>
+                              ))}
+                              {hidden && <span className="text-xs text-slate-500 bg-slate-800/40 rounded-md px-2 py-0.5">等...</span>}
+                            </>
+                          );
+                        })()}
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-slate-400 border-t border-slate-800/60 pt-3 mt-1">
+                        <span className="text-slate-400">发起人: <span className="text-slate-300">{document.owner_username}</span></span>
+                        <span>{new Date(document.updated_at).toLocaleString("zh-CN")}</span>
+                      </div>
                     </div>
-                    <div className="text-sm text-slate-300">发起人：{document.owner_name}</div>
                   </CardContent>
                 </Card>
               </Link>

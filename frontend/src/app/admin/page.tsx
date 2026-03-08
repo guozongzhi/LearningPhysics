@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminApi, api, authApi } from "@/lib/api";
+import { useAuthStore } from "@/store/auth-store";
 import { Latex } from "@/components/latex";
 
 type Student = { id: string; username: string; email: string; is_active: boolean; created_at: string; token_usage: number; token_limit: number };
@@ -19,8 +20,8 @@ export default function AdminDashboard() {
 
     // Auth check
     useEffect(() => {
-        const isAdmin = typeof window !== "undefined" ? localStorage.getItem("isAdmin") : null;
-        if (isAdmin !== "true") {
+        const isAdmin = useAuthStore.getState().isAdmin;
+        if (!isAdmin) {
             router.push("/admin/login");
         }
     }, [router]);
@@ -317,13 +318,13 @@ export default function AdminDashboard() {
     };
 
     const handleExportQuestions = () => {
-        const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : "";
+        const token = useAuthStore.getState().token || "";
         window.open(`${adminApi.exportQuestions()}?token=${token}`, "_blank");
     };
 
     // ── Export ──
     const handleExport = () => {
-        const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : "";
+        const token = useAuthStore.getState().token || "";
         const url = adminApi.exportRecords();
         window.open(`${url}?token=${token}`, "_blank");
     };

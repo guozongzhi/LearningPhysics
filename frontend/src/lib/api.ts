@@ -396,4 +396,28 @@ export const api = {
       method: 'POST',
     });
   },
+
+  getDocumentActivities: async (documentId: string) => {
+    return apiFetch(`/api/v1/documents/${documentId}/activities`);
+  },
+
+  getQuestionEmbed: async (questionId: string) => {
+    return apiFetch(`/api/v1/questions/${questionId}/embed`);
+  },
+
+  getQuestionsByNodes: async (nodeIds: number[]) => {
+    return apiFetch(`/api/v1/questions/by-nodes?node_ids=${nodeIds.join(',')}`);
+  },
+
+  toggleDocumentTemplate: async (documentId: string) => {
+    return apiFetch(`/api/v1/documents/${documentId}/toggle-template`, {
+      method: 'POST',
+    });
+  },
+
+  getDocumentTemplates: async () => {
+    return apiFetch('/api/v1/documents/templates/list');
+  },
+  updateKnowledgeNode: (nodeId: number, data: { name?: string; description?: string }) =>
+    apiFetch(`/api/v1/knowledge_nodes/${nodeId}`, { method: 'PATCH', body: JSON.stringify(data) }),
 };

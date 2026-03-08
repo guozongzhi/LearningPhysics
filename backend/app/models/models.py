@@ -119,6 +119,7 @@ class TopicDocument(SQLModel, table=True):
     owner_id: uuid.UUID = Field(foreign_key="users.id", index=True)
     visibility: str = Field(default="private")
     is_archived: bool = Field(default=False)
+    is_template: bool = Field(default=False)
     created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None),
@@ -151,6 +152,17 @@ class TopicDocumentVersion(SQLModel, table=True):
     title: str
     content_markdown: str
     edited_by: uuid.UUID = Field(foreign_key="users.id")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
+
+
+class TopicDocumentActivity(SQLModel, table=True):
+    __tablename__ = "topic_document_activities"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    document_id: uuid.UUID = Field(foreign_key="topic_documents.id", index=True)
+    user_id: uuid.UUID = Field(foreign_key="users.id")
+    action: str  # "created", "updated", "collaborator_added", "collaborator_removed", "collaborator_updated", "version_restored"
+    detail: Optional[str] = Field(default=None)
     created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
 
 

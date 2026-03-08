@@ -32,7 +32,9 @@ async def init_admin():
             username=users_config.admin.username,
             hashed_password=get_password_hash(users_config.admin.password),
             is_active=True,
-            is_admin=True
+            is_admin=True,
+            token_usage=0,
+            token_limit=100000
         )
         
         db.add(admin_user)
@@ -69,7 +71,9 @@ async def init_students():
                 username=student_data["username"],
                 hashed_password=get_password_hash(student_data["password"]),
                 is_active=True,
-                is_admin=False
+                is_admin=False,
+                token_usage=0,
+                token_limit=100000
             )
             
             db.add(student_user)

@@ -11,11 +11,13 @@ import time
 
 from app.db.session import init_db
 from app.api.v1 import quiz as quiz_router_v1
+from app.api.v1 import knowledge_nodes as knowledge_nodes_router_v1
 from app.api.v1 import auth as auth_router_v1
 from app.api.v1 import topics as topics_router_v1
 from app.api.v1 import admin as admin_router_v1
 from app.api.v1 import documents as documents_router_v1
 from app.api.v1 import users as users_router_v1
+from app.api.v1 import question_embed as question_embed_router_v1
 from app.core.exceptions import (
     http_exception_handler,
     validation_exception_handler,
@@ -187,7 +189,9 @@ api_router_v1 = APIRouter()
 # Protect quiz endpoints by requiring authentication
 api_router_v1.include_router(quiz_router_v1.router, prefix="/quiz", tags=["Quiz"])
 api_router_v1.include_router(documents_router_v1.router, prefix="/documents", tags=["Documents"])
+api_router_v1.include_router(knowledge_nodes_router_v1.router, prefix="/knowledge_nodes", tags=["knowledge_nodes"])
 api_router_v1.include_router(users_router_v1.router, prefix="/users", tags=["Users"])
+api_router_v1.include_router(question_embed_router_v1.router, prefix="/questions", tags=["Questions"])
 
 # Include the v1 router into the main app
 app.include_router(api_router_v1, prefix="/api/v1")

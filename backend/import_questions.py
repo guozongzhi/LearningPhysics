@@ -97,8 +97,8 @@ async def import_from_json(filepath: str):
         skipped = 0
 
         for q in questions:
-            topic_code = q["topic_code"]
-            if topic_code not in code_to_id:
+            topic_code = q.get("topic_code") or q.get("knowledge_code")
+            if not topic_code or topic_code not in code_to_id:
                 print(f"  ⚠️  Skipped (unknown topic '{topic_code}'): {q['content_latex'][:40]}...")
                 skipped += 1
                 continue

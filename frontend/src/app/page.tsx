@@ -48,15 +48,8 @@ export default function Home() {
 
     api.getTopics()
       .then((data: Topic[]) => {
-        const uniqueTopicsMap = new Map();
-        data.forEach(topic => {
-          if (!uniqueTopicsMap.has(topic.name)) {
-            uniqueTopicsMap.set(topic.name, topic);
-          }
-        });
-        const uniqueTopics = Array.from(uniqueTopicsMap.values());
-        setTopics(uniqueTopics);
-        setSelectedTopics(new Set(uniqueTopics.map((t: Topic) => t.id)));
+        setTopics(data);
+        setSelectedTopics(new Set(data.map((t: Topic) => t.id)));
       })
       .catch(console.error)
       .finally(() => setTopicsLoading(false));
