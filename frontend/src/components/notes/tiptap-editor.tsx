@@ -8,7 +8,6 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import CodeBlock from "@tiptap/extension-code-block";
 import { Color } from "@tiptap/extension-color";
-import TextStyle from "@tiptap/extension-text-style";
 import { Bold, Italic, Underline as UnderlineIcon, Code, Quote, List, ListOrdered, Heading1, Heading2, Heading3, Image as ImageIcon, FileText, File, Presentation, Code2, Undo, Redo, Type } from "lucide-react";
 import { useState, useCallback, useRef } from "react";
 
@@ -74,7 +73,6 @@ export function TiptapEditor({
     const editor = useEditor({
         immediatelyRender: false,
         extensions: [
-            TextStyle,
             Color,
             StarterKit.configure({
                 heading: {
