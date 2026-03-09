@@ -280,32 +280,54 @@ export function TiptapEditor({
 
             {/* 编辑器内容 */}
             <div className="p-4">
+                <style>{`
+                    .tiptap-editor-content h1 {
+                        font-size: 1.875rem !important;
+                        font-weight: 700 !important;
+                        color: #e2e8f0 !important;
+                        margin-top: 1.5rem !important;
+                        margin-bottom: 1rem !important;
+                    }
+                    .tiptap-editor-content h2 {
+                        font-size: 1.5rem !important;
+                        font-weight: 600 !important;
+                        color: #e2e8f0 !important;
+                        margin-top: 1.25rem !important;
+                        margin-bottom: 0.75rem !important;
+                    }
+                    .tiptap-editor-content h3 {
+                        font-size: 1.25rem !important;
+                        font-weight: 600 !important;
+                        color: #e2e8f0 !important;
+                        margin-top: 1rem !important;
+                        margin-bottom: 0.5rem !important;
+                    }
+                    .tiptap-editor-content p {
+                        color: #cbd5e1 !important;
+                        margin-bottom: 0.5rem !important;
+                    }
+                    .tiptap-editor-content strong {
+                        color: #e2e8f0 !important;
+                    }
+                    .tiptap-editor-content em {
+                        color: #cbd5e1 !important;
+                    }
+                    .tiptap-editor-content code {
+                        color: #38bdf8 !important;
+                    }
+                    .tiptap-editor-content pre {
+                        background-color: #1e293b !important;
+                        border: 1px solid #334155 !important;
+                    }
+                    .tiptap-editor-content blockquote {
+                        border-left: 4px solid #0ea5e9 !important;
+                        background-color: rgba(30, 41, 59, 0.5) !important;
+                        color: #cbd5e1 !important;
+                    }
+                `}</style>
                 <EditorContent
                     editor={editor}
-                    className="prose prose-invert max-w-none
-                        prose-headings:text-slate-200
-                        prose-p:text-slate-300
-                        prose-strong:text-slate-200
-                        prose-em:text-slate-300
-                        prose-code:text-sky-300
-                        prose-pre:bg-slate-800
-                        prose-pre:border
-                        prose-pre:border-slate-700
-                        prose-blockquote:border-l-sky-500
-                        prose-blockquote:bg-slate-800/50
-                        prose-blockquote:text-slate-300
-                        prose-h1:text-3xl
-                        prose-h1:font-bold
-                        prose-h1:mb-4
-                        prose-h1:mt-6
-                        prose-h2:text-2xl
-                        prose-h2:font-semibold
-                        prose-h2:mb-3
-                        prose-h2:mt-5
-                        prose-h3:text-xl
-                        prose-h3:font-semibold
-                        prose-h3:mb-2
-                        prose-h3:mt-4"
+                    className="tiptap-editor-content prose prose-invert max-w-none"
                 />
             </div>
 
