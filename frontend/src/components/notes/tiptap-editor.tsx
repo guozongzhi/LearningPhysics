@@ -61,6 +61,7 @@ export function TiptapEditor({
     const isApplyingRef = useRef(false);
 
     const editor = useEditor({
+        immediatelyRender: false,
         extensions: [
             StarterKit.configure({
                 heading: {
