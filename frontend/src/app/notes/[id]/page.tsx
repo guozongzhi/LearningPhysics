@@ -69,6 +69,7 @@ export default function NoteDetailPage() {
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [contentHtml, setContentHtml] = useState("");
+  const [initialContentHtml, setInitialContentHtml] = useState("");
   const [contentJson, setContentJson] = useState<any>(undefined);
   const [whiteboardData, setWhiteboardData] = useState<unknown>(undefined);
   const [visibility, setVisibility] = useState<"private" | "class" | "public">("private");
@@ -116,11 +117,9 @@ export default function NoteDetailPage() {
     setSummary(enhancedData.summary || "");
     setContent(enhancedData.content_markdown || "");
     // 如果有 content_blocks (Tiptap JSON)，留给编辑器自己解析；否则用 Markdown 转换
-    if (enhancedData.content_markdown) {
-      setContentHtml(markdownToHtml(enhancedData.content_markdown));
-    } else {
-      setContentHtml("");
-    }
+    const initialHtml = enhancedData.content_markdown ? markdownToHtml(enhancedData.content_markdown) : "";
+    setContentHtml(initialHtml);
+    setInitialContentHtml(initialHtml);
     setContentJson(enhancedData.content_blocks);
     setWhiteboardData(enhancedData.whiteboard_data);
     setVisibility(enhancedData.visibility);
@@ -190,7 +189,7 @@ export default function NoteDetailPage() {
   const hasUnsavedChanges = document
     ? title !== document.title ||
     summary !== (document.summary || "") ||
-    contentHtml !== markdownToHtml(document.content_markdown || "") ||
+    contentHtml !== initialContentHtml ||
     visibility !== document.visibility ||
     contentJsonSignature !== documentContentJsonSignature ||
     whiteboardSignature !== documentWhiteboardSignature
@@ -236,6 +235,8 @@ export default function NoteDetailPage() {
         visibility,
         node_ids: selectedNodeIds,
       });
+      // 更新初始 HTML 以反映保存后的状态
+      setInitialContentHtml(contentHtml);
       await refreshDocument();
       setIsEditing(false);
       setPreviewTab("preview");
