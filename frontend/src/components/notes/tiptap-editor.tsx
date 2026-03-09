@@ -7,8 +7,7 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import CodeBlock from "@tiptap/extension-code-block";
-import { Color } from "@tiptap/extension-color";
-import { Bold, Italic, Underline as UnderlineIcon, Code, Quote, List, ListOrdered, Heading1, Heading2, Heading3, Image as ImageIcon, FileText, File, Presentation, Code2, Undo, Redo, Type } from "lucide-react";
+import { Bold, Italic, Underline as UnderlineIcon, Code, Quote, List, ListOrdered, Heading1, Heading2, Heading3, Image as ImageIcon, FileText, File, Presentation, Code2, Undo, Redo } from "lucide-react";
 import { useState, useCallback, useRef } from "react";
 
 import { HtmlNode } from "./tiptap/HtmlNode";
@@ -58,22 +57,12 @@ export function TiptapEditor({
 }: TiptapEditorProps) {
     const [isHtmlModalOpen, setIsHtmlModalOpen] = useState(false);
     const [htmlInput, setHtmlInput] = useState("");
-    const [showColorPicker, setShowColorPicker] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const colorPickerRef = useRef<HTMLDivElement>(null);
     const isApplyingRef = useRef(false);
-
-    const colors = [
-        "#000000", "#ef4444", "#f97316", "#eab308", "#22c55e",
-        "#14b8a6", "#3b82f6", "#8b5cf6", "#ec4899", "#6b7280",
-        "#ffffff", "#fca5a5", "#fdba74", "#fde047", "#86efac",
-        "#5eead4", "#93c5fd", "#c4b5fd", "#f9a8d4", "#d1d5db",
-    ];
 
     const editor = useEditor({
         immediatelyRender: false,
         extensions: [
-            Color,
             StarterKit.configure({
                 heading: {
                     levels: [1, 2, 3],
@@ -100,17 +89,6 @@ export function TiptapEditor({
             onChange?.(editor.getHTML(), editor.getJSON());
         },
     });
-
-    // Close color picker when clicking outside
-    React.useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (colorPickerRef.current && !colorPickerRef.current.contains(event.target as Node)) {
-                setShowColorPicker(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
 
     // 处理题目插入
     const insertQuestion = useCallback((questionId: string) => {
@@ -212,42 +190,6 @@ export function TiptapEditor({
                             icon={Code}
                             label="行内代码"
                         />
-                        <div className="relative" ref={colorPickerRef}>
-                            <button
-                                onClick={() => setShowColorPicker(!showColorPicker)}
-                                className="p-2 rounded transition-colors text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-                                title="文字颜色"
-                            >
-                                <Type className="w-4 h-4" style={{ color: editor.getAttributes("textStyle").color || "#e2e8f0" }} />
-                            </button>
-                            {showColorPicker && (
-                                <div className="absolute top-full left-0 mt-1 p-2 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50">
-                                    <div className="grid grid-cols-10 gap-1">
-                                        {colors.map((color) => (
-                                            <button
-                                                key={color}
-                                                onClick={() => {
-                                                    editor.chain().focus().setColor(color).run();
-                                                    setShowColorPicker(false);
-                                                }}
-                                                className="w-6 h-6 rounded border border-slate-600 hover:scale-110 transition-transform"
-                                                style={{ backgroundColor: color }}
-                                                title={color}
-                                            />
-                                        ))}
-                                    </div>
-                                    <button
-                                        onClick={() => {
-                                            editor.chain().focus().unsetColor().run();
-                                            setShowColorPicker(false);
-                                        }}
-                                        className="w-full mt-2 px-2 py-1 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"
-                                    >
-                                        清除颜色
-                                    </button>
-                                </div>
-                            )}
-                        </div>
                     </div>
 
                     <div className="flex items-center gap-1 px-2 border-r border-slate-700">
