@@ -5,15 +5,15 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { MarkdownPreview } from "@/components/notes/markdown-preview";
-import { RichTextEditor } from "@/components/notes/rich-text-editor";
+import { TiptapEditor } from "@/components/notes/tiptap-editor";
 import { WhiteboardView } from "@/components/notes/whiteboard-view";
+import { markdownToHtml } from "@/components/notes/markdown-utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { KnowledgeTag } from "@/components/KnowledgeTag";
 import { useAuthStore } from "@/store/auth-store";
-import { PartialBlock } from "@blocknote/core";
 
 type TopicItem = {
   id: number;
@@ -35,7 +35,7 @@ type DocumentDetail = {
   title: string;
   summary: string | null;
   content_markdown: string;
-  content_blocks?: PartialBlock[];
+  content_blocks?: any;
   whiteboard_data?: unknown;
   visibility: "private" | "class" | "public";
   owner_id: string;
@@ -68,7 +68,8 @@ export default function NoteDetailPage() {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
-  const [contentBlocks, setContentBlocks] = useState<PartialBlock[] | undefined>(undefined);
+  const [contentHtml, setContentHtml] = useState("");
+  const [contentJson, setContentJson] = useState<any>(undefined);
   const [whiteboardData, setWhiteboardData] = useState<unknown>(undefined);
   const [visibility, setVisibility] = useState<"private" | "class" | "public">("private");
   const [selectedNodeIds, setSelectedNodeIds] = useState<number[]>([]);
@@ -114,7 +115,13 @@ export default function NoteDetailPage() {
     setTitle(enhancedData.title);
     setSummary(enhancedData.summary || "");
     setContent(enhancedData.content_markdown || "");
-    setContentBlocks(enhancedData.content_blocks);
+    // 如果有 content_blocks (Tiptap JSON)，留给编辑器自己解析；否则用 Markdown 转换
+    if (enhancedData.content_markdown) {
+      setContentHtml(markdownToHtml(enhancedData.content_markdown));
+    } else {
+      setContentHtml("");
+    }
+    setContentJson(enhancedData.content_blocks);
     setWhiteboardData(enhancedData.whiteboard_data);
     setVisibility(enhancedData.visibility);
     setSelectedNodeIds(enhancedData.node_ids || []);
@@ -176,16 +183,16 @@ export default function NoteDetailPage() {
 
   const canEdit = isAdmin || document?.current_user_role === "owner" || document?.current_user_role === "editor";
   const isOwner = document?.current_user_role === "owner";
-  const contentBlocksSignature = useMemo(() => JSON.stringify(contentBlocks ?? null), [contentBlocks]);
-  const documentBlocksSignature = useMemo(() => JSON.stringify(document?.content_blocks ?? null), [document?.content_blocks]);
+  const contentJsonSignature = useMemo(() => JSON.stringify(contentJson ?? null), [contentJson]);
+  const documentContentJsonSignature = useMemo(() => JSON.stringify(document?.content_blocks ?? null), [document?.content_blocks]);
   const whiteboardSignature = useMemo(() => JSON.stringify(whiteboardData ?? null), [whiteboardData]);
   const documentWhiteboardSignature = useMemo(() => JSON.stringify(document?.whiteboard_data ?? null), [document?.whiteboard_data]);
   const hasUnsavedChanges = document
     ? title !== document.title ||
     summary !== (document.summary || "") ||
-    content !== (document.content_markdown || "") ||
+    contentHtml !== markdownToHtml(document.content_markdown || "") ||
     visibility !== document.visibility ||
-    contentBlocksSignature !== documentBlocksSignature ||
+    contentJsonSignature !== documentContentJsonSignature ||
     whiteboardSignature !== documentWhiteboardSignature
     : false;
   // Warn on page leave if unsaved changes exist
@@ -211,7 +218,7 @@ export default function NoteDetailPage() {
   };
 
   const handleSave = async () => {
-    if (!documentId || !canEdit) {
+    if (!documentId || !canEdit || !document) {
       return;
     }
 
@@ -224,7 +231,7 @@ export default function NoteDetailPage() {
         title: title.trim(),
         summary: summary.trim(),
         content_markdown: content,
-        content_blocks: contentBlocks,
+        content_blocks: contentJson,
         whiteboard_data: whiteboardData,
         visibility,
         node_ids: selectedNodeIds,
@@ -259,7 +266,7 @@ export default function NoteDetailPage() {
   };
 
   const handleSaveNodes = async () => {
-    if (!documentId || !canEdit) return;
+    if (!documentId || !canEdit || !document) return;
     setSavingNodes(true);
     setError(null);
     try {
@@ -824,13 +831,12 @@ export default function NoteDetailPage() {
                             </Button>
                           </div>
                           <div className={`w-full flex-1 ${isFullscreen ? "overflow-y-auto" : ""}`}>
-                            <RichTextEditor
+                            <TiptapEditor
                               key={`${document.id}:${document.updated_at}`}
-                              initialBlocks={contentBlocks}
-                              initialMarkdown={content}
-                              onChange={(blocks, markdown) => {
-                                setContentBlocks(blocks);
-                                setContent(markdown);
+                              initialContent={contentHtml}
+                              onChange={(html, json) => {
+                                setContentHtml(html);
+                                setContentJson(json);
                               }}
                               readOnly={!isEditing || !canEdit}
                               pendingQuestionId={pendingQuestionId}
@@ -859,7 +865,14 @@ export default function NoteDetailPage() {
 
                   {!isEditing && previewTab === "preview" && (
                     <div className={`mt-4 rounded-xl border border-slate-800 bg-slate-900/40 ${isEditing ? "p-4 min-h-[500px]" : "p-6 lg:p-10 min-h-[600px]"}`}>
-                      <MarkdownPreview content={content} emptyText="内容为空。" />
+                      {contentHtml ? (
+                        <div
+                          className="prose prose-invert max-w-none prose-headings:text-slate-200 prose-p:text-slate-300 prose-strong:text-slate-200 prose-em:text-slate-300 prose-code:text-sky-300 prose-pre:bg-slate-800 prose-pre:border prose-pre:border-slate-700 prose-blockquote:border-l-sky-500 prose-blockquote:bg-slate-800/50 prose-blockquote:text-slate-300"
+                          dangerouslySetInnerHTML={{ __html: contentHtml }}
+                        />
+                      ) : (
+                        <MarkdownPreview content={content} emptyText="内容为空。" />
+                      )}
                     </div>
                   )}
 
