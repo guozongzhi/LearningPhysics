@@ -226,6 +226,7 @@ async def _serialize_document(
         current_user_role=current_user_role,
         collaborators=collaborator_responses,
         versions=version_responses,
+        is_template=document.is_template,
     )
 
 
