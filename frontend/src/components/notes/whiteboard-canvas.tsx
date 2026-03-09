@@ -2,7 +2,7 @@
 
 import { Excalidraw } from "@excalidraw/excalidraw";
 import "@excalidraw/excalidraw/index.css";
-import type { ExcalidrawInitialDataState, UIOptions } from "@excalidraw/excalidraw/types";
+import type { AppState, ExcalidrawInitialDataState, UIOptions } from "@excalidraw/excalidraw/types";
 import { useRef, useState } from "react";
 
 import type { ExcalidrawSceneData } from "./whiteboard-view";
@@ -34,11 +34,15 @@ export function WhiteboardCanvas({ initialData, onChange, readOnly = false }: Wh
                 langCode="zh-CN"
                 UIOptions={whiteboardUIOptions}
                 onChange={(elements, appState, files) => {
+                    // Create a sanitized copy of appState to prevent non-persistent state 
+                    // like collaborators from being saved/restored as plain objects.
+                    const { collaborators, toast, activeTool, openMenu, openPopup, ...persistentState } = appState;
+
                     const nextScene: ExcalidrawSceneData = {
                         sdk: "excalidraw",
                         version: 1,
                         elements: [...elements],
-                        appState,
+                        appState: persistentState as Partial<AppState>,
                         files,
                     };
                     const nextSignature = serializeSceneData(nextScene);

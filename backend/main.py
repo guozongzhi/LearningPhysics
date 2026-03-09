@@ -209,7 +209,7 @@ def read_root():
 
 @app.get("/health", tags=["Health"])
 def health_check():
-    """健康检查端点，用于监控和负载均衡器检测。"""
+    """健康检查端点。"""
     return {"status": "ok"}
 
 

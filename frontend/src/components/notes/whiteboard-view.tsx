@@ -17,6 +17,7 @@ interface WhiteboardViewProps {
     initialData?: unknown;
     onChange?: (data: ExcalidrawSceneData) => void;
     readOnly?: boolean;
+    fullHeight?: boolean;
 }
 
 const WhiteboardCanvas = dynamic(
@@ -38,9 +39,24 @@ function normalizeInitialData(initialData: unknown): ExcalidrawSceneData | undef
 
     const data = initialData as Record<string, unknown>;
     const elements = Array.isArray(data.elements) ? (data.elements as readonly ExcalidrawElement[]) : [];
-    const appState = typeof data.appState === "object" && data.appState !== null
-        ? (data.appState as Partial<AppState>)
+
+    // Sanitize appState to remove ephemeral fields like collaborators which cause crashes
+    // if serialized as plain objects instead of Maps.
+    let appState = typeof data.appState === "object" && data.appState !== null
+        ? { ...data.appState as Partial<AppState> }
         : undefined;
+
+    if (appState) {
+        // Excalidraw internal state like collaborators/toast/etc should not be persisted or re-initialized from plain objects
+        delete (appState as any).collaborators;
+        delete (appState as any).toast;
+
+        // Also ensure we don't accidentally carry over UI state that might conflict
+        delete (appState as any).activeTool;
+        delete (appState as any).openMenu;
+        delete (appState as any).openPopup;
+    }
+
     const files = typeof data.files === "object" && data.files !== null
         ? (data.files as BinaryFiles)
         : undefined;
@@ -54,11 +70,11 @@ function normalizeInitialData(initialData: unknown): ExcalidrawSceneData | undef
     };
 }
 
-export function WhiteboardView({ initialData, onChange, readOnly = false }: WhiteboardViewProps) {
+export function WhiteboardView({ initialData, onChange, readOnly = false, fullHeight = false }: WhiteboardViewProps) {
     const normalizedInitialData = useMemo(() => normalizeInitialData(initialData), [initialData]);
 
     return (
-        <div className="relative h-[600px] w-full overflow-hidden rounded-md border border-slate-300 bg-white">
+        <div className={`relative w-full ${fullHeight ? "h-full" : "h-[600px]"} overflow-hidden rounded-md border border-slate-300 bg-white`}>
             <WhiteboardCanvas
                 initialData={normalizedInitialData}
                 onChange={onChange}

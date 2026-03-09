@@ -95,6 +95,9 @@ async def _get_versions(db: AsyncSession, document_id: UUID) -> list[TopicDocume
 async def _get_role_for_user(
     db: AsyncSession, document: TopicDocument, current_user: User
 ) -> Optional[DocumentRole]:
+    if current_user.is_admin:
+        return DocumentRole.OWNER
+
     if document.owner_id == current_user.id:
         return DocumentRole.OWNER
 
