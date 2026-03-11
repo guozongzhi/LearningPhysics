@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { KnowledgeTag } from "@/components/KnowledgeTag";
 import { useAuthStore } from "@/store/auth-store";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 type TopicItem = {
   id: number;
@@ -500,10 +501,10 @@ export default function NoteDetailPage() {
               </div>
             )}
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild variant="outline" className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800">
-              <Link href="/notes">返回列表</Link>
-            </Button>
+            <div className="flex flex-wrap gap-3 items-center">
+              <Button asChild variant="outline" className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800">
+                <Link href="/notes">返回列表</Link>
+              </Button>
             {isOwner && (
               <Button onClick={handleDeleteDocument} disabled={deleting} variant="outline" className="border-rose-500/40 bg-rose-950/20 text-rose-200 hover:bg-rose-900/40">
                 {deleting ? "删除中..." : "删除文档"}
@@ -537,7 +538,7 @@ export default function NoteDetailPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 grid-cols-1 max-w-6xl mx-auto">
+        <div className="grid gap-6 grid-cols-1 max-w-7xl mx-auto">
           {isEditing && (
             <div className="rounded-xl border border-slate-700/60 bg-slate-900/40 p-5 mb-6">
               <div className="grid gap-6 md:grid-cols-2">
@@ -707,16 +708,16 @@ export default function NoteDetailPage() {
           )}
 
           <div className="space-y-6">
-            <Card className="border-slate-700/60 bg-slate-950/60 shadow-xl overflow-hidden mt-6">
+            <Card className="shadow-xl overflow-visible mt-6 border-slate-700 bg-slate-900/40">
               <CardContent className="space-y-5">
                 <div className="space-y-2">
-                  <label className="text-sm text-slate-300">摘要</label>
+                  <label className="text-sm text-slate-400">摘要</label>
                   <textarea
                     value={summary}
                     onChange={(event) => setSummary(event.target.value)}
                     rows={3}
                     disabled={!canEdit}
-                    className="w-full rounded-md border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
                 <div className="flex flex-col gap-5">
@@ -833,8 +834,9 @@ export default function NoteDetailPage() {
                           </div>
                           <div className={`w-full flex-1 ${isFullscreen ? "overflow-y-auto" : ""}`}>
                             <TiptapEditor
-                              key={`${document.id}:${document.updated_at}`}
+                              key={document.id}
                               initialContent={contentHtml}
+                              initialContentJson={contentJson}
                               onChange={(html, json) => {
                                 setContentHtml(html);
                                 setContentJson(json);
@@ -865,16 +867,12 @@ export default function NoteDetailPage() {
                   )}
 
                   {!isEditing && previewTab === "preview" && (
-                    <div className={`mt-4 rounded-xl border border-slate-800 bg-slate-900/40 ${isEditing ? "p-4 min-h-[500px]" : "p-6 lg:p-10 min-h-[600px]"}`}>
-                      {contentHtml ? (
-                        <div
-                          className="prose prose-invert max-w-none prose-headings:text-slate-200 prose-p:text-slate-300 prose-strong:text-slate-200 prose-em:text-slate-300 prose-code:text-sky-300 prose-pre:bg-slate-800 prose-pre:border prose-pre:border-slate-700 prose-blockquote:border-l-sky-500 prose-blockquote:bg-slate-800/50 prose-blockquote:text-slate-300"
-                          dangerouslySetInnerHTML={{ __html: contentHtml }}
-                        />
-                      ) : (
-                        <MarkdownPreview content={content} emptyText="内容为空。" />
-                      )}
-                    </div>
+                    <TiptapEditor
+                      key={`preview-${document.id}-${document.updated_at}-${previewTab}`}
+                      initialContent={contentHtml}
+                      initialContentJson={contentJson}
+                      readOnly={true}
+                    />
                   )}
 
                   {previewTab === "whiteboard" && !isEditing && (

@@ -1,7 +1,7 @@
 "use client";
 
 import { Node, mergeAttributes } from "@tiptap/core";
-import { ReactNodeViewRenderer } from "@tiptap/react";
+import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
 import { HelpCircle } from "lucide-react";
 
 interface QuestionNodeOptions {
@@ -66,24 +66,26 @@ export const QuestionNode = Node.create<QuestionNodeOptions>({
 
 function QuestionNodeComponent({ node, selected }: any) {
     return (
-        <div
-            className={`question-node-wrapper my-4 rounded-lg border ${
-                selected ? "border-amber-500" : "border-slate-600"
-            } bg-amber-500/10`}
-        >
-            <div className="flex items-center gap-3 p-4">
-                <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
-                    <HelpCircle className="w-5 h-5 text-amber-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-200">
-                        关联题目 #{node.attrs.questionId}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                        点击查看题目详情
-                    </p>
+        <NodeViewWrapper>
+            <div
+                className={`question-node-wrapper my-4 rounded-lg border ${
+                    selected ? "border-amber-500" : "border-slate-600"
+                } bg-amber-500/10`}
+            >
+                <div className="flex items-center gap-3 p-4">
+                    <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
+                        <HelpCircle className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-200">
+                            关联题目 #{node.attrs.questionId}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                            点击查看题目详情
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </NodeViewWrapper>
     );
 }

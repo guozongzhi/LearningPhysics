@@ -48,61 +48,59 @@
   }
 }
 
-/* Cosmic / sci-fi theme (Scheme B) — default for entire site */
+/* Default Theme (Cosmic Dark) */
 :root {
-  /* Background: deep space #020617, content panels #0f172a */
   --background: 222 47% 6%;
   --foreground: 215 20% 90%;
-
   --card: 222 47% 11%;
   --card-foreground: 215 20% 92%;
-
   --popover: 222 47% 11%;
   --popover-foreground: 215 20% 92%;
-
-  /* Primary: sky-400 #38bdf8 */
   --primary: 199 89% 48%;
   --primary-foreground: 222 47% 6%;
-
   --secondary: 217 33% 17%;
   --secondary-foreground: 215 20% 90%;
-
   --muted: 217 33% 17%;
   --muted-foreground: 215 16% 56%;
-
   --accent: 217 33% 20%;
   --accent-foreground: 215 20% 92%;
-
   --destructive: 0 63% 51%;
   --destructive-foreground: 0 0% 98%;
-
   --border: 217 33% 22%;
   --input: 217 33% 22%;
   --ring: 199 89% 48%;
-
   --radius: 0.75rem;
+
+  /* Editor Variables (Default Dark) */
+  --editor-bg: 222 47% 4%;
+  --editor-text: 215 20% 90%;
+  --editor-border: 217 33% 22%;
+  --editor-heading: 215 20% 95%;
+  --editor-muted: 215 16% 65%;
 }
 
 .dark {
+  /* No changes needed as :root is dark by default */
+}
+
+/* Scoped Light Theme: Background remains dark, but Editor Card is light */
+.light {
+  /* BODY background and UI borders MUST stay dark for cosmic feel */
   --background: 222 47% 6%;
   --foreground: 215 20% 90%;
-  --card: 222 47% 11%;
-  --card-foreground: 215 20% 92%;
+  --border: 217 33% 12%; /* Keep borders very dark and subtle */
+  
+  --editor-bg: 0 0% 100%;
+  --editor-text: 222 47% 11%;
+  --editor-border: 214 32% 91%;
+  --editor-heading: 222 47% 2%;
+  --editor-muted: 215 16% 40%;
+
+  /* Cards used for documents should follow editor colors */
+  --card: 222 47% 8%; /* Keep cards dark */
+  --card-foreground: 215 20% 90%;
   --popover: 222 47% 11%;
-  --popover-foreground: 215 20% 92%;
-  --primary: 199 89% 48%;
-  --primary-foreground: 222 47% 6%;
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 215 20% 90%;
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 16% 56%;
-  --accent: 217 33% 20%;
-  --accent-foreground: 215 20% 92%;
-  --destructive: 0 63% 51%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 217 33% 22%;
-  --input: 217 33% 22%;
-  --ring: 199 89% 48%;
+  --popover-foreground: 215 20% 90%;
 }
 
 * {
