@@ -46,6 +46,7 @@ services:
     restart: always
     environment:
       - NEXT_PUBLIC_API_URL=
+      - NODE_ENV=production
 
 volumes:
   postgres_data_prod:

@@ -8,11 +8,14 @@ const getApiBaseUrl = () => {
   }
 
   if (typeof window !== 'undefined') {
-    // dynamically match the API to the current domain but point to port 8000 as fallback
     // relative paths are preferred if rewrites are configured
     return ''; 
   }
-  return 'http://localhost:8000';
+  
+  // Server-side base URL
+  return process.env.NODE_ENV === 'production' 
+    ? 'http://backend:8000' 
+    : 'http://localhost:8000';
 };
 
 const API_BASE_URL = getApiBaseUrl();
