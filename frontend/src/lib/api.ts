@@ -2,15 +2,15 @@ import { useAuthStore } from '@/store/auth-store';
 
 const getApiBaseUrl = () => {
   // If the environment variable is injected during build, always prioritize it.
-  if (process.env.NEXT_PUBLIC_API_URL) {
+  // Note: For relative paths (starting with /), this will work as expected with Next.js rewrites.
+  if (process.env.NEXT_PUBLIC_API_URL !== undefined) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
   if (typeof window !== 'undefined') {
     // dynamically match the API to the current domain but point to port 8000 as fallback
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    return `${protocol}//${hostname}:8000`;
+    // relative paths are preferred if rewrites are configured
+    return ''; 
   }
   return 'http://localhost:8000';
 };

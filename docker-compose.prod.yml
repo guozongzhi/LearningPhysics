@@ -37,7 +37,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: https://api.tensor-orbit.top
+        NEXT_PUBLIC_API_URL: ""
     container_name: learningphysics_frontend_prod
     ports:
       - "3000:3000"
@@ -45,7 +45,7 @@ services:
       - backend
     restart: always
     environment:
-      - NEXT_PUBLIC_API_URL=https://api.tensor-orbit.top
+      - NEXT_PUBLIC_API_URL=
 
 volumes:
   postgres_data_prod:
