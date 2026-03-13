@@ -154,10 +154,10 @@ export default function Home() {
           <div className="relative py-8 sm:py-12 px-4">
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-100 mb-3 sm:mb-4">
-              探索宇宙规律，从一道题开始
+              洞察宇宙底层逻辑，重塑物理学习场域
             </h2>
-            <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mb-6 sm:mb-8">
-              选择你想练习的物理知识点，AI 将根据你的水平智能出题
+            <p className="text-slate-400 text-base sm:text-lg max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed">
+              集协作共创、思维导图与 AI 测评于一体。从共创笔记开始沉淀，由智能练兵完成闭环。这不仅是你的题库，更是驱动科学思维进阶的终极实验室。
             </p>
             <div className="mx-auto max-w-2xl w-full">
               <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 sm:gap-4 px-2">
