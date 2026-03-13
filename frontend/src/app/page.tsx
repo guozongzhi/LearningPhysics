@@ -165,7 +165,7 @@ export default function Home() {
                   onClick={handleStartQuiz}
                   disabled={isLoading || selectedTopics.size === 0 || questionCount <= 0}
                   size="lg"
-                  className="group relative flex-1 h-16 text-lg font-bold bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-95 shadow-[0_0_20px_rgba(56,189,248,0.2)] hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 overflow-hidden active:scale-[0.97] hover:-translate-y-0.5"
+                  className="group relative flex-1 h-16 text-lg font-bold bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-95 shadow-[0_0_20px_rgba(56,189,248,0.25)] hover:shadow-[0_0_30px_rgba(56,189,248,0.45)] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 overflow-hidden active:scale-[0.97] hover:-translate-y-0.5"
                 >
                   <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[25deg] pointer-events-none" />
                   {isLoading ? (
@@ -181,16 +181,20 @@ export default function Home() {
                   )}
                 </Button>
 
-                <Button asChild variant="outline" size="lg" className="flex-1 h-16 border-slate-700 bg-slate-900/40 text-slate-200 hover:bg-slate-800 hover:border-slate-500 hover:text-white rounded-2xl transition-all duration-300 backdrop-blur-sm group active:scale-[0.97] hover:-translate-y-0.5 shadow-lg shadow-black/10">
-                  <Link href="#topics" className="flex items-center justify-center gap-2">
-                    <Search className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
-                    <span>查看主题</span>
-                  </Link>
+                <Button 
+                  onClick={() => document.getElementById('topics')?.scrollIntoView({ behavior: 'smooth' })}
+                  size="lg" 
+                  className="group relative flex-1 h-16 text-lg font-bold bg-gradient-to-r from-indigo-500 to-violet-500 text-slate-950 hover:opacity-95 shadow-[0_0_20px_rgba(99,102,241,0.25)] hover:shadow-[0_0_30px_rgba(139,92,246,0.45)] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 overflow-hidden active:scale-[0.97] hover:-translate-y-0.5"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[25deg] pointer-events-none" />
+                  <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <span>查看主题</span>
                 </Button>
 
-                <Button asChild variant="outline" size="lg" className="flex-1 h-16 border-cyan-500/30 bg-cyan-500/5 text-cyan-200 hover:bg-cyan-500/15 hover:border-cyan-500/60 rounded-2xl transition-all duration-300 backdrop-blur-sm group active:scale-[0.97] hover:-translate-y-0.5 shadow-lg shadow-cyan-900/10">
+                <Button asChild size="lg" className="group relative flex-1 h-16 text-lg font-bold bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 hover:opacity-95 shadow-[0_0_20px_rgba(20,184,166,0.25)] hover:shadow-[0_0_30px_rgba(6,182,212,0.45)] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 overflow-hidden active:scale-[0.97] hover:-translate-y-0.5">
                   <Link href="/notes" className="flex items-center justify-center gap-2">
-                    <PencilLine className="w-5 h-5 opacity-70 group-hover:opacity-100 group-hover:text-cyan-300 transition-all" />
+                    <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[25deg] pointer-events-none" />
+                    <PencilLine className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                     <span>主题共创</span>
                   </Link>
                 </Button>
