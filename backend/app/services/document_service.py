@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import TopicDocument, TopicDocumentCollaborator, TopicDocumentNode
-from app.schemas.document import DocumentCreate, DocumentUpdate
+from app.schemas.documents import DocumentCreateRequest, DocumentUpdateRequest
 
 
 async def get_user_documents(
@@ -85,7 +85,7 @@ async def has_document_access(
 
 async def create_document(
     db: AsyncSession,
-    doc_in: DocumentCreate,
+    doc_in: DocumentCreateRequest,
     owner_id: uuid.UUID
 ) -> TopicDocument:
     """Create a new document."""
@@ -114,7 +114,7 @@ async def create_document(
 async def update_document(
     db: AsyncSession,
     doc: TopicDocument,
-    doc_in: DocumentUpdate
+    doc_in: DocumentUpdateRequest
 ) -> TopicDocument:
     """Update a document."""
     update_data = doc_in.dict(exclude_unset=True)

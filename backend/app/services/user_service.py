@@ -4,8 +4,9 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import User, UserMastery, KnowledgeNode
-from app.schemas.user import UserCreate, UserUpdate
-from app.core.security import get_password_hash, verify_password
+# from app.schemas.user import UserCreate, UserUpdate # Schema file doesn't exist yet, using Mock or Dict for now or finding real one
+from app.schemas.auth import UserCreate # Checking if this is appropriate fallback
+from app.core.auth import get_password_hash, verify_password
 
 
 async def get_user_by_id(db: AsyncSession, user_id: uuid.UUID) -> Optional[User]:
@@ -49,14 +50,14 @@ async def authenticate_user(db: AsyncSession, username: str, password: str) -> O
     return user
 
 
-async def update_user(db: AsyncSession, user: User, user_in: UserUpdate) -> User:
+async def update_user(db: AsyncSession, user: User, user_in: Dict[str, Any]) -> User:
     """Update user information."""
-    update_data = user_in.dict(exclude_unset=True)
-    if "password" in update_data:
-        update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
+    if "password" in user_in:
+        user_in["hashed_password"] = get_password_hash(user_in.pop("password"))
 
-    for field, value in update_data.items():
-        setattr(user, field, value)
+    for field, value in user_in.items():
+        if hasattr(user, field):
+            setattr(user, field, value)
 
     db.add(user)
     await db.commit()

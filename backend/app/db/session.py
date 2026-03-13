@@ -24,9 +24,11 @@ async def init_db():
     """
     Initializes the database by creating all tables.
     """
+    from app.models.models import PGVECTOR_AVAILABLE
     async with async_engine.begin() as conn:
-        # Enable pgvector extension if available
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+        if PGVECTOR_AVAILABLE:
+            # Enable pgvector extension if available
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
         # await conn.run_sync(SQLModel.metadata.drop_all) # Use this to drop tables for a fresh start
         await conn.run_sync(SQLModel.metadata.create_all)
 

@@ -1,21 +1,25 @@
-from typing import Optional, List, Dict, Any
-from sqlmodel import SQLModel, Field, Relationship, Column
-from sqlalchemy import JSON, LargeBinary
-from sqlalchemy.dialects.postgresql import JSONB
 import uuid
 from datetime import datetime, timezone, timedelta
+from typing import List, Optional, Dict, Any
+from sqlmodel import SQLModel, Field, Relationship, Column
 from passlib.context import CryptContext
+from sqlalchemy import LargeBinary
+from sqlalchemy.dialects.postgresql import JSONB
 
 # Use UTC+8 for all datetime defaults instead of UTC
 CHINA_TZ = timezone(timedelta(hours=8))
 
 # Try to import pgvector, but allow it to fail gracefully
+PGVECTOR_AVAILABLE = False
 try:
-    from pgvector.sqlalchemy import Vector
+    from pgvector.sqlalchemy import Vector as RealVector
+    Vector = RealVector
     PGVECTOR_AVAILABLE = True
 except ImportError:
+    class FakeVector:
+        def __init__(self, *args, **kwargs): pass
+    Vector = FakeVector
     PGVECTOR_AVAILABLE = False
-    Vector = None  # type: ignore
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -50,12 +54,17 @@ class Question(SQLModel, table=True):
     answer_schema: Dict[str, Any] = Field(sa_column=Column(JSONB))
     solution_steps: str
     image_url: Optional[str] = Field(default=None)  # URL to diagram/illustration
-    
     # Use pgvector for embedding storage if available, fallback to JSONB
-    embedding: Optional[List[float]] = Field(
-        default=None,
-        sa_column=Column(Vector(1536) if PGVECTOR_AVAILABLE else JSONB)
-    )
+    # To avoid UndefinedObjectError for VECTOR type during table creation in non-pgvector envs,
+    # we must ensure that Vector(1536) is never part of the metadata at class definition time.
+    _emb_col = Column(JSONB)
+    if PGVECTOR_AVAILABLE and Vector is not None:
+        try:
+            _emb_col = Column(Vector(1536))
+        except:
+            pass
+    
+    embedding: Optional[List[float]] = Field(default=None, sa_column=_emb_col)
 
     primary_node_id: int = Field(foreign_key="knowledge_nodes.id")
     primary_node: "KnowledgeNode" = Relationship(back_populates="questions")

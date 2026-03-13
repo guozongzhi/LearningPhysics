@@ -101,6 +101,7 @@ async def delete_node(db: AsyncSession, node: KnowledgeNode) -> bool:
     for child in children:
         child.parent_id = node.parent_id
         db.add(child)
+    await db.flush() # Ensure parents are updated before deleting node
 
     # Delete the node
     await db.delete(node)
