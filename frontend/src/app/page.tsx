@@ -12,6 +12,7 @@ import { SiteLogo } from "@/components/site-logo";
 import { Rocket, Search, PencilLine } from "lucide-react";
 
 import { useAuthStore } from "@/store/auth-store";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Topic = {
   id: number;
@@ -243,18 +244,41 @@ export default function Home() {
             ) : topics.length === 0 ? (
               <div className="text-center py-12 text-slate-400">暂无可用主题</div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.1
+                    }
+                  }
+                }}
+              >
                 {topics.map((topic) => {
                   const isSelected = selectedTopics.has(topic.id);
                   return (
-                    <button
+                    <motion.button
                       key={topic.id}
                       onClick={() => toggleTopic(topic.id)}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 }
+                      }}
+                      whileHover={{ 
+                        y: -5, 
+                        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3)",
+                        borderColor: isSelected ? "rgb(56, 189, 248)" : "rgb(71, 85, 105)"
+                      }}
+                      whileTap={{ scale: 0.98 }}
                       className={`
-                        relative p-5 rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-[2px] sm:backdrop-blur-none
+                        relative p-5 rounded-2xl border-2 text-left transition-colors duration-200 cursor-pointer overflow-hidden backdrop-blur-[2px] sm:backdrop-blur-none
                         ${isSelected
                           ? "border-sky-400 bg-sky-500/30 sm:bg-sky-500/20 shadow-lg shadow-sky-500/20"
-                          : "border-slate-700/40 sm:border-slate-700 bg-slate-800/20 sm:bg-slate-800/60 hover:border-slate-500 hover:bg-slate-800/80"
+                          : "border-slate-700/40 sm:border-slate-700 bg-slate-800/20 sm:bg-slate-800/60 hover:bg-slate-800/80"
                         }
                       `}
                     >
@@ -284,8 +308,6 @@ export default function Home() {
                           </div>
                         )}
                         <div className="mt-4 flex flex-wrap gap-2">
-
-
                           {topic.difficulty_counts && Object.keys(topic.difficulty_counts).length > 0 ? (
                             Object.entries(topic.difficulty_counts)
                               .sort(([a], [b]) => parseInt(a) - parseInt(b))
@@ -305,10 +327,10 @@ export default function Home() {
                           )}
                         </div>
                       </div>
-                    </button>
+                    </motion.button>
                   );
                 })}
-              </div>
+              </motion.div>
             )}
           </CardContent>
         </Card>
