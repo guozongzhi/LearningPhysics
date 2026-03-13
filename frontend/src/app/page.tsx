@@ -9,10 +9,107 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { api, authApi } from "@/lib/api";
 import { SiteLogo } from "@/components/site-logo";
-import { Rocket, Search, PencilLine } from "lucide-react";
+import { Rocket, Search, PencilLine, ArrowRight, Atom, Zap, Magnet, Activity, Orbit, Sparkles, Box, Microscope, Triangle } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { motion, AnimatePresence } from "framer-motion";
+
+const PhysicsMotifs = ({ id, isSelected, colorClass }: { id: number; isSelected?: boolean; colorClass: string }) => {
+  // Constant SVG components for complex shapes
+  const SaturnIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="5" />
+      <path d="M2 12c0-3 5-6 10-6s10 3 10 6-5 6-10 6-10-3-10-6Z" />
+    </svg>
+  );
+
+  const SlopeIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M3 20h18L12 4z" opacity="0.4" />
+      <rect x="11" y="8" width="4" height="4" transform="rotate(30 13 10)" />
+    </svg>
+  );
+
+  const SpringIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M4 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0" />
+      <path d="M4 14c2-4 4-4 6 0s4 4 6 0 4-4 6 0" transform="translate(0, -4)" />
+    </svg>
+  );
+
+  const LensIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M8 4c4 4 4 12 0 16M16 4c-4 4-4 12 0 16" />
+      <line x1="2" y1="12" x2="22" y2="12" strokeDasharray="2 2" opacity="0.5" />
+    </svg>
+  );
+
+  const TelescopeIcon = Orbit; // Fallback
+
+  // Pseudo-random selection and positioning based on ID
+  const motifs = [
+    { icon: Atom, label: null },
+    { icon: Magnet, label: null },
+    { icon: SaturnIcon, label: null },
+    { icon: TelescopeIcon, label: null },
+    { icon: Microscope, label: null },
+    { icon: SlopeIcon, label: null },
+    { icon: SpringIcon, label: null },
+    { icon: LensIcon, label: null },
+    { icon: Rocket, label: null },
+    { icon: null, label: "E=mc²" },
+    { icon: Orbit, label: null },
+    { icon: Sparkles, label: null },
+    { icon: Activity, label: null },
+  ];
+
+  const sectors = [
+    "top-4 right-12",
+    "bottom-10 left-12",
+    "top-1/2 right-4 -translate-y-1/2",
+    "bottom-4 right-20",
+    "top-12 left-8",
+  ];
+
+  // Pick 4 unique indices based on id for more density
+  const motifIndices = [(id * 7) % motifs.length, (id * 11 + 2) % motifs.length, (id * 13 + 5) % motifs.length, (id * 17 + 1) % motifs.length];
+  const sectorIndices = [(id * 3) % sectors.length, (id * 5 + 1) % sectors.length, (id * 7 + 3) % sectors.length, (id * 2 + 4) % sectors.length];
+
+  return (
+    <>
+      {motifIndices.map((mIdx, i) => {
+        const motif = motifs[mIdx];
+        const sector = sectors[sectorIndices[i]];
+        const Icon = motif.icon;
+        
+        return (
+          <motion.div
+            key={`${id}-${i}`}
+            animate={{ 
+              y: [0, (i % 2 === 0 ? -10 : 10), 0], 
+              x: [0, (i % 3 === 0 ? 6 : -6), 0],
+              rotate: [0, (i % 2 === 0 ? 15 : -15), 0],
+              opacity: isSelected ? [0.12, 0.22, 0.12] : [0.06, 0.12, 0.06]
+            }}
+            transition={{ 
+              duration: 5 + (id % 5) + i, 
+              repeat: Infinity, 
+              ease: "easeInOut",
+              delay: i * 0.7
+            }}
+            className={`absolute ${sector} pointer-events-none transition-all duration-700 ${colorClass}`}
+          >
+            {Icon ? (
+              <Icon className="w-10 h-10 sm:w-14 sm:h-14" />
+            ) : (
+              <span className="text-xl sm:text-2xl font-serif italic font-black select-none opacity-90 drop-shadow-sm">{motif.label}</span>
+            )}
+          </motion.div>
+        );
+      })}
+    </>
+  );
+};
 
 type Topic = {
   id: number;
@@ -125,7 +222,7 @@ export default function Home() {
               </span>
             </span>
             <span className="hidden sm:inline text-xs font-normal text-slate-400 tracking-wide">
-              AI 驱动的物理练习
+              AI 驱动的智能学习与共创
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
@@ -154,10 +251,10 @@ export default function Home() {
 
       <main className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-12 pb-28 sm:pb-12">
         {/* Hero Section */}
-        <div className="relative text-center mb-6 sm:mb-10 overflow-hidden rounded-2xl">
+        <div className="relative text-center mb-2 sm:mb-4 overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 via-transparent to-cyan-500/5 rounded-2xl" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(56,189,248,0.15),transparent_55%)] rounded-2xl pointer-events-none" />
-          <div className="relative py-6 sm:py-12 px-3 sm:px-4">
+          <div className="relative py-3 sm:py-6 px-3 sm:px-4">
 
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight text-slate-100 mb-2 sm:mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both ease-out">
               洞察物理本源，重塑深层学习场域
@@ -165,101 +262,155 @@ export default function Home() {
             <p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto mb-5 sm:mb-8 leading-relaxed animate-in fade-in slide-in-from-bottom-4 delay-150 duration-700 fill-mode-both ease-out">
               由共创沉淀智慧，借 AI 实现进阶。在这场科学远征中，构建属于你的思维实验室。
             </p>
-            <div className="mx-auto max-w-5xl w-full animate-in fade-in slide-in-from-bottom-5 delay-300 duration-1000 fill-mode-both ease-out px-1 sm:px-2">
-              <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-6">
+            <div className="mx-auto max-w-5xl w-full animate-in fade-in slide-in-from-bottom-5 delay-300 duration-1000 fill-mode-both ease-out px-4 sm:px-2">
+              <div className="flex flex-row items-center justify-center -space-x-44 sm:space-x-0 sm:grid sm:grid-cols-3 sm:gap-6 overflow-visible py-8 sm:py-0">
+                {/* Step 01 */}
                 <motion.div
                   initial={{ opacity: 0, x: -24, y: 12 }}
                   animate={{ opacity: 1, x: 0, y: 0 }}
                   transition={{ delay: 0.05, duration: 0.45, ease: "easeOut" }}
-                  whileHover={{ y: -6, scale: 1.01 }}
+                  whileHover={{ y: -12, scale: 1.05, zIndex: 50 }}
                   whileTap={{ scale: 0.98 }}
-                  className="relative z-30"
+                  className="relative z-[30] flex-1 min-w-[260px] sm:min-w-0 h-[240px] sm:h-auto flex -rotate-2 sm:rotate-0"
+                  style={{ zIndex: 30 }}
                 >
                   <SpotlightCard
                     spotlightColor="rgba(56, 189, 248, 0.2)"
-                    className="h-full border-sky-500/10"
+                    className="flex-1 border-sky-500/10 sm:min-h-[220px] shadow-2xl sm:shadow-none bg-slate-900/40 sm:bg-slate-950/40 group/card overflow-hidden"
                     onClick={handleStartQuiz}
                   >
+                    {/* Background Enrichment - Scattered Motifs */}
+                    <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+                    <PhysicsMotifs id={101} isSelected={true} colorClass="text-sky-400" />
+                    <div className="absolute -right-4 -bottom-6 text-[100px] font-black text-white/[0.06] select-none pointer-events-none group-hover/card:text-sky-500/[0.1] transition-colors duration-700">01</div>
+                    
                     <button
                       disabled={isLoading || selectedTopics.size === 0 || questionCount <= 0}
-                      className="group relative w-full h-40 sm:h-64 text-left p-5 sm:p-7 text-slate-100 flex flex-col justify-between"
+                      className="group relative w-full h-full text-left p-5 sm:p-6 text-slate-100 flex flex-col justify-between"
                     >
-                      <div>
-                        <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-4">Step 01</div>
-                        <motion.div 
-                          animate={isLoading ? { rotate: 360 } : {}}
-                          transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                          className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-400/20 flex items-center justify-center text-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.15)] group-hover:scale-110 group-hover:bg-sky-500/20 transition-all duration-300"
-                        >
-                          {isLoading ? (
-                            <svg className="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                            </svg>
-                          ) : (
-                            <Rocket className="w-6 h-6 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform duration-500" />
-                          )}
-                        </motion.div>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-400 text-[9px] font-bold tracking-[0.2em] uppercase mb-3 sm:mb-4">Step 01</div>
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-sky-500/20 blur-2xl rounded-full scale-125 animate-pulse pointer-events-none" />
+                            <motion.div 
+                              animate={isLoading ? { rotate: 360 } : {}}
+                              transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                              className="relative w-12 h-12 rounded-xl bg-sky-500/10 border border-sky-400/20 flex items-center justify-center text-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.2)] group-hover:scale-110 group-hover:bg-sky-500/20 transition-all duration-300"
+                            >
+                              {isLoading ? (
+                                <svg className="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                </svg>
+                              ) : (
+                                <Rocket className="w-6 h-6 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform duration-500" />
+                              )}
+                            </motion.div>
+                          </div>
+                        </div>
+                        <div className="text-[8px] font-mono text-sky-500/40 vertical-rl tracking-widest hidden sm:block">CORE ENGINE</div>
                       </div>
                       <div>
-                        <div className="text-xl sm:text-2xl font-bold leading-tight mb-1.5 tracking-tight">{isLoading ? "生成中..." : "开始测评"}</div>
-                        <div className="text-slate-400 text-sm sm:text-base font-medium opacity-80 group-hover:opacity-100 transition-opacity">快速定位知识盲区</div>
-                        <div className="mt-4 w-12 h-1 bg-gradient-to-r from-sky-500 to-cyan-400 rounded-full shadow-[0_0_12px_rgba(56,189,248,0.5)]" />
+                        <div className="text-lg sm:text-xl font-black leading-tight mb-1 tracking-tight group-hover:text-sky-300 transition-colors">{isLoading ? "生成中..." : "开始测评"}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-slate-400 text-xs sm:text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">快速定位知识盲区</div>
+                          <ArrowRight className="w-3.5 h-3.5 text-sky-500/0 -translate-x-2 group-hover:text-sky-500/100 group-hover:translate-x-0 transition-all duration-300" />
+                        </div>
+                        <div className="mt-3 w-10 h-1 bg-gradient-to-r from-sky-500 to-cyan-400 rounded-full shadow-[0_0_12px_rgba(56,189,248,0.5)]" />
                       </div>
                     </button>
                   </SpotlightCard>
                 </motion.div>
 
+                {/* Step 02 */}
                 <motion.div
                   initial={{ opacity: 0, x: -24, y: 12 }}
                   animate={{ opacity: 1, x: 0, y: 0 }}
-                  transition={{ delay: 0.14, duration: 0.45, ease: "easeOut" }}
-                  whileHover={{ y: -6, scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="relative z-20 mt-4 sm:mt-0 sm:col-span-2"
+                  transition={{ delay: 0.1, duration: 0.45, ease: "easeOut" }}
+                  whileHover={{ y: -12, scale: 1.05, zIndex: 50 }}
+                  className="relative flex-1 min-w-[260px] sm:min-w-0 h-[240px] sm:h-auto flex rotate-0"
+                  style={{ zIndex: 20 }}
                 >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
-                    <SpotlightCard
-                      spotlightColor="rgba(139, 92, 246, 0.18)"
-                      className="border-violet-500/10"
-                      onClick={() => document.getElementById("topics")?.scrollIntoView({ behavior: "smooth" })}
+                  <SpotlightCard
+                    spotlightColor="rgba(139, 92, 246, 0.18)"
+                    className="flex-1 border-violet-500/10 sm:min-h-[220px] shadow-2xl sm:shadow-none bg-slate-900/40 sm:bg-slate-950/40 group/card overflow-hidden"
+                    onClick={() => document.getElementById("topics")?.scrollIntoView({ behavior: "smooth" })}
+                  >
+                    {/* Background Enrichment - Scattered Motifs */}
+                    <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(#8b5cf6_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+                    <PhysicsMotifs id={102} isSelected={true} colorClass="text-violet-400" />
+                    <div className="absolute -right-4 -bottom-6 text-[100px] font-black text-white/[0.06] select-none pointer-events-none group-hover/card:text-violet-500/[0.1] transition-colors duration-700">02</div>
+                    
+                    <button
+                      className="group relative w-full h-full text-left p-5 sm:p-6 text-slate-100 flex flex-col justify-between"
                     >
-                      <button
-                        className="group relative w-full h-32 sm:h-full text-left p-5 sm:p-7 text-slate-100 flex flex-col justify-between"
-                      >
+                      <div className="flex justify-between items-start">
                         <div>
-                          <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-4">Step 02</div>
-                          <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-400/20 flex items-center justify-center text-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.1)] group-hover:scale-110 group-hover:bg-violet-500/20 transition-all duration-300">
-                            <Search className="w-5 h-5 group-hover:scale-125 transition-transform duration-500" />
+                          <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-400 text-[9px] font-bold tracking-[0.2em] uppercase mb-3 sm:mb-4">Step 02</div>
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-violet-500/20 blur-2xl rounded-full scale-125 animate-pulse pointer-events-none" />
+                            <div className="relative w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-400/20 flex items-center justify-center text-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.1)] group-hover:scale-110 group-hover:bg-violet-500/20 transition-all duration-300">
+                              <Search className="w-6 h-6 group-hover:scale-125 transition-transform duration-500" />
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <div className="text-xl sm:text-2xl font-bold leading-tight mb-1.5 tracking-tight">查看主题</div>
+                        <div className="text-[8px] font-mono text-violet-500/40 vertical-rl tracking-widest hidden sm:block">KNOWLEDGE BASE</div>
+                      </div>
+                      <div>
+                        <div className="text-lg sm:text-xl font-black leading-tight mb-1 tracking-tight group-hover:text-violet-300 transition-colors">查看主题</div>
+                        <div className="flex items-center gap-2">
                           <div className="text-slate-400 text-xs sm:text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">探索全部核心知识</div>
-                          <div className="mt-3 w-10 h-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
+                          <ArrowRight className="w-3.5 h-3.5 text-violet-500/0 -translate-x-2 group-hover:text-violet-500/100 group-hover:translate-x-0 transition-all duration-300" />
                         </div>
-                      </button>
-                    </SpotlightCard>
+                        <div className="mt-3 w-10 h-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
+                      </div>
+                    </button>
+                  </SpotlightCard>
+                </motion.div>
 
-                    <SpotlightCard
-                      spotlightColor="rgba(16, 185, 129, 0.18)"
-                      className="border-emerald-500/10"
-                    >
-                      <Link href="/notes" className="group relative block w-full h-32 sm:h-full text-left p-5 sm:p-7 text-slate-100 flex flex-col justify-between">
+                {/* Step 03 */}
+                <motion.div
+                  initial={{ opacity: 0, x: -24, y: 12 }}
+                  animate={{ opacity: 1, x: 0, y: 0 }}
+                  transition={{ delay: 0.15, duration: 0.45, ease: "easeOut" }}
+                  whileHover={{ y: -12, scale: 1.05, zIndex: 50 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative flex-1 min-w-[260px] sm:min-w-0 h-[240px] sm:h-auto flex rotate-2 sm:rotate-0"
+                  style={{ zIndex: 10 }}
+                >
+                  <SpotlightCard
+                    spotlightColor="rgba(16, 185, 129, 0.18)"
+                    className="flex-1 border-emerald-500/10 sm:min-h-[220px] shadow-2xl sm:shadow-none bg-slate-900/40 sm:bg-slate-950/40 group/card overflow-hidden"
+                  >
+                    {/* Background Enrichment - Scattered Motifs */}
+                    <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+                    <PhysicsMotifs id={103} isSelected={true} colorClass="text-emerald-400" />
+                    <div className="absolute -right-4 -bottom-6 text-[100px] font-black text-white/[0.06] select-none pointer-events-none group-hover/card:text-emerald-500/[0.1] transition-colors duration-700">03</div>
+                    
+                    <Link href="/notes" className="group relative block w-full h-full text-left p-5 sm:p-6 text-slate-100 flex flex-col justify-between">
+                      <div className="flex justify-between items-start">
                         <div>
-                          <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-4">Step 03</div>
-                          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)] group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300">
-                            <PencilLine className="w-5 h-5 group-hover:rotate-12 transition-transform duration-500" />
+                          <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[9px] font-bold tracking-[0.2em] uppercase mb-3 sm:mb-4">Step 03</div>
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full scale-125 animate-pulse pointer-events-none" />
+                            <div className="relative w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)] group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300">
+                              <PencilLine className="w-6 h-6 group-hover:rotate-12 transition-transform duration-500" />
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <div className="text-xl sm:text-2xl font-bold leading-tight mb-1.5 tracking-tight">主题共创</div>
+                        <div className="text-[8px] font-mono text-emerald-500/40 vertical-rl tracking-widest hidden sm:block">LAB VENTURE</div>
+                      </div>
+                      <div>
+                        <div className="text-lg sm:text-xl font-black leading-tight mb-1 tracking-tight group-hover:text-emerald-300 transition-colors">主题共创</div>
+                        <div className="flex items-center gap-2">
                           <div className="text-slate-400 text-xs sm:text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">与社区共同创作</div>
-                          <div className="mt-3 w-10 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                          <ArrowRight className="w-3.5 h-3.5 text-emerald-500/0 -translate-x-2 group-hover:text-emerald-500/100 group-hover:translate-x-0 transition-all duration-300" />
                         </div>
-                      </Link>
-                    </SpotlightCard>
-                  </div>
+                        <div className="mt-3 w-10 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                      </div>
+                    </Link>
+                  </SpotlightCard>
                 </motion.div>
               </div>
             </div>
@@ -344,49 +495,58 @@ export default function Home() {
                         }
                       `}
                     >
-                      <div
-                        className={`
-                          absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300
-                          ${isSelected
-                            ? "border-sky-400 bg-sky-500 text-slate-950 shadow-[0_0_12px_rgba(56,189,248,0.6)]"
-                            : "border-slate-500 bg-slate-800/80"
-                          }
-                        `}
-                      >
-                        {isSelected && (
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </div>
+                      {/* Background Aesthetics - Scattered Motifs */}
+                      <div className={`absolute inset-0 opacity-[0.05] pointer-events-none transition-opacity duration-500 ${isSelected ? 'opacity-[0.1]' : 'opacity-[0.05]'}`}
+                           style={{ backgroundImage: `radial-gradient(${isSelected ? '#38bdf8' : '#475569'} 1px, transparent 1px)`, backgroundSize: '16px 16px' }} 
+                      />
+                      
+                      <PhysicsMotifs id={topic.id} isSelected={isSelected} colorClass={isSelected ? 'text-sky-300' : 'text-slate-500'} />
 
-                      <div className="pr-10 relative z-10">
-                        <div className={`font-bold text-lg mb-1 leading-snug ${isSelected ? "text-sky-100" : "text-slate-200"}`}>
-                          {topic.name}
-                        </div>
-                        {topic.description && (
-                          <div className={`text-sm line-clamp-2 min-h-[2.5rem] mt-1 ${isSelected ? "text-sky-200/90" : "text-slate-400"}`}>
-                            {topic.description}
-                          </div>
-                        )}
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {topic.difficulty_counts && Object.keys(topic.difficulty_counts).length > 0 ? (
-                            Object.entries(topic.difficulty_counts)
-                              .sort(([a], [b]) => parseInt(a) - parseInt(b))
-                              .map(([difficulty, count]) => (
-                                <span
-                                  key={difficulty}
-                                  className={`inline-flex items-center text-xs font-bold px-2 py-1 rounded-full ${isSelected ? "bg-cyan-500/20 text-cyan-200" : "bg-slate-700/80 text-slate-400"}`}
-                                  title={`难度 ${difficulty}`}
-                                >
-                                  难度{difficulty}: {count}题
-                                </span>
-                              ))
-                          ) : (
-                            <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full ${isSelected ? "bg-cyan-500/20 text-cyan-200" : "bg-slate-700/80 text-slate-400"}`}>
-                              {topic.question_count || 0} 题
-                            </span>
+                      <div className="relative z-10">
+                        <div
+                          className={`
+                            absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300
+                            ${isSelected
+                              ? "border-sky-400 bg-sky-500 text-slate-950 shadow-[0_0_12px_rgba(56,189,248,0.6)]"
+                              : "border-slate-500 bg-slate-800/80"
+                            }
+                          `}
+                        >
+                          {isSelected && (
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
                           )}
+                        </div>
+
+                        <div className="pr-10 relative z-10">
+                          <div className={`font-bold text-lg mb-1 leading-snug ${isSelected ? "text-sky-100" : "text-slate-200"}`}>
+                            {topic.name}
+                          </div>
+                          {topic.description && (
+                            <div className={`text-sm line-clamp-2 min-h-[2.5rem] mt-1 ${isSelected ? "text-sky-200/90" : "text-slate-400"}`}>
+                              {topic.description}
+                            </div>
+                          )}
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {topic.difficulty_counts && Object.keys(topic.difficulty_counts).length > 0 ? (
+                              Object.entries(topic.difficulty_counts)
+                                .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                                .map(([difficulty, count]) => (
+                                  <span
+                                    key={difficulty}
+                                    className={`inline-flex items-center text-xs font-bold px-2 py-1 rounded-full ${isSelected ? "bg-cyan-500/20 text-cyan-200" : "bg-slate-700/80 text-slate-400"}`}
+                                    title={`难度 ${difficulty}`}
+                                  >
+                                    难度{difficulty}: {count}题
+                                  </span>
+                                ))
+                            ) : (
+                              <span className={`inline-flex items-center text-xs font-bold px-3 py-1 rounded-full ${isSelected ? "bg-cyan-500/20 text-cyan-200" : "bg-slate-700/80 text-slate-400"}`}>
+                                {topic.question_count || 0} 题
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </motion.button>
@@ -472,9 +632,9 @@ export default function Home() {
       <footer className="border-t border-slate-800 bg-slate-950/90 py-6 mt-4">
         <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-500">
-            <span>© 2025 LearningPhysics. All rights reserved.</span>
+            <span>© 2026 LearningPhysics. All rights reserved.</span>
             <span className="hidden sm:inline text-slate-700">|</span>
-            <span className="text-slate-600">高中物理题库与智能测评</span>
+            <span className="text-slate-600">高中物理智能学习与主题共创平台</span>
           </div>
 
           {/* Powered by AI Badge */}
