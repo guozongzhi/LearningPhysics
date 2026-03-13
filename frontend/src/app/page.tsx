@@ -154,7 +154,7 @@ export default function Home() {
 
       <main className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-12 pb-28 sm:pb-12">
         {/* Hero Section */}
-        <div className="relative text-center mb-10 sm:mb-14 overflow-hidden rounded-2xl">
+        <div className="relative text-center mb-6 sm:mb-10 overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 via-transparent to-cyan-500/5 rounded-2xl" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(56,189,248,0.15),transparent_55%)] rounded-2xl pointer-events-none" />
           <div className="relative py-6 sm:py-12 px-3 sm:px-4">
@@ -202,7 +202,7 @@ export default function Home() {
                         </motion.div>
                       </div>
                       <div>
-                        <div className="text-2xl sm:text-3xl font-bold leading-tight mb-2 tracking-tight">{isLoading ? "生成中..." : "开始测评"}</div>
+                        <div className="text-xl sm:text-2xl font-bold leading-tight mb-1.5 tracking-tight">{isLoading ? "生成中..." : "开始测评"}</div>
                         <div className="text-slate-400 text-sm sm:text-base font-medium opacity-80 group-hover:opacity-100 transition-opacity">快速定位知识盲区</div>
                         <div className="mt-4 w-12 h-1 bg-gradient-to-r from-sky-500 to-cyan-400 rounded-full shadow-[0_0_12px_rgba(56,189,248,0.5)]" />
                       </div>
