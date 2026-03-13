@@ -87,9 +87,6 @@ export default function NoteDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewTab, setPreviewTab] = useState<"preview" | "whiteboard">("preview");
-  const [showQuestionPicker, setShowQuestionPicker] = useState(false);
-  const [availableQuestions, setAvailableQuestions] = useState<Array<{ id: string; content_latex: string; question_type: string; difficulty: number }>>([]);
-  const [pendingQuestionId, setPendingQuestionId] = useState<string | null>(null);
   const [togglingTemplate, setTogglingTemplate] = useState(false);
   const [isEditingNodes, setIsEditingNodes] = useState(false);
   const [savingNodes, setSavingNodes] = useState(false);
@@ -257,7 +254,6 @@ export default function NoteDetailPage() {
     if (document) {
       applyDocumentData(document);
     }
-    setPendingQuestionId(null);
     setIsEditing(false);
     setIsFullscreen(false);
     setPreviewTab("preview");
@@ -811,27 +807,6 @@ export default function NoteDetailPage() {
 
                       {previewTab === "preview" && (
                         <div className={`space-y-4 flex-1 flex flex-col ${isFullscreen ? "min-h-0" : ""}`}>
-                          <div className="flex justify-end shrink-0">
-                            <Button
-                              variant="ghost"
-                              className="text-sky-400 hover:text-sky-300 hover:bg-sky-400/10 text-xs h-8"
-                              onClick={async () => {
-                                if (selectedNodeIds.length === 0) {
-                                  setError("请先绑定知识点，方可插入关联题目。");
-                                  return;
-                                }
-                                try {
-                                  const questions = await api.getQuestionsByNodes(selectedNodeIds);
-                                  setAvailableQuestions(questions);
-                                  setShowQuestionPicker(true);
-                                } catch {
-                                  setError("题目列表加载失败。");
-                                }
-                              }}
-                            >
-                              + 插入题目到光标处
-                            </Button>
-                          </div>
                           <div className={`w-full flex-1 ${isFullscreen ? "overflow-y-auto" : ""}`}>
                             <TiptapEditor
                               key={document.id}
@@ -842,11 +817,6 @@ export default function NoteDetailPage() {
                                 setContentJson(json);
                               }}
                               readOnly={!isEditing || !canEdit}
-                              pendingQuestionId={pendingQuestionId}
-                              onQuestionInserted={() => {
-                                setPendingQuestionId(null);
-                                setShowQuestionPicker(false);
-                              }}
                             />
                           </div>
                         </div>
@@ -888,47 +858,6 @@ export default function NoteDetailPage() {
                 </div>
               </CardContent>
               {error && <div className="rounded-md border border-rose-500/30 bg-rose-950/30 px-3 py-2 text-sm text-rose-200">{error}</div>}
-
-              {/* Question picker Modal */}
-              {showQuestionPicker && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                  <div className="w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl flex flex-col max-h-[80vh]">
-                    <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
-                      <span className="text-lg font-medium text-slate-100">选择要插入的题目</span>
-                      <button onClick={() => setShowQuestionPicker(false)} className="text-slate-400 hover:text-slate-200 transition-colors">
-                        关闭 ✕
-                      </button>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto p-6">
-                      {availableQuestions.length === 0 ? (
-                        <div className="text-center py-10 text-slate-500">当前绑定知识点下暂无题目。</div>
-                      ) : (
-                        <div className="space-y-3">
-                          {availableQuestions.map((q) => (
-                            <button
-                              key={q.id}
-                              onClick={() => {
-                                setPendingQuestionId(q.id);
-                              }}
-                              className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 p-4 text-left text-sm text-slate-200 hover:border-sky-500/40 hover:bg-sky-950/30 hover:shadow-md transition-all group"
-                            >
-                              <div className="flex items-center gap-3 mb-2">
-                                <span className="rounded-md bg-sky-500/15 px-2 py-0.5 text-xs text-sky-300 border border-sky-500/20">
-                                  {q.question_type === "calculation" ? "计算" : q.question_type === "choice" ? "选择" : q.question_type === "true_false" ? "判断" : "填空"}
-                                </span>
-                                <span className="text-amber-400 text-xs">{"★".repeat(q.difficulty)}{"☆".repeat(5 - q.difficulty)}</span>
-                                <span className="ml-auto text-xs text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity">点击插入 ↵</span>
-                              </div>
-                              <div className="line-clamp-3 text-slate-300 leading-relaxed font-serif">{q.content_latex}</div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
             </Card>
           </div>
         </div>

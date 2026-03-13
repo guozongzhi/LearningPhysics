@@ -54,7 +54,6 @@ import ResizeImage from "tiptap-extension-resize-image";
 import { HtmlNode } from "./tiptap/HtmlNode";
 import { PdfNode } from "./tiptap/PdfNode";
 import { DocumentNode } from "./tiptap/DocumentNode";
-import { QuestionNode } from "./tiptap/QuestionNode";
 import { api } from "@/lib/api";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
@@ -72,8 +71,6 @@ interface TiptapEditorProps {
   initialContentJson?: any;
   onChange?: (html: string, json: Record<string, any>) => void;
   readOnly?: boolean;
-  pendingQuestionId?: string | null;
-  onQuestionInserted?: () => void;
 }
 
 const ToolbarButton = ({
@@ -107,8 +104,6 @@ export function TiptapEditor({
   initialContentJson,
   onChange,
   readOnly = false,
-  pendingQuestionId,
-  onQuestionInserted,
 }: TiptapEditorProps) {
   const [isHtmlModalOpen, setIsHtmlModalOpen] = useState(false);
   const [htmlInput, setHtmlInput] = useState("");
@@ -134,7 +129,6 @@ export function TiptapEditor({
       HtmlNode,
       PdfNode,
       DocumentNode,
-      QuestionNode,
       TaskList,
       TaskItem.configure({
         nested: true,
@@ -156,23 +150,6 @@ export function TiptapEditor({
       onChange?.(editor.getHTML(), editor.getJSON());
     },
   });
-
-  // 处理题目插入
-  const insertQuestion = useCallback(
-    (questionId: string) => {
-      if (!editor) return;
-      editor.commands.setQuestion(questionId);
-      onQuestionInserted?.();
-    },
-    [editor, onQuestionInserted]
-  );
-
-  // 当 pendingQuestionId 变化时插入题目
-  React.useEffect(() => {
-    if (pendingQuestionId && editor) {
-      insertQuestion(pendingQuestionId);
-    }
-  }, [pendingQuestionId, editor, insertQuestion]);
 
   // 处理文件上传
   const handleFileUpload = useCallback(
