@@ -153,13 +153,13 @@ export default function Home() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(56,189,248,0.15),transparent_55%)] rounded-2xl pointer-events-none" />
           <div className="relative py-8 sm:py-12 px-4">
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-100 mb-3 sm:mb-4">
-              洞察宇宙底层逻辑，重塑物理学习场域
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-100 mb-3 sm:mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both ease-out">
+              洞察物理本源，重塑深层学习场域
             </h2>
-            <p className="text-slate-400 text-base sm:text-lg max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed">
-              集协作共创、思维导图与 AI 测评于一体。从共创笔记开始沉淀，由智能练兵完成闭环。这不仅是你的题库，更是驱动科学思维进阶的终极实验室。
+            <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed animate-in fade-in slide-in-from-bottom-4 delay-150 duration-700 fill-mode-both ease-out">
+              由共创沉淀智慧，借 AI 实现进阶。在这场科学远征中，构建属于你的思维实验室。
             </p>
-            <div className="mx-auto max-w-2xl w-full">
+            <div className="mx-auto max-w-2xl w-full animate-in fade-in slide-in-from-bottom-5 delay-300 duration-1000 fill-mode-both ease-out">
               <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 sm:gap-4 px-2">
                 <Button
                   onClick={handleStartQuiz}
