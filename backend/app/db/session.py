@@ -28,7 +28,10 @@ async def init_db():
     async with async_engine.begin() as conn:
         if PGVECTOR_AVAILABLE:
             # Enable pgvector extension if available
-            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+            try:
+                await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+            except Exception as e:
+                print(f"Warning: Could not enable pgvector extension: {e}")
         # await conn.run_sync(SQLModel.metadata.drop_all) # Use this to drop tables for a fresh start
         await conn.run_sync(SQLModel.metadata.create_all)
 
