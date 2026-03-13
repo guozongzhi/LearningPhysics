@@ -159,44 +159,42 @@ export default function Home() {
             <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mb-6 sm:mb-8">
               选择你想练习的物理知识点，AI 将根据你的水平智能出题
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                onClick={handleStartQuiz}
-                disabled={isLoading || selectedTopics.size === 0 || questionCount <= 0}
-                size="lg"
-                className="group relative w-full sm:w-auto px-10 h-14 text-lg font-bold bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-95 shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] transition-all duration-300 rounded-2xl flex items-center gap-2 overflow-hidden active:scale-95"
-              >
-                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[25deg] pointer-events-none" />
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <div className="mx-auto max-w-2xl w-full">
+              <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 sm:gap-4 px-2">
+                <Button
+                  onClick={handleStartQuiz}
+                  disabled={isLoading || selectedTopics.size === 0 || questionCount <= 0}
+                  size="lg"
+                  className="group relative flex-1 h-16 text-lg font-bold bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-95 shadow-[0_0_20px_rgba(56,189,248,0.2)] hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 overflow-hidden active:scale-[0.97] hover:-translate-y-0.5"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[25deg] pointer-events-none" />
+                  {isLoading ? (
+                    <svg className="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    <span>生成中...</span>
-                  </>
-                ) : selectedTopics.size === 0 ? (
-                  "请选择主题"
-                ) : (
-                  <>
-                    <Rocket className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    <span>开始测评</span>
-                    <span className="text-xl ml-1 font-normal opacity-70">🚀</span>
-                  </>
-                )}
-              </Button>
-              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto px-8 h-14 border-slate-700 bg-slate-900/40 text-slate-200 hover:bg-slate-800 hover:border-slate-500 hover:text-white rounded-2xl transition-all duration-300 backdrop-blur-sm group active:scale-95">
-                <Link href="#topics" className="flex items-center gap-2">
-                  <Search className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
-                  <span>查看主题</span>
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto px-8 h-14 border-cyan-500/30 bg-cyan-500/5 text-cyan-200 hover:bg-cyan-500/15 hover:border-cyan-500/60 rounded-2xl transition-all duration-300 backdrop-blur-sm group active:scale-95">
-                <Link href="/notes" className="flex items-center gap-2">
-                  <PencilLine className="w-5 h-5 opacity-70 group-hover:opacity-100 group-hover:text-cyan-300 transition-all" />
-                  <span>主题共创</span>
-                </Link>
-              </Button>
+                  ) : (
+                    <>
+                      <Rocket className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      <span>开始测评</span>
+                    </>
+                  )}
+                </Button>
+
+                <Button asChild variant="outline" size="lg" className="flex-1 h-16 border-slate-700 bg-slate-900/40 text-slate-200 hover:bg-slate-800 hover:border-slate-500 hover:text-white rounded-2xl transition-all duration-300 backdrop-blur-sm group active:scale-[0.97] hover:-translate-y-0.5 shadow-lg shadow-black/10">
+                  <Link href="#topics" className="flex items-center justify-center gap-2">
+                    <Search className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                    <span>查看主题</span>
+                  </Link>
+                </Button>
+
+                <Button asChild variant="outline" size="lg" className="flex-1 h-16 border-cyan-500/30 bg-cyan-500/5 text-cyan-200 hover:bg-cyan-500/15 hover:border-cyan-500/60 rounded-2xl transition-all duration-300 backdrop-blur-sm group active:scale-[0.97] hover:-translate-y-0.5 shadow-lg shadow-cyan-900/10">
+                  <Link href="/notes" className="flex items-center justify-center gap-2">
+                    <PencilLine className="w-5 h-5 opacity-70 group-hover:opacity-100 group-hover:text-cyan-300 transition-all" />
+                    <span>主题共创</span>
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
