@@ -40,20 +40,20 @@ async def seed_database():
         # 1. Create Knowledge Nodes
         print("Creating knowledge nodes...")
         
-        result = await session.execute(select(KnowledgeNode).where(KnowledgeNode.code.in_(["MECH", "NEWTON-LAW-2", "EM", "LORENTZ-FORCE"])))
+        result = await session.execute(select(KnowledgeNode).where(KnowledgeNode.code.in_(["mechanics", "NEWTON-LAW-2", "electromagnetism", "LORENTZ-FORCE"])))
         existing_nodes_map = {node.code: node for node in result.scalars().all()}
         
         # Define nodes to ensure they exist
-        mech_node = existing_nodes_map.get("MECH")
+        mech_node = existing_nodes_map.get("mechanics")
         if not mech_node:
-            mech_node = KnowledgeNode(name="力学", code="MECH", level=1, description="研究物体机械运动规律的科学")
+            mech_node = KnowledgeNode(name="力学", code="mechanics", level=1, description="研究物体机械运动规律的科学")
             session.add(mech_node)
             await session.commit()
             await session.refresh(mech_node)
 
-        em_node = existing_nodes_map.get("EM")
+        em_node = existing_nodes_map.get("electromagnetism")
         if not em_node:
-            em_node = KnowledgeNode(name="电磁学", code="EM", level=1, description="研究电磁相互作用的物理学分支")
+            em_node = KnowledgeNode(name="电磁学", code="electromagnetism", level=1, description="研究电荷、磁场及其相互作用的物理学分支")
             session.add(em_node)
             await session.commit()
             await session.refresh(em_node)
