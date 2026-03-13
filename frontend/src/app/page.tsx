@@ -10,8 +10,8 @@ import Link from "next/link";
 import { api, authApi } from "@/lib/api";
 import { SiteLogo } from "@/components/site-logo";
 import { Rocket, Search, PencilLine } from "lucide-react";
-
 import { useAuthStore } from "@/store/auth-store";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Topic = {
@@ -113,32 +113,37 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative overflow-x-hidden">
       {/* Top Bar — cosmic header */}
       <header className="sticky top-0 z-20 border-b border-slate-700/60 bg-slate-950/80 backdrop-blur-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <SiteLogo compact />
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <SiteLogo compact showText={false} />
+            <span className="text-base sm:text-xl font-bold tracking-tight text-slate-100 truncate">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-400">
+                LearningPhysics
+              </span>
+            </span>
             <span className="hidden sm:inline text-xs font-normal text-slate-400 tracking-wide">
               AI 驱动的物理练习
             </span>
           </div>
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {isLoggedIn && username && (
-              <span className="text-xs text-slate-300">
+              <span className="hidden md:inline text-xs text-slate-300 max-w-[180px] truncate">
                 欢迎，<span className="font-medium text-sky-300">{username}</span>
               </span>
             )}
             {isLoggedIn ? (
-              <Button variant="outline" size="sm" onClick={handleLogout} className="border-slate-600 text-slate-200 hover:bg-slate-800 hover:text-white">
+              <Button variant="outline" size="sm" onClick={handleLogout} className="h-9 px-3 sm:px-4 border-slate-600 text-slate-200 hover:bg-slate-800 hover:text-white">
                 退出登录
               </Button>
             ) : (
               <>
-                <Button asChild variant="outline" size="sm" className="border-sky-500/50 text-sky-300 hover:bg-sky-500/20">
+                <Button asChild variant="outline" size="sm" className="h-9 px-3 sm:px-4 border-sky-500/50 text-sky-300 hover:bg-sky-500/20">
                   <Link href="/login">登录</Link>
                 </Button>
-                <Button asChild size="sm" className="bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90 shadow-lg shadow-sky-500/25">
+                <Button asChild size="sm" className="h-9 px-3 sm:px-4 bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90 shadow-lg shadow-sky-500/25">
                   <Link href="/register">注册</Link>
                 </Button>
               </>
@@ -147,58 +152,115 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <main className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-12 pb-28 sm:pb-12">
         {/* Hero Section */}
         <div className="relative text-center mb-10 sm:mb-14 overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 via-transparent to-cyan-500/5 rounded-2xl" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(56,189,248,0.15),transparent_55%)] rounded-2xl pointer-events-none" />
-          <div className="relative py-8 sm:py-12 px-4">
+          <div className="relative py-6 sm:py-12 px-3 sm:px-4">
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-100 mb-3 sm:mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both ease-out">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight text-slate-100 mb-2 sm:mb-4 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both ease-out">
               洞察物理本源，重塑深层学习场域
             </h2>
-            <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed animate-in fade-in slide-in-from-bottom-4 delay-150 duration-700 fill-mode-both ease-out">
+            <p className="text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto mb-5 sm:mb-8 leading-relaxed animate-in fade-in slide-in-from-bottom-4 delay-150 duration-700 fill-mode-both ease-out">
               由共创沉淀智慧，借 AI 实现进阶。在这场科学远征中，构建属于你的思维实验室。
             </p>
-            <div className="mx-auto max-w-2xl w-full animate-in fade-in slide-in-from-bottom-5 delay-300 duration-1000 fill-mode-both ease-out">
-              <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 sm:gap-4 px-2">
-                <Button
-                  onClick={handleStartQuiz}
-                  disabled={isLoading || selectedTopics.size === 0 || questionCount <= 0}
-                  size="lg"
-                  className="group relative flex-1 h-16 text-lg font-bold bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-95 shadow-[0_0_20px_rgba(56,189,248,0.25)] hover:shadow-[0_0_30px_rgba(56,189,248,0.45)] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 overflow-hidden active:scale-[0.97] hover:-translate-y-0.5"
+            <div className="mx-auto max-w-5xl w-full animate-in fade-in slide-in-from-bottom-5 delay-300 duration-1000 fill-mode-both ease-out px-1 sm:px-2">
+              <div className="flex flex-col sm:grid sm:grid-cols-3 sm:gap-6">
+                <motion.div
+                  initial={{ opacity: 0, x: -24, y: 12 }}
+                  animate={{ opacity: 1, x: 0, y: 0 }}
+                  transition={{ delay: 0.05, duration: 0.45, ease: "easeOut" }}
+                  whileHover={{ y: -6, scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative z-30"
                 >
-                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[25deg] pointer-events-none" />
-                  {isLoading ? (
-                    <svg className="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                  ) : (
-                    <>
-                      <Rocket className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                      <span>开始测评</span>
-                    </>
-                  )}
-                </Button>
+                  <SpotlightCard
+                    spotlightColor="rgba(56, 189, 248, 0.2)"
+                    className="h-full border-sky-500/10"
+                    onClick={handleStartQuiz}
+                  >
+                    <button
+                      disabled={isLoading || selectedTopics.size === 0 || questionCount <= 0}
+                      className="group relative w-full h-40 sm:h-64 text-left p-5 sm:p-7 text-slate-100 flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-4">Step 01</div>
+                        <motion.div 
+                          animate={isLoading ? { rotate: 360 } : {}}
+                          transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                          className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-400/20 flex items-center justify-center text-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.15)] group-hover:scale-110 group-hover:bg-sky-500/20 transition-all duration-300"
+                        >
+                          {isLoading ? (
+                            <svg className="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                          ) : (
+                            <Rocket className="w-6 h-6 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform duration-500" />
+                          )}
+                        </motion.div>
+                      </div>
+                      <div>
+                        <div className="text-2xl sm:text-3xl font-bold leading-tight mb-2 tracking-tight">{isLoading ? "生成中..." : "开始测评"}</div>
+                        <div className="text-slate-400 text-sm sm:text-base font-medium opacity-80 group-hover:opacity-100 transition-opacity">快速定位知识盲区</div>
+                        <div className="mt-4 w-12 h-1 bg-gradient-to-r from-sky-500 to-cyan-400 rounded-full shadow-[0_0_12px_rgba(56,189,248,0.5)]" />
+                      </div>
+                    </button>
+                  </SpotlightCard>
+                </motion.div>
 
-                <Button 
-                  onClick={() => document.getElementById('topics')?.scrollIntoView({ behavior: 'smooth' })}
-                  size="lg" 
-                  className="group relative flex-1 h-16 text-lg font-bold bg-gradient-to-r from-indigo-500 to-violet-500 text-slate-950 hover:opacity-95 shadow-[0_0_20px_rgba(99,102,241,0.25)] hover:shadow-[0_0_30px_rgba(139,92,246,0.45)] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 overflow-hidden active:scale-[0.97] hover:-translate-y-0.5"
+                <motion.div
+                  initial={{ opacity: 0, x: -24, y: 12 }}
+                  animate={{ opacity: 1, x: 0, y: 0 }}
+                  transition={{ delay: 0.14, duration: 0.45, ease: "easeOut" }}
+                  whileHover={{ y: -6, scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="relative z-20 mt-4 sm:mt-0 sm:col-span-2"
                 >
-                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[25deg] pointer-events-none" />
-                  <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  <span>查看主题</span>
-                </Button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
+                    <SpotlightCard
+                      spotlightColor="rgba(139, 92, 246, 0.18)"
+                      className="border-violet-500/10"
+                      onClick={() => document.getElementById("topics")?.scrollIntoView({ behavior: "smooth" })}
+                    >
+                      <button
+                        className="group relative w-full h-32 sm:h-full text-left p-5 sm:p-7 text-slate-100 flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-4">Step 02</div>
+                          <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-400/20 flex items-center justify-center text-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.1)] group-hover:scale-110 group-hover:bg-violet-500/20 transition-all duration-300">
+                            <Search className="w-5 h-5 group-hover:scale-125 transition-transform duration-500" />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xl sm:text-2xl font-bold leading-tight mb-1.5 tracking-tight">查看主题</div>
+                          <div className="text-slate-400 text-xs sm:text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">探索全部核心知识</div>
+                          <div className="mt-3 w-10 h-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
+                        </div>
+                      </button>
+                    </SpotlightCard>
 
-                <Button asChild size="lg" className="group relative flex-1 h-16 text-lg font-bold bg-gradient-to-r from-teal-500 to-cyan-500 text-slate-950 hover:opacity-95 shadow-[0_0_20px_rgba(20,184,166,0.25)] hover:shadow-[0_0_30px_rgba(6,182,212,0.45)] transition-all duration-300 rounded-2xl flex items-center justify-center gap-2 overflow-hidden active:scale-[0.97] hover:-translate-y-0.5">
-                  <Link href="/notes" className="flex items-center justify-center gap-2">
-                    <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-[25deg] pointer-events-none" />
-                    <PencilLine className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                    <span>主题共创</span>
-                  </Link>
-                </Button>
+                    <SpotlightCard
+                      spotlightColor="rgba(16, 185, 129, 0.18)"
+                      className="border-emerald-500/10"
+                    >
+                      <Link href="/notes" className="group relative block w-full h-32 sm:h-full text-left p-5 sm:p-7 text-slate-100 flex flex-col justify-between">
+                        <div>
+                          <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-4">Step 03</div>
+                          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)] group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all duration-300">
+                            <PencilLine className="w-5 h-5 group-hover:rotate-12 transition-transform duration-500" />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xl sm:text-2xl font-bold leading-tight mb-1.5 tracking-tight">主题共创</div>
+                          <div className="text-slate-400 text-xs sm:text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">与社区共同创作</div>
+                          <div className="mt-3 w-10 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                        </div>
+                      </Link>
+                    </SpotlightCard>
+                  </div>
+                </motion.div>
               </div>
             </div>
           </div>
@@ -336,14 +398,14 @@ export default function Home() {
         </Card>
 
         {/* Quiz Settings & Start — cosmic control bar */}
-        <div className="sticky bottom-4 sm:bottom-6 z-20 mx-auto max-w-3xl">
+        <div className="sticky bottom-2 sm:bottom-6 z-20 mx-auto max-w-3xl">
           <Card className="bg-slate-900/90 border-sky-500/20 shadow-[0_0_40px_rgba(56,189,248,0.15)] backdrop-blur-xl overflow-hidden">
             <div className="h-1 w-full bg-gradient-to-r from-sky-500 via-cyan-400 to-sky-500" />
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-slate-300 whitespace-nowrap">题目数量</span>
-                  <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700">
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                <div className="w-full sm:w-auto flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <span className="text-xs sm:text-sm font-semibold text-slate-300 whitespace-nowrap">题目数量</span>
+                  <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700 w-full sm:w-auto overflow-x-auto">
                     {[10, 20, 50].map((n) => (
                       <button
                         key={n}
@@ -352,7 +414,7 @@ export default function Home() {
                           setIsCustomCount(false);
                         }}
                         className={`
-                          px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer duration-200
+                          px-3 sm:px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer duration-200 whitespace-nowrap
                           ${questionCount === n && !isCustomCount
                             ? "bg-sky-500/30 text-sky-200 border border-sky-400/60 shadow-[0_0_14px_rgba(56,189,248,0.3)]"
                             : "text-slate-400 hover:text-slate-200 border border-transparent hover:bg-slate-700/80"
@@ -362,11 +424,11 @@ export default function Home() {
                         {n}
                       </button>
                     ))}
-                    <div className="flex items-center gap-2 pl-1 pr-2">
+                    <div className="flex items-center gap-2 pl-1 pr-1 sm:pr-2">
                       <button
                         onClick={() => setIsCustomCount(true)}
                         className={`
-                          px-3 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer duration-200
+                          px-3 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer duration-200 whitespace-nowrap
                           ${isCustomCount
                             ? "bg-sky-500/30 text-sky-200 border border-sky-400/60 shadow-[0_0_14px_rgba(56,189,248,0.3)]"
                             : "text-slate-400 border border-transparent hover:text-slate-200 hover:bg-slate-700/80"
@@ -385,18 +447,18 @@ export default function Home() {
                             const val = parseInt(e.target.value);
                             setQuestionCount(isNaN(val) ? 0 : val);
                           }}
-                          className="w-16 h-8 text-center bg-slate-900 border-slate-600 text-slate-200 focus-visible:ring-sky-500"
+                          className="w-14 sm:w-16 h-8 text-center bg-slate-900 border-slate-600 text-slate-200 focus-visible:ring-sky-500"
                         />
                       )}
                     </div>
                   </div>
                 </div>
-                <div className="flex-1 w-full sm:w-auto" />
+                <div className="flex-1 hidden sm:block" />
                 <Button
                   onClick={handleStartQuiz}
                   disabled={isLoading || selectedTopics.size === 0}
                   size="lg"
-                  className="w-full sm:w-auto px-8 h-12 text-base font-bold bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90 shadow-lg shadow-sky-500/30 rounded-xl"
+                  className="w-full sm:w-auto px-5 sm:px-8 h-11 sm:h-12 text-sm sm:text-base font-bold bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90 shadow-lg shadow-sky-500/30 rounded-xl"
                 >
                   {isLoading ? "生成中..." : selectedTopics.size === 0 ? "请至少选择一个主题" : "开始智能测验 →"}
                 </Button>
