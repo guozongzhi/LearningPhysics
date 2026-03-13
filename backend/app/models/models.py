@@ -51,8 +51,11 @@ class Question(SQLModel, table=True):
     solution_steps: str
     image_url: Optional[str] = Field(default=None)  # URL to diagram/illustration
     
-    # Store embedding as JSON instead of vector type
-    embedding: Optional[List[float]] = Field(default=None, sa_column=Column(JSONB))
+    # Use pgvector for embedding storage if available, fallback to JSONB
+    embedding: Optional[List[float]] = Field(
+        default=None,
+        sa_column=Column(Vector(1536) if PGVECTOR_AVAILABLE else JSONB)
+    )
 
     primary_node_id: int = Field(foreign_key="knowledge_nodes.id")
     primary_node: "KnowledgeNode" = Relationship(back_populates="questions")

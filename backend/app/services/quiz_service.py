@@ -43,16 +43,32 @@ async def generate_quiz(
 ) -> Dict[str, Any]:
     """
     Service layer function to generate a quiz based on user request.
+    Optimized random sampling: more efficient than ORDER BY RANDOM() for large datasets
     """
-    query = (
-        select(Question)
+    # Get all matching question IDs first
+    id_query = (
+        select(Question.id)
         .where(Question.primary_node_id.in_(request_data.topic_ids))
-        .order_by(func.random())
-        .limit(request_data.count)
     )
+    id_result = await db.execute(id_query)
+    question_ids = [row[0] for row in id_result.all()]
 
+    # If there are fewer questions than requested, return all
+    if len(question_ids) <= request_data.count:
+        selected_ids = question_ids
+    else:
+        # Randomly select the requested number of IDs
+        import random
+        selected_ids = random.sample(question_ids, request_data.count)
+
+    # Fetch the full question data for selected IDs
+    query = select(Question).where(Question.id.in_(selected_ids))
     result = await db.execute(query)
     questions = result.scalars().all()
+
+    # Shuffle the questions to avoid ordering by ID
+    import random
+    random.shuffle(questions)
 
     new_quiz_id = uuid.uuid4()
     
@@ -208,6 +224,8 @@ async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is
             model=settings.OPENAI_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
+            timeout=10.0,  # 10 seconds timeout for AI calls
+            max_retries=2,  # Retry up to 2 times on failure
         )
         # Parse the JSON and handle markdown blocks
         content = response.choices[0].message.content.strip()
@@ -353,6 +371,8 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
                 messages=[{"role": "user", "content": summary_prompt}],
                 temperature=0.7,
                 max_tokens=300,
+                timeout=15.0,  # 15 seconds timeout for summary generation
+                max_retries=2,  # Retry up to 2 times on failure
             )
             overall_summary = summary_response.choices[0].message.content.strip()
             total_tokens_used += (summary_response.usage.total_tokens if summary_response.usage else 0)

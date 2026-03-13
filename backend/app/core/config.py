@@ -2,6 +2,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 import secrets
 
 class Settings(BaseSettings):
+    # Environment
+    ENVIRONMENT: str = "development"  # development, staging, production
+
     # The default DATABASE_URL is for a local PostgreSQL instance
     # using the default user "postgres" and password "postgres",
     # connecting to a database named "learningphysics".
@@ -22,10 +25,31 @@ class Settings(BaseSettings):
 
     # Token expiration
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
+
     # Global tokens limit across platform
     GLOBAL_TOKEN_LIMIT: int = 1000000
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8')
 
+    def validate_production_settings(self):
+        """Validate critical settings for production environment."""
+        if self.ENVIRONMENT == "production":
+            # Require explicit SECRET_KEY in production
+            if self.SECRET_KEY == secrets.token_urlsafe(32):
+                raise ValueError(
+                    "SECRET_KEY must be explicitly set in production environment. "
+                    "Please generate a secure secret key and set it in your .env file."
+                )
+
+            # Require secure database credentials in production
+            if "postgres:postgres@" in self.DATABASE_URL:
+                raise ValueError(
+                    "Default database credentials are not allowed in production. "
+                    "Please set a secure database password."
+                )
+
+
 settings = Settings()
+
+# Validate settings on startup
+settings.validate_production_settings()

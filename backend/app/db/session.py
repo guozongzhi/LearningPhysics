@@ -1,6 +1,7 @@
 from sqlmodel import create_engine, Session, SQLModel
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import text
 
 from app.core.config import settings
 
@@ -24,6 +25,8 @@ async def init_db():
     Initializes the database by creating all tables.
     """
     async with async_engine.begin() as conn:
+        # Enable pgvector extension if available
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
         # await conn.run_sync(SQLModel.metadata.drop_all) # Use this to drop tables for a fresh start
         await conn.run_sync(SQLModel.metadata.create_all)
 
