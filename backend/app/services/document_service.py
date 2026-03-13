@@ -100,13 +100,25 @@ async def create_document(
     # Add associated knowledge nodes if provided
     if doc_in.node_ids:
         for node_id in doc_in.node_ids:
-            doc_node = TopicDocumentNode(
-                document_id=doc.id,
-                node_id=node_id
-            )
+            doc_node = TopicDocumentNode(document_id=doc.id, node_id=node_id)
             db.add(doc_node)
-        await db.commit()
-        await db.refresh(doc)
+
+    # Add initial collaborators if provided
+    if doc_in.collaborator_usernames:
+        from app.models.models import User
+        for username in doc_in.collaborator_usernames:
+            user_result = await db.execute(select(User).where(User.username == username))
+            user = user_result.scalar_one_or_none()
+            if user:
+                collaborator = TopicDocumentCollaborator(
+                    document_id=doc.id,
+                    user_id=user.id,
+                    role="editor"  # Default to editor for initial collaborators
+                )
+                db.add(collaborator)
+
+    await db.commit()
+    await db.refresh(doc)
 
     return doc
 

@@ -70,6 +70,7 @@ class DocumentCreateRequest(BaseModel):
     whiteboard_data: Optional[Dict[str, Any]] = None
     visibility: DocumentVisibility = DocumentVisibility.PRIVATE
     node_ids: List[int] = Field(default_factory=list)
+    collaborator_usernames: List[str] = Field(default_factory=list)
 
 
 class DocumentUpdateRequest(BaseModel):

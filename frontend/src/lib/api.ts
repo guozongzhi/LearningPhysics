@@ -329,6 +329,7 @@ export const api = {
     whiteboard_data?: unknown;
     visibility: 'private' | 'class' | 'public';
     node_ids: number[];
+    collaborator_usernames?: string[];
   }) => {
     return apiFetch('/api/v1/documents', {
       method: 'POST',

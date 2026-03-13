@@ -33,6 +33,9 @@ export default function NewNotePage() {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [teacherTemplates, setTeacherTemplates] = useState<Array<{ id: string; title: string; summary: string | null; content_markdown: string; owner_name: string; node_ids: number[]; updated_at: string }>>([]);
   const [loadingTeacherTemplates, setLoadingTeacherTemplates] = useState(true);
+  const [candidates, setCandidates] = useState<Array<{ id: string; username: string }>>([]);
+  const [selectedCollaborators, setSelectedCollaborators] = useState<string[]>([]);
+  const [loadingCandidates, setLoadingCandidates] = useState(false);
 
   const templates = [
     {
@@ -159,6 +162,18 @@ $$\\text{最终公式}$$
       .finally(() => setLoadingTeacherTemplates(false));
   }, []);
 
+  useEffect(() => {
+    if (visibility === "class" && candidates.length === 0) {
+      setLoadingCandidates(true);
+      api.getCollaboratorCandidates()
+        .then(setCandidates)
+        .catch(() => {
+          setError("无法加载协作者列表。");
+        })
+        .finally(() => setLoadingCandidates(false));
+    }
+  }, [visibility, candidates.length]);
+
   const handleCreate = async () => {
     if (!title.trim()) {
       setError("请先输入文档标题。");
@@ -175,6 +190,7 @@ $$\\text{最终公式}$$
         content_markdown: content,
         visibility,
         node_ids: selectedNodeIds,
+        collaborator_usernames: visibility === "class" ? selectedCollaborators : [],
       });
       router.push(`/notes/${document.id}`);
     } catch {
@@ -285,6 +301,51 @@ $$\\text{最终公式}$$
                   <option value="public">公开</option>
                 </select>
               </div>
+
+              {visibility === "class" && (
+                <div className="rounded-lg border border-sky-500/20 bg-sky-950/20 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-sky-300 flex items-center gap-2">
+                      👥 选择协作者
+                      {loadingCandidates && <span className="text-[10px] animate-pulse">加载中...</span>}
+                    </label>
+                    <span className="text-[10px] text-sky-500/60 font-mono">RESTRICTED_COLLAB</span>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {candidates.length > 0 ? (
+                      candidates.map((user) => (
+                        <button
+                          key={user.id}
+                          onClick={() => {
+                            setSelectedCollaborators(prev =>
+                              prev.includes(user.username)
+                                ? prev.filter(u => u !== user.username)
+                                : [...prev, user.username]
+                            );
+                          }}
+                          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs transition-all border ${
+                            selectedCollaborators.includes(user.username)
+                              ? "bg-sky-500 border-sky-400 text-sky-950 font-medium"
+                              : "bg-slate-900/60 border-slate-700 text-slate-400 hover:border-slate-500"
+                          }`}
+                        >
+                          <span className="opacity-70">{selectedCollaborators.includes(user.username) ? "✓" : "+"}</span>
+                          {user.username}
+                        </button>
+                      ))
+                    ) : !loadingCandidates ? (
+                      <div className="text-xs text-slate-500 italic py-2">没有可选的协作者</div>
+                    ) : null}
+                  </div>
+                  
+                  {selectedCollaborators.length > 0 && (
+                    <div className="pt-2 border-t border-sky-500/10 text-[10px] text-sky-400/60">
+                      已选中 {selectedCollaborators.length} 位协作者，默认授予“编辑”权限。
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">Markdown 正文</label>
                 <textarea
