@@ -329,6 +329,21 @@ async def create_document(
             invited_at=timestamp,
         )
     )
+
+    if payload.collaborator_usernames:
+        for username in payload.collaborator_usernames:
+            user_res = await db.execute(select(User).where(User.username == username))
+            u = user_res.scalar_one_or_none()
+            if u and u.id != current_user.id:
+                db.add(
+                    TopicDocumentCollaborator(
+                        document_id=document.id,
+                        user_id=u.id,
+                        role=DocumentRole.EDITOR.value,
+                        invited_at=timestamp,
+                    )
+                )
+
     await _sync_document_nodes(db, document.id, payload.node_ids)
     await _create_document_version(db, document, current_user.id)
     await db.commit()
