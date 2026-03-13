@@ -81,6 +81,20 @@ export default function NotesPage() {
     return documents.filter((document) => document.title.toLowerCase().includes(keyword));
   }, [documents, query]);
 
+  const stats = useMemo(() => {
+    const nodes = new Set<number>();
+    const userIds = new Set<string>();
+    documents.forEach(doc => {
+      doc.node_ids.forEach(id => nodes.add(id));
+      doc.collaborators?.forEach(c => userIds.add(c.user_id));
+    });
+    return {
+      docs: documents.length,
+      nodes: nodes.size,
+      users: userIds.size
+    };
+  }, [documents]);
+
   return (
     <div className="min-h-screen px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-6xl">
@@ -107,20 +121,29 @@ export default function NotesPage() {
           <div className="grid gap-3 sm:grid-cols-3">
             <Card className="border-slate-700/60 bg-slate-900/40">
               <CardContent className="p-5">
-                <div className="text-sm text-slate-400">可访问文档</div>
-                <div className="mt-2 text-3xl font-semibold text-slate-100">{documents.length}</div>
+                <div className="text-sm text-slate-400 font-medium">可访问主题</div>
+                <div className="mt-2 text-3xl font-semibold text-slate-100 flex items-baseline gap-1">
+                  {stats.docs}
+                  <span className="text-xs font-normal text-slate-500">篇</span>
+                </div>
               </CardContent>
             </Card>
             <Card className="border-slate-700/60 bg-slate-900/40">
               <CardContent className="p-5">
-                <div className="text-sm text-slate-400">检索方式</div>
-                <div className="mt-2 text-lg font-medium text-cyan-300">按标题本地筛选</div>
+                <div className="text-sm text-slate-400 font-medium">知识点覆盖</div>
+                <div className="mt-2 text-3xl font-semibold text-sky-400 flex items-baseline gap-1">
+                  {stats.nodes}
+                  <span className="text-xs font-normal text-slate-500">个</span>
+                </div>
               </CardContent>
             </Card>
             <Card className="border-slate-700/60 bg-slate-900/40">
               <CardContent className="p-5">
-                <div className="text-sm text-slate-400">系统能力</div>
-                <div className="mt-2 text-sm leading-6 text-slate-200">全员知识库：所有人可查看与共同编辑历史文档，支持题目嵌入与思维导图。</div>
+                <div className="text-sm text-slate-400 font-medium">协作活跃度</div>
+                <div className="mt-2 text-3xl font-semibold text-cyan-300 flex items-baseline gap-1">
+                  {stats.users}
+                  <span className="text-xs font-normal text-slate-500">人参与</span>
+                </div>
               </CardContent>
             </Card>
           </div>
