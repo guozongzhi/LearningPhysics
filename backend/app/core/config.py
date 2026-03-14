@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # Global tokens limit across platform
     GLOBAL_TOKEN_LIMIT: int = 1000000
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file=["../config/backend.env", ".env"], env_file_encoding='utf-8')
 
     def validate_production_settings(self):
         """Validate critical settings for production environment."""
