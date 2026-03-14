@@ -2,141 +2,226 @@
 
 # 🪐 LearningPhysics
 
-**高中物理 AI 自适应学习与精准诊断平台**
+**AI-Powered Adaptive Learning Platform for High School Physics**
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.x-black?logo=next.js)](https://nextjs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![GitHub Stars](https://img.shields.io/github/stars/guozongzhi/LearningPhysics?style=social)](https://github.com/guozongzhi/LearningPhysics/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/guozongzhi/LearningPhysics?style=social)](https://github.com/guozongzhi/LearningPhysics/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/guozongzhi/LearningPhysics)](https://github.com/guozongzhi/LearningPhysics/issues)
+[![License](https://img.shields.io/github/license/guozongzhi/LearningPhysics)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-16.x-000000?logo=next.js)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110.x-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
-[![Status](https://img.shields.io/badge/Status-Stable-blue)]()
-[![License](https://img.shields.io/badge/License-MIT-green.svg)]()
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python)](https://www.python.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
-> *不仅是刷题，更是诊断。基于知识图谱与生成式 AI (GenAI) 的下一代物理辅助学习系统。*
-
-[部署指南](docs/arch/DEPLOYMENT_GUIDE.md) | [架构文档](docs/arch/ARCHITECTURE.md)
+<h3>
+  <a href="#-features">Features</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-documentation">Documentation</a> •
+  <a href="#-contributing">Contributing</a> •
+  <a href="#-license">License</a>
+</h3>
 
 </div>
 
 ---
 
-## 📖 项目简介 (Introduction)
+## 📋 Overview
 
-**LearningPhysics** 旨在解决传统题海战术“只知对错，不知归因”的痛点。本项目专注于高中物理学科，结合 **知识图谱 (Knowledge Graph)** 和 **生成式 AI 模型 (GenAI)**，实现智能化测评与自适应学习。
+LearningPhysics is an open-source, AI-powered adaptive learning platform specifically designed for high school physics education. It combines **Knowledge Graphs** and **Generative AI** to provide intelligent assessment and personalized learning experiences, solving the long-standing problem of traditional "brute-force" exercise methods that only indicate correctness without explaining *why* an answer is wrong.
 
-通过精巧的数学模型提取底层物理规律，它能够：
-1. **精准归因诊断**: 识别学生错误的真正源头（例如：是“概念混淆”、“单位换算失误”还是“受力分析忽略了摩擦力”）。
-2. **多维度能力剖析**: 相比传统的干瘪对号和红叉，AI 会像金牌教练一样，对每一次提交进行思维层面的 Chain-of-Thought (CoT) 解析。
-3. **个性化学习路径**: 根据学生的薄弱知识点，智能推荐针对性的练习和学习建议。
+> **Core Philosophy**: Moving beyond mere score calculation to provide deep, actionable insights into students' learning processes.
 
 ---
 
-## ✨ 核心特性 (Features)
+## ✨ Features
 
-* **🧠 智能大模型诊断 (Powered by Doubao / OpenAI / Gemini)**
-  * 深度解析错因，自动为学生生成详尽的“解题思维链”，不仅告诉你“错了”，更告诉你“怎么错的”。
-  * 支持所有兼容OpenAI接口的大模型服务，配置灵活。
-* **📚 高质量物理题库与知识图谱**
-  * 内置力学、热学、光学、电磁学与近代物理等多个核心板块，覆盖高中物理全部知识点。
-  * 前端深度集成 KaTeX，提供无损、极其优雅的数学公式与各类复杂物理符号渲染。
-* **🎨 宇宙级沉浸式 UI (Cosmic Dark Theme)**
-  * 极具质感的极暗全宇宙（Cosmic Dark）响应式界面，适配桌面端和移动端。
-  * 内嵌数十种物理元素的动态 SVG 粒子系统（抛体运动、单摆、引力轨道、电磁感应），在极客风格中汲取学习灵感。
-  * 移动端优化：卡片支持水平滑动、触摸反馈动画，操作流畅自然。
-* **🛠️ 一站式极简运维 (Managing Made Easy)**
-  * 利用 `docker-compose` 和统一环境管理脚本 `manage.sh`，实现极速一键拉起、数据注入与热更部署。
-  * 内置完善的管理后台，支持题库管理、用户管理、数据统计等功能。
+### 🧠 AI-Powered Intelligent Diagnosis
+- **Error Cause Analysis**: Leverages large language models to identify the root cause of mistakes (conceptual misunderstanding, calculation errors, unit conversion issues, etc.)
+- **Chain-of-Thought Explanations**: Generates detailed, step-by-step reasoning for every question, mimicking the guidance of an experienced physics teacher
+- **Personalized Recommendations**: Provides targeted learning suggestions based on individual student's knowledge gaps
+- **Multi-LLM Support**: Compatible with all OpenAI-compatible APIs (Doubao, OpenAI, Gemini, etc.)
 
----
+### 📚 Comprehensive Knowledge Base
+- **Complete High School Curriculum Coverage**: Includes mechanics, thermodynamics, optics, electromagnetism, and modern physics
+- **Structured Knowledge Graph**: Organizes concepts and relationships according to national curriculum standards
+- **High-Quality Question Bank**: Carefully curated questions with detailed solution steps and knowledge point tagging
+- **LaTeX Support**: Native KaTeX integration for perfect rendering of complex mathematical formulas and physical symbols
 
-## 🛠️ 技术栈 (Tech Stack)
+### 🎨 Modern User Experience
+- **Immersive Dark Theme**: Professionally designed "Cosmic Dark" UI with physics-themed dynamic elements
+- **Fully Responsive**: Seamless experience across desktop, tablet, and mobile devices
+- **Smooth Animations**: Physics-inspired motion design and interactive feedback
+- **Touch Optimized**: Native-like touch interactions and gesture support on mobile devices
 
-### 前端 (Frontend)
-- **框架**: Next.js 16 (App Router), React 19
-- **样式**: Tailwind CSS (支持高度定制的动画体系与响应式断点)
-- **组件库**: Radix UI, shadcn/ui, Framer Motion
-- **状态管理**: Zustand
-- **渲染引擎**: KaTeX (用于 LaTeX 物理公式)
-- **构建工具**: Turbopack
-
-### 后端 (Backend)
-- **核心框架**: FastAPI (全异步非阻塞)
-- **ORM & DB**: SQLModel, SQLAlchemy, PostgreSQL 16
-- **状态 & 认证**: JWT Auth, Passlib
-- **AI 引擎对接**: 兼容 OpenAI 格式的各类大模型 API（字节跳动豆包、OpenAI、Google Gemini 等）
-- **数据库迁移**: 自定义迁移脚本，支持平滑版本升级
+### 🛠️ Production-Ready Architecture
+- **Containerized Deployment**: Full Docker support for one-click deployment
+- **Horizontal Scalability**: Stateless backend design supports high concurrency
+- **Comprehensive Admin Panel**: Built-in management interface for question bank, users, and system configuration
+- **Security First**: JWT authentication, input sanitization, and secure API design
 
 ---
 
-## 🚀 快速启动 (Quick Start)
+## 🏗️ Architecture
 
-本项目依托于 `docker` 实现了全容器化运行。只需一行脚本即可在任何环境下一键启动。
-
-### 1. 环境准备
-确保您的本机或服务器已安装 [Docker](https://www.docker.com/) 与 `docker-compose`。
-
-### 2. 克隆项目
-```bash
-git clone https://github.com/guozongzhi/LearningPhysics.git
-cd LearningPhysics
+```
+┌─────────────────┐    HTTP/JSON    ┌─────────────────┐    SQL     ┌───────────────┐
+│   Next.js 16    │ ◄──────────────► │   FastAPI 0.110 │ ◄─────────► │ PostgreSQL 16 │
+│  (Frontend)     │                  │   (Backend)     │            │   (Database)  │
+└─────────────────┘                  └─────────────────┘            └───────────────┘
+         │                                     │
+         ▼                                     ▼
+┌─────────────────┐                  ┌─────────────────┐
+│ Tailwind CSS    │                  │   LLM Engine    │
+│ Framer Motion   │                  │ (OpenAI/Doubao) │
+│ shadcn/ui       │                  └─────────────────┘
+└─────────────────┘
 ```
 
-### 3. 配置环境变量
-在 `config/` 目录下创建配置文件：
-```bash
-# 后端配置
-cp config/backend.env.template config/backend.env
-# 前端配置
-cp config/frontend.env.template config/frontend.env
-```
+### Technology Stack
 
-> **重要**：您需要在 `config/backend.env` 中配置您的 `OPENAI_API_KEY` 及对应的 `OPENAI_BASE_URL`、`OPENAI_MODEL`，以便系统可以调用大模型进行题目解析诊断。
+**Frontend**:
+- Next.js 16 (App Router) with Turbopack
+- React 19 + TypeScript
+- Tailwind CSS + Framer Motion
+- shadcn/ui + Radix UI
+- Zustand (State Management)
+- KaTeX (Formula Rendering)
 
-### 4. 初始化与启动服务
-我们的根目录下提供了一个统一的运维管家控制台 `manage.sh`。
-
-```bash
-# 赋予执行权限
-chmod +x manage.sh
-
-# 生产部署：一键构建镜像并拉起服务（后台运行）
-./manage.sh prod
-```
-
-> `./manage.sh start` / `restart` / `status` / `diagnose` / `init` 仅用于本地开发调试；服务器生产部署请使用 `./manage.sh prod`。
-
-### 5. 加载出厂知识图谱与题库
-如果是第一次运行，您需要向数据库中导入默认的高中物理测试题库：
-```bash
-# 进入后端容器内初始化题目
-docker exec -it learningphysics_backend_prod python scripts/init_system.py
-docker exec -it learningphysics_backend_prod python scripts/import_questions.py data/questions.json
-```
+**Backend**:
+- FastAPI (Async Python)
+- SQLModel + SQLAlchemy ORM
+- PostgreSQL 16 with pgvector
+- JWT Authentication
+- OpenAI SDK (LLM Integration)
 
 ---
 
-## 📡 访问入口
+## 🚀 Quick Start
 
-启动成功后，您可以在浏览器中访问以下服务：
-- **前台学生中心**: `http://localhost:3000`
-  - 注册后即可生成测验，进行 AI 分析。
-- **后台管理平台**: `http://localhost:3000/admin`
-  - 默认管理员账号：`admin`，默认密码：`admin123`（生产环境请立即修改）
-  - 可在此处管理题库、配置 AI 及导出诊断记录。
-- **API Swagger 文档**: `http://localhost:8000/docs`
+### Prerequisites
+- Docker Engine >= 24.0
+- Docker Compose >= 2.20
+- Git
 
-> 如果您部署在云服务器，请将 `localhost` 替换为相应的公网 IP，并在 `config/frontend.env` 里面配置正确的 `NEXT_PUBLIC_API_URL` 跨域源。
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/guozongzhi/LearningPhysics.git
+   cd LearningPhysics
+   ```
+
+2. **Configure environment variables**
+   Create configuration files in the `config/` directory:
+   ```bash
+   # Backend configuration
+   cp config/backend.env.example config/backend.env
+   # Frontend configuration
+   cp config/frontend.env.example config/frontend.env
+   ```
+
+   Edit `config/backend.env` to add your LLM API credentials:
+   ```env
+   OPENAI_API_KEY=your-api-key-here
+   OPENAI_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+   OPENAI_MODEL=your-model-id
+   ```
+
+3. **Start the services**
+   ```bash
+   # Make the management script executable
+   chmod +x manage.sh
+
+   # Start production environment
+   ./manage.sh prod
+   ```
+   > For local development, use `./manage.sh start` instead.
+
+4. **Initialize the database**
+   ```bash
+   # Import default question bank and create admin account
+   docker exec -it learningphysics_backend_prod python scripts/init_system.py
+   docker exec -it learningphysics_backend_prod python scripts/import_questions.py data/questions.json
+   ```
+
+### Access the Application
+
+| Service | URL | Default Credentials |
+|---------|-----|---------------------|
+| Student Portal | http://localhost:3000 | Register new account |
+| Admin Panel | http://localhost:3000/admin | `admin` / `admin123` |
+| API Documentation | http://localhost:8000/docs | - |
+
+> **Note**: For production deployment, remember to change the default admin password and update the `SECRET_KEY` in your environment variables.
 
 ---
 
-## 🤝 参与贡献 (Contributing)
+## 📖 Documentation
 
-我们非常欢迎且渴望开源社区的各方力量加入，一起打造改变下一代教育的物理平台！
-请先阅读 [贡献指南](CONTRIBUTING.md) 和 [行为准则](CODE_OF_CONDUCT.md) 了解参与方式。
-
-无论是增补题库、修复 Bug，还是提供更好看的高级物理动画 SVG，我们都感激不尽。
+- [Deployment Guide](docs/arch/DEPLOYMENT_GUIDE.md) - Detailed instructions for production deployment
+- [Architecture Documentation](docs/arch/ARCHITECTURE.md) - System design and technical specifications
+- [API Documentation](docs/design/API_FLOW.md) - REST API design and workflow
+- [Data Model](docs/design/DATAMODEL.md) - Database schema and knowledge graph structure
 
 ---
 
-## 📄 开源许可证 (License)
+## 🛠️ Development
 
-本项目基于 [MIT License](LICENSE) 协议开源。欢迎自由分发和修改使用。
-如果有任何部署和使用疑问，欢迎在 GitHub 提交 Issue。
+### Setting Up Development Environment
+
+1. **Frontend Development**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+2. **Backend Development**
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   uvicorn main:app --reload
+   ```
+
+### Code Standards
+- **Python**: Follow PEP 8, use Ruff for linting and Black for formatting
+- **TypeScript**: Follow ESLint configuration, use Prettier for formatting
+- **Commits**: Use conventional commit messages (`feat:`, `fix:`, `docs:`, etc.)
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is greatly appreciated.
+
+Please read our [Contribution Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before getting started.
+
+### Ways to Contribute
+- 🐛 Report bugs and suggest features by opening issues
+- 📝 Improve documentation and translations
+- 🎨 Enhance UI/UX design and animations
+- 📚 Add more questions to the question bank
+- 🔧 Submit pull requests for bug fixes and new features
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- Thanks to all contributors who have helped improve this project
+- Inspired by the open-source education community
+- Built with modern open-source tools and frameworks
+
+---
+
+<div align="center">
+Made with ❤️ for physics education
+</div>
