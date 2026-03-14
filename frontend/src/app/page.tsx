@@ -5,7 +5,7 @@ import { useQuizStore } from "@/store/quiz-store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { api, authApi } from "@/lib/api";
 import { SiteLogo } from "@/components/site-logo";
@@ -125,6 +125,7 @@ export default function Home() {
   const router = useRouter();
   const { generateQuiz } = useQuizStore();
   const { isLoggedIn, username, token } = useAuthStore();
+  const stepCardsRef = useRef<HTMLDivElement>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -132,6 +133,26 @@ export default function Home() {
   const [questionCount, setQuestionCount] = useState(10);
   const [isCustomCount, setIsCustomCount] = useState(false);
   const [topicsLoading, setTopicsLoading] = useState(true);
+
+  // Auto-scroll step cards every 5 seconds
+  useEffect(() => {
+    const container = stepCardsRef.current;
+    if (!container || window.innerWidth >= 640) return; // Only auto-scroll on mobile
+
+    const cardWidth = container.offsetWidth * 0.8 + 16; // Card width (80vw) + gap (16px)
+    let currentIndex = 0;
+    const totalCards = 3;
+
+    const interval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % totalCards;
+      container.scrollTo({
+        left: currentIndex * cardWidth,
+        behavior: "smooth"
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
   const [lastQuizDate, setLastQuizDate] = useState<string | null>(null);
 
   useEffect(() => {
@@ -263,7 +284,9 @@ export default function Home() {
               由共创沉淀智慧，借 AI 实现进阶。在这场科学远征中，构建属于你的思维实验室。
             </p>
             <div className="mx-auto max-w-5xl w-full animate-in fade-in slide-in-from-bottom-5 delay-300 duration-1000 fill-mode-both ease-out px-4 sm:px-2">
-              <div className="flex flex-row items-center justify-start gap-4 sm:gap-6 sm:grid sm:grid-cols-3 sm:justify-center overflow-x-auto pb-8 sm:pb-0 sm:overflow-visible snap-x snap-mandatory sm:snap-none
+              <div
+                ref={stepCardsRef}
+                className="flex flex-row items-center justify-start gap-4 sm:gap-6 sm:grid sm:grid-cols-3 sm:justify-center overflow-x-auto pb-8 sm:pb-0 sm:overflow-visible snap-x snap-mandatory sm:snap-none
                           [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {/* Step 01 */}
                 <motion.div
@@ -289,7 +312,7 @@ export default function Home() {
                 >
                   <SpotlightCard
                     spotlightColor="rgba(56, 189, 248, 0.2)"
-                    className="flex-1 border-sky-500/10 sm:min-h-[220px] shadow-2xl sm:shadow-none bg-slate-900/40 sm:bg-slate-950/40 group/card overflow-hidden"
+                    className="flex-1 border-sky-500/10 sm:min-h-[220px] shadow-2xl sm:shadow-none bg-slate-900/25 sm:bg-slate-950/30 group/card overflow-hidden"
                     onClick={handleStartQuiz}
                   >
                     {/* Background Enrichment - Scattered Motifs */}
@@ -360,7 +383,7 @@ export default function Home() {
                 >
                   <SpotlightCard
                     spotlightColor="rgba(139, 92, 246, 0.18)"
-                    className="flex-1 border-violet-500/10 sm:min-h-[220px] shadow-2xl sm:shadow-none bg-slate-900/40 sm:bg-slate-950/40 group/card overflow-hidden"
+                    className="flex-1 border-violet-500/10 sm:min-h-[220px] shadow-2xl sm:shadow-none bg-slate-900/25 sm:bg-slate-950/30 group/card overflow-hidden"
                     onClick={() => document.getElementById("topics")?.scrollIntoView({ behavior: "smooth" })}
                   >
                     {/* Background Enrichment - Scattered Motifs */}
@@ -419,7 +442,7 @@ export default function Home() {
                 >
                   <SpotlightCard
                     spotlightColor="rgba(16, 185, 129, 0.18)"
-                    className="flex-1 border-emerald-500/10 sm:min-h-[220px] shadow-2xl sm:shadow-none bg-slate-900/40 sm:bg-slate-950/40 group/card overflow-hidden"
+                    className="flex-1 border-emerald-500/10 sm:min-h-[220px] shadow-2xl sm:shadow-none bg-slate-900/25 sm:bg-slate-950/30 group/card overflow-hidden"
                   >
                     {/* Background Enrichment - Scattered Motifs */}
                     <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
@@ -449,6 +472,17 @@ export default function Home() {
                       </div>
                     </Link>
                   </SpotlightCard>
+                </motion.div>
+              </div>
+
+              {/* Mobile swipe hint */}
+              <div className="flex items-center justify-center gap-2 text-slate-400 text-xs sm:hidden mt-2 animate-pulse">
+                <span>左右滑动查看更多</span>
+                <motion.div
+                  animate={{ x: [0, 8, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                >
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </motion.div>
               </div>
             </div>
