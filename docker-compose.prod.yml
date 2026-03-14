@@ -22,7 +22,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - ./backend/.env
+      - ./config/backend.env
     depends_on:
       - db
     restart: always

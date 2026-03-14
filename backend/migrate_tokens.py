@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-db_path = "/Users/guozongzhi/projects/LearningPhysics/backend/learningphysics.db"
+db_path = os.path.join(os.path.dirname(__file__), "learningphysics.db")
 
 if not os.path.exists(db_path):
     print(f"Database {db_path} does not exist. (If running tests/in-memory, skip this).")

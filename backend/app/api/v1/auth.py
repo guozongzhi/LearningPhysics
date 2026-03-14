@@ -83,7 +83,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     
     log_auth_event("LOGIN", user.username, True, f"用户管理员: {user.is_admin}")
     response = {"access_token": access_token, "token_type": "bearer", "is_admin": user.is_admin}
-    print(f"[DEBUG] Response: {response}")
     return response
 
 
