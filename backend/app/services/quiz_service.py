@@ -225,7 +225,6 @@ async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             timeout=10.0,  # 10 seconds timeout for AI calls
-            max_retries=2,  # Retry up to 2 times on failure
         )
         # Parse the JSON and handle markdown blocks
         content = response.choices[0].message.content.strip()
@@ -372,7 +371,6 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
                 temperature=0.7,
                 max_tokens=300,
                 timeout=15.0,  # 15 seconds timeout for summary generation
-                max_retries=2,  # Retry up to 2 times on failure
             )
             overall_summary = summary_response.choices[0].message.content.strip()
             total_tokens_used += (summary_response.usage.total_tokens if summary_response.usage else 0)
