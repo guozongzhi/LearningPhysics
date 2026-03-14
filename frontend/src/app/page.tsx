@@ -263,7 +263,8 @@ export default function Home() {
               由共创沉淀智慧，借 AI 实现进阶。在这场科学远征中，构建属于你的思维实验室。
             </p>
             <div className="mx-auto max-w-5xl w-full animate-in fade-in slide-in-from-bottom-5 delay-300 duration-1000 fill-mode-both ease-out px-4 sm:px-2">
-              <div className="flex flex-row items-center justify-center -space-x-44 sm:space-x-0 sm:grid sm:grid-cols-3 sm:gap-6 overflow-visible py-8 sm:py-0">
+              <div className="flex flex-row items-center justify-start gap-4 sm:gap-6 sm:grid sm:grid-cols-3 sm:justify-center overflow-x-auto pb-8 sm:pb-0 sm:overflow-visible snap-x snap-mandatory sm:snap-none
+                          [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {/* Step 01 */}
                 <motion.div
                   initial={{ opacity: 0, x: -24, y: 12 }}
@@ -271,7 +272,19 @@ export default function Home() {
                   transition={{ delay: 0.05, duration: 0.45, ease: "easeOut" }}
                   whileHover={{ y: -12, scale: 1.05, zIndex: 50 }}
                   whileTap={{ scale: 0.98 }}
-                  className="relative z-[30] flex-1 min-w-[260px] sm:min-w-0 h-[240px] sm:h-auto flex -rotate-2 sm:rotate-0"
+                  onTouchStart={(e) => {
+                    e.currentTarget.style.transform = "translateY(-12px) scale(1.05)";
+                    e.currentTarget.style.zIndex = "50";
+                  }}
+                  onTouchEnd={(e) => {
+                    e.currentTarget.style.transform = "";
+                    e.currentTarget.style.zIndex = "30";
+                  }}
+                  onTouchCancel={(e) => {
+                    e.currentTarget.style.transform = "";
+                    e.currentTarget.style.zIndex = "30";
+                  }}
+                  className="relative z-[30] flex-shrink-0 w-[80vw] sm:w-auto sm:flex-1 min-w-[260px] h-[240px] sm:h-auto flex -rotate-2 sm:rotate-0 snap-center touch-manipulation"
                   style={{ zIndex: 30 }}
                 >
                   <SpotlightCard
@@ -329,7 +342,20 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0, y: 0 }}
                   transition={{ delay: 0.1, duration: 0.45, ease: "easeOut" }}
                   whileHover={{ y: -12, scale: 1.05, zIndex: 50 }}
-                  className="relative flex-1 min-w-[260px] sm:min-w-0 h-[240px] sm:h-auto flex rotate-0"
+                  whileTap={{ scale: 0.98 }}
+                  onTouchStart={(e) => {
+                    e.currentTarget.style.transform = "translateY(-12px) scale(1.05)";
+                    e.currentTarget.style.zIndex = "50";
+                  }}
+                  onTouchEnd={(e) => {
+                    e.currentTarget.style.transform = "";
+                    e.currentTarget.style.zIndex = "20";
+                  }}
+                  onTouchCancel={(e) => {
+                    e.currentTarget.style.transform = "";
+                    e.currentTarget.style.zIndex = "20";
+                  }}
+                  className="relative z-[20] flex-shrink-0 w-[80vw] sm:w-auto sm:flex-1 min-w-[260px] h-[240px] sm:h-auto flex rotate-0 snap-center touch-manipulation"
                   style={{ zIndex: 20 }}
                 >
                   <SpotlightCard
@@ -376,7 +402,19 @@ export default function Home() {
                   transition={{ delay: 0.15, duration: 0.45, ease: "easeOut" }}
                   whileHover={{ y: -12, scale: 1.05, zIndex: 50 }}
                   whileTap={{ scale: 0.98 }}
-                  className="relative flex-1 min-w-[260px] sm:min-w-0 h-[240px] sm:h-auto flex rotate-2 sm:rotate-0"
+                  onTouchStart={(e) => {
+                    e.currentTarget.style.transform = "translateY(-12px) scale(1.05)";
+                    e.currentTarget.style.zIndex = "50";
+                  }}
+                  onTouchEnd={(e) => {
+                    e.currentTarget.style.transform = "";
+                    e.currentTarget.style.zIndex = "10";
+                  }}
+                  onTouchCancel={(e) => {
+                    e.currentTarget.style.transform = "";
+                    e.currentTarget.style.zIndex = "10";
+                  }}
+                  className="relative z-[10] flex-shrink-0 w-[80vw] sm:w-auto sm:flex-1 min-w-[260px] h-[240px] sm:h-auto flex rotate-2 sm:rotate-0 snap-center touch-manipulation"
                   style={{ zIndex: 10 }}
                 >
                   <SpotlightCard
@@ -457,8 +495,11 @@ export default function Home() {
             ) : topics.length === 0 ? (
               <div className="text-center py-12 text-slate-400">暂无可用主题</div>
             ) : (
-              <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4
+                          sm:overflow-visible overflow-x-auto pb-4 sm:pb-0
+                          snap-x snap-mandatory sm:snap-none
+                          [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 initial="hidden"
                 animate="visible"
                 variants={{
@@ -481,17 +522,24 @@ export default function Home() {
                         hidden: { opacity: 0, y: 20 },
                         visible: { opacity: 1, y: 0 }
                       }}
-                      whileHover={{ 
-                        y: -5, 
+                      whileHover={{
+                        y: -5,
                         boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3)",
                         borderColor: isSelected ? "rgb(56, 189, 248)" : "rgb(71, 85, 105)"
                       }}
                       whileTap={{ scale: 0.98 }}
+                      animate={isSelected ? {
+                        boxShadow: ["0 10px 25px -5px rgba(56, 189, 248, 0.2)", "0 10px 30px -5px rgba(56, 189, 248, 0.4)", "0 10px 25px -5px rgba(56, 189, 248, 0.2)"],
+                      } : {}}
+                      transition={isSelected ? {
+                        boxShadow: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                      } : {}}
                       className={`
-                        relative p-5 rounded-2xl border-2 text-left transition-colors duration-200 cursor-pointer overflow-hidden backdrop-blur-[2px] sm:backdrop-blur-none
+                        relative p-5 rounded-2xl border-2 text-left transition-all duration-300 cursor-pointer overflow-hidden backdrop-blur-[2px] sm:backdrop-blur-none
+                        w-[85vw] sm:w-auto flex-shrink-0 sm:flex-shrink snap-center touch-manipulation
                         ${isSelected
-                          ? "border-sky-400 bg-sky-500/30 sm:bg-sky-500/20 shadow-lg shadow-sky-500/20"
-                          : "border-slate-700/40 sm:border-slate-700 bg-slate-800/20 sm:bg-slate-800/60 hover:bg-slate-800/80"
+                          ? "border-sky-400 bg-gradient-to-br from-sky-500/30 via-sky-500/20 to-sky-600/20 shadow-lg shadow-sky-500/30"
+                          : "border-slate-700/40 sm:border-slate-700 bg-gradient-to-br from-slate-800/30 via-slate-800/20 to-slate-900/30 hover:from-slate-800/50 hover:via-slate-800/40 hover:to-slate-900/50"
                         }
                       `}
                     >
