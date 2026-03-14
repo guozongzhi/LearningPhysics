@@ -39,11 +39,13 @@ LearningPhysics 是一款开源的 AI 自适应学习平台，专为高中物理
 
 | 功能模块 | 预览效果 |
 |---------|---------|
-| **主页与知识卡片** | ![主页](screenshots/homepage.png) |
-| **答题与AI解析** | ![答题界面](screenshots/quiz.png) |
-| **诊断报告页面** | ![诊断报告](screenshots/report.png) |
-| **管理后台** | ![管理后台](screenshots/admin.png) |
-| **移动端适配** | ![移动端](screenshots/mobile.png) |
+| **主页与知识卡片** | [主页](screenshots/homepage.png) |
+| **答题与AI解析** | [答题界面](screenshots/quiz.png) |
+| **诊断报告页面** | [诊断报告](screenshots/report.png) |
+| **单题AI分析报告** | [单题分析报告](screenshots/question_analysis.png) |
+| **管理员登录界面** | [管理员登录](screenshots/admin_login.png) |
+| **管理后台** | [管理后台](screenshots/admin.png) |
+| **移动端适配** | [移动端](screenshots/mobile.png) |
 
 > 截图存放于 `screenshots/` 目录，替换对应文件即可自动更新。
 

@@ -6,7 +6,9 @@
 |---------|------|---------|
 | `homepage.png` | 主页预览 | 1440x900 |
 | `quiz.png` | 答题界面和AI解析 | 1440x900 |
-| `report.png` | 诊断报告页面 | 1440x900 |
+| `report.png` | 总体诊断报告页面 | 1440x900 |
+| `question_analysis.png` | 单题AI分析报告 | 1440x900 |
+| `admin_login.png` | 管理员登录界面 | 1440x900 |
 | `admin.png` | 管理后台界面 | 1440x900 |
 | `mobile.png` | 移动端界面 | 390x844 |
 
