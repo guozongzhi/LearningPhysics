@@ -35,6 +35,20 @@ LearningPhysics is an open-source, AI-powered adaptive learning platform specifi
 
 ---
 
+## 📸 Screenshots
+
+| Feature | Preview |
+|---------|---------|
+| **Homepage & Knowledge Cards** | ![Homepage](screenshots/homepage.png) |
+| **Quiz & AI Analysis** | ![Quiz Interface](screenshots/quiz.png) |
+| **Diagnostic Report** | ![Diagnostic Report](screenshots/report.png) |
+| **Admin Panel** | ![Admin Panel](screenshots/admin.png) |
+| **Mobile Support** | ![Mobile Version](screenshots/mobile.png) |
+
+> Screenshots are stored in the `screenshots/` directory. Replace the files to update previews.
+
+---
+
 ## ✨ Features
 
 ### 🧠 AI-Powered Intelligent Diagnosis
