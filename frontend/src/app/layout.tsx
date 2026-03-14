@@ -5,7 +5,6 @@ import "katex/dist/katex.min.css";
 import { cn } from "@/lib/utils";
 import { CosmicDecorations } from "@/components/cosmic-decorations";
 import { ThemeProvider } from "@/components/theme-provider";
-import { UserInfoDisplay } from "@/components/user-info-display";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -40,7 +39,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <CosmicDecorations />
-          <UserInfoDisplay />
           <div className="relative z-10">
             {children}
           </div>
