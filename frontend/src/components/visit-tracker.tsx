@@ -10,8 +10,14 @@ export function VisitTracker() {
     useEffect(() => {
         if (!pathname) return;
         
-        // Skip tracking admin interfaces and API routes
-        if (pathname.startsWith("/admin") || pathname.startsWith("/api")) return;
+        // Skip tracking admin interfaces, API routes and specific functional pages (like /quiz)
+        if (
+            pathname.startsWith("/admin") || 
+            pathname.startsWith("/api") ||
+            pathname.startsWith("/quiz")
+        ) {
+            return;
+        }
 
         api.recordVisit(pathname).catch(() => {});
     }, [pathname]);
