@@ -271,7 +271,7 @@ export const adminApi = {
   
   // Visit Logs
   getVisits: (skip = 0, limit = 100) => 
-    apiFetch(`/api/v1/admin/visits?skip=${skip}&limit=${limit}`),
+    apiFetch(`/api/v1/logs/admin/visits?skip=${skip}&limit=${limit}`),
 };
 
 // --- Specific API functions ---
@@ -448,9 +448,8 @@ export const api = {
   },
 
   recordVisit: (path: string) => {
-    return fetch('/api/v1/visits/record', {
+    return apiFetch('/api/v1/logs/visits/record', {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ path })
     }).catch(() => {});
   },
