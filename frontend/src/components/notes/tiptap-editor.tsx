@@ -149,6 +149,61 @@ export function TiptapEditor({
       if (isApplyingRef.current) return;
       onChange?.(editor.getHTML(), editor.getJSON());
     },
+    editorProps: {
+      handlePaste(view, event) {
+        const items = Array.from(event.clipboardData?.files || []);
+        const imageFiles = items.filter(f => f.type.startsWith("image/"));
+        
+        if (imageFiles.length > 0) {
+          event.preventDefault();
+          
+          imageFiles.forEach(async (file) => {
+            try {
+              const res = await api.uploadMedia(file);
+              const { schema } = view.state;
+              const node = schema.nodes.image.create({ src: res.url });
+              const tr = view.state.tr.replaceSelectionWith(node);
+              view.dispatch(tr);
+            } catch (err) {
+              console.error("Paste upload failed:", err);
+            }
+          });
+          return true;
+        }
+        return false;
+      },
+      handleDrop(view, event, slice, moved) {
+        if (moved) return false;
+        
+        const files = Array.from(event.dataTransfer?.files || []);
+        const imageFiles = files.filter(f => f.type.startsWith("image/"));
+        
+        if (imageFiles.length > 0) {
+          event.preventDefault();
+          
+          imageFiles.forEach(async (file) => {
+            try {
+              const res = await api.uploadMedia(file);
+              const { schema, tr } = view.state;
+              const node = schema.nodes.image.create({ src: res.url });
+              
+              const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
+              if (coordinates) {
+                const dropTr = tr.insert(coordinates.pos, node);
+                view.dispatch(dropTr);
+              } else {
+                const appendTr = tr.replaceSelectionWith(node);
+                view.dispatch(appendTr);
+              }
+            } catch (err) {
+              console.error("Drop upload failed:", err);
+            }
+          });
+          return true;
+        }
+        return false;
+      }
+    }
   });
 
   // 处理文件上传
