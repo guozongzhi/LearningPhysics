@@ -213,13 +213,6 @@ export const authApi = {
       body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
     });
   },
-  recordVisit: (path: string) => {
-    return fetch('/api/v1/visits/record', {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ path })
-    }).catch(() => {});
-  },
 };
 
 // --- Admin API ---
@@ -452,5 +445,13 @@ export const api = {
     // Ensure the URL is absolute for the editor if needed, 
     // but relative to the same origin usually works.
     return result;
+  },
+
+  recordVisit: (path: string) => {
+    return fetch('/api/v1/visits/record', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path })
+    }).catch(() => {});
   },
 };
