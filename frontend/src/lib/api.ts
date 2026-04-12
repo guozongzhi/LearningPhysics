@@ -212,6 +212,7 @@ export const authApi = {
       method: 'PUT',
       body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
     });
+  },
   recordVisit: (path: string) => {
     return fetch('/api/v1/visits/record', {
       method: "POST",
