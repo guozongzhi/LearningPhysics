@@ -163,6 +163,8 @@ start_services() {
 prod_services() {
     info "正在启动生产环境服务 (Docker Compose)..."
     cd "$PROJECT_ROOT"
+    export APP_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    export BUILD_TIME=$(date "+%Y-%m-%d %H:%M:%S")
     docker compose -f docker-compose.prod.yml up -d --build
     success "Docker 容器已启动！"
     info "提示: 如果是首次启动，您可能需要进入 backend 容器执行初始化:"
