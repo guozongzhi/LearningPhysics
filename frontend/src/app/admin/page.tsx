@@ -16,7 +16,7 @@ type Topic = { id: number; name: string; code: string; level: number; descriptio
 
 export default function AdminDashboard() {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<"students" | "questions" | "export" | "settings">("students");
+    const [activeTab, setActiveTab] = useState<"students" | "questions" | "export" | "settings" | "visits">("students");
 
     // Auth check
     useEffect(() => {
@@ -430,10 +430,26 @@ export default function AdminDashboard() {
         }
     };
 
+    // ── Visit Logs State ──
+    const [visits, setVisits] = useState<any[]>([]);
+    const [visitsLoading, setVisitsLoading] = useState(false);
+
+    const loadVisits = useCallback(async () => {
+        setVisitsLoading(true);
+        try {
+            const data = await adminApi.getVisits();
+            setVisits(data);
+        } catch { } 
+        finally { setVisitsLoading(false); }
+    }, []);
+
+    useEffect(() => { if (activeTab === "visits") loadVisits(); }, [activeTab, loadVisits]);
+
     const tabs = [
         { key: "students" as const, label: "👥 学生管理" },
         { key: "questions" as const, label: "📝 题库管理" },
         { key: "export" as const, label: "📊 数据导出" },
+        { key: "visits" as const, label: "📈 访问记录" },
         { key: "settings" as const, label: "⚙️ 系统设置" },
     ];
 
@@ -442,9 +458,15 @@ export default function AdminDashboard() {
             {/* Header — cosmic */}
             <header className="border-b border-slate-800 bg-slate-950/90 backdrop-blur-md sticky top-0 z-10">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-400">
-                        🔐 LearningPhysics 管理后台
-                    </h1>
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-400">
+                            🔐 LearningPhysics 管理后台
+                        </h1>
+                        <span className="text-[10px] text-slate-500 font-mono mt-1 px-2 py-0.5 rounded-full bg-slate-800/50 border border-slate-700/50">
+                            {process.env.NEXT_PUBLIC_APP_VERSION ? `v${process.env.NEXT_PUBLIC_APP_VERSION}` : "local"}
+                            {process.env.NEXT_PUBLIC_BUILD_TIME ? ` · ${process.env.NEXT_PUBLIC_BUILD_TIME}` : ""}
+                        </span>
+                    </div>
                     <Button variant="outline" size="sm" onClick={handleLogout} className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white">
                         退出
                     </Button>
@@ -881,6 +903,48 @@ export default function AdminDashboard() {
                                                 </div>
                                             </div>
                                         ))}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+
+                {/* ════════════ Visits Tab ════════════ */}
+                {activeTab === "visits" && (
+                    <div className="space-y-6">
+                        <Card className="bg-slate-900/70 border-slate-700/60 shadow-xl shadow-black/20">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-lg text-slate-100">核心页面访问统计 <span className="text-slate-500 text-sm">({visits.length}个活跃页面)</span></CardTitle>
+                                <Button variant="outline" size="sm" onClick={loadVisits} className="border-sky-700/50 text-sky-400 hover:bg-sky-900/30">
+                                    刷新数据
+                                </Button>
+                            </CardHeader>
+                            <CardContent>
+                                {visitsLoading ? (
+                                    <p className="text-slate-400 font-mono text-sm">加载中...</p>
+                                ) : visits.length === 0 ? (
+                                    <p className="text-slate-400 text-sm">暂无统计数据</p>
+                                ) : (
+                                    <div className="overflow-x-auto rounded-lg border border-slate-800">
+                                        <table className="w-full text-sm text-left whitespace-nowrap">
+                                            <thead className="text-xs text-slate-400 bg-slate-900/50 uppercase">
+                                                <tr>
+                                                    <th className="px-4 py-3 border-b border-slate-800 w-1/2">页面路径</th>
+                                                    <th className="px-4 py-3 border-b border-slate-800">累计访问次数</th>
+                                                    <th className="px-4 py-3 border-b border-slate-800">最后访问时间 (北京)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="font-mono text-xs">
+                                                {visits.map((v, i) => (
+                                                    <tr key={v.path || i} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+                                                        <td className="px-4 py-3 text-sky-300 font-bold">{v.path}</td>
+                                                        <td className="px-4 py-3 text-amber-300 font-bold text-base">{v.visit_count}</td>
+                                                        <td className="px-4 py-3 text-emerald-400">{v.updated_at.replace("T", " ").substring(0, 19)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 )}
                             </CardContent>

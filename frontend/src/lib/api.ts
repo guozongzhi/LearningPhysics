@@ -212,6 +212,12 @@ export const authApi = {
       method: 'PUT',
       body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
     });
+  recordVisit: (path: string) => {
+    return fetch('/api/v1/visits/record', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path })
+    }).catch(() => {});
   },
 };
 
@@ -261,13 +267,17 @@ export const adminApi = {
   createTopic: (data: { name: string; code: string; level: number; description?: string }) =>
     apiFetch('/api/v1/admin/topics', { method: 'POST', body: JSON.stringify(data) }),
 
-  exportRecords: () => {
-    return `${API_BASE_URL}/api/v1/admin/records/export`;
-  },
-  getLlmConfig: () => apiFetch('/api/v1/admin/config/llm', { method: 'GET' }),
+  exportRecords: () => `/api/v1/admin/records/export`,
+  getLlmConfig: () =>
+    apiFetch(`/api/v1/admin/config/llm`),
   updateLlmConfig: (data: any) =>
-    apiFetch('/api/v1/admin/config/llm', { method: 'PUT', body: JSON.stringify(data) }),
-  testLlmConfig: () => apiFetch('/api/v1/admin/config/llm/test', { method: 'GET' }),
+    apiFetch(`/api/v1/admin/config/llm`, { method: 'POST', body: JSON.stringify(data) }),
+  testLlmConfig: () =>
+    apiFetch(`/api/v1/admin/config/llm/test`),
+  
+  // Visit Logs
+  getVisits: (skip = 0, limit = 100) => 
+    apiFetch(`/api/v1/admin/visits?skip=${skip}&limit=${limit}`),
 };
 
 // --- Specific API functions ---

@@ -194,6 +194,14 @@ class Media(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
 
 
+class PageVisitCounter(SQLModel, table=True):
+    __tablename__ = "page_visit_counters"
+    
+    path: str = Field(primary_key=True)
+    visit_count: int = Field(default=0)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(CHINA_TZ).replace(tzinfo=None))
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
