@@ -101,32 +101,52 @@ function DocumentNodeComponent({ node, selected }: any) {
     return (
         <NodeViewWrapper>
             <div
-                className={`document-node-wrapper my-6 rounded-xl border-2 transition-all duration-200 ${
-                    selected ? "border-sky-500 bg-sky-500/5 shadow-[0_0_15px_rgba(14,165,233,0.1)]" : "border-slate-700/50 bg-slate-800/20"
-                } hover:border-slate-500/50 hover:bg-slate-800/40`}
+                className={`document-node-wrapper group relative my-8 overflow-hidden rounded-2xl border transition-all duration-300 ${
+                    selected 
+                    ? "border-sky-500/50 bg-sky-500/5 shadow-[0_0_20px_rgba(14,165,233,0.15)] ring-1 ring-sky-500/30" 
+                    : "border-slate-800 bg-slate-900/60 backdrop-blur-md"
+                } hover:border-sky-500/30 hover:bg-slate-900/80 hover:shadow-xl hover:-translate-y-0.5`}
             >
+                {/* 侧边装饰条 */}
+                <div className={`absolute left-0 top-0 h-full w-1.5 transition-colors ${selected ? 'bg-sky-500' : 'bg-slate-700 group-hover:bg-sky-500'}`} />
+
                 <a
                     href={node.attrs.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-4 p-5"
+                    className="flex items-center gap-5 p-5 pl-7"
                 >
-                    <div className={`w-14 h-14 ${getFileColor(node.attrs.fileType)} rounded-xl flex items-center justify-center border border-white/5 shadow-sm`}>
-                        {getFileIcon(node.attrs.fileType)}
+                    {/* 图标容器 */}
+                    <div className="relative flex items-center justify-center">
+                      <div className="absolute inset-0 scale-110 bg-sky-500/10 blur-xl opacity-0 transition-opacity group-hover:opacity-100" />
+                      <div className={`relative flex h-14 w-12 items-center justify-center rounded-lg ${getFileColor(node.attrs.fileType).replace('bg-', 'bg-opacity-20 bg-')} border border-white/5 shadow-inner`}>
+                          {getFileIcon(node.attrs.fileType)}
+                      </div>
                     </div>
+
                     <div className="flex-1 min-w-0">
-                        <p className="text-base font-semibold text-slate-100 truncate mb-0.5">
-                            {node.attrs.filename}
-                        </p>
-                        <p className="text-xs text-slate-400 flex items-center gap-1">
-                            <span className="px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 font-medium uppercase text-[10px]">
-                                {node.attrs.fileType.split('/').pop() || 'FILE'}
-                            </span>
-                            点击下载附件
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-[15px] font-bold text-slate-100 truncate group-hover:text-white transition-colors">
+                              {node.attrs.filename}
+                          </h4>
+                          <span className="shrink-0 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-slate-800 text-slate-400 border border-slate-700">
+                             {node.attrs.fileType.split('/').pop() || 'FILE'}
+                          </span>
+                        </div>
+                        <p className="flex items-center gap-1.5 text-xs text-slate-400 group-hover:text-slate-300">
+                            <span className="inline-block w-1 h-1 rounded-full bg-slate-500" />
+                            点击预览或安全下载
                         </p>
                     </div>
-                    <div className="text-sky-400 font-medium text-sm px-3 py-1 rounded-full bg-sky-500/10 hover:bg-sky-500/20 transition-colors">
-                        下载 →
+
+                    {/* 现代化下载按钮 */}
+                    <div className="ml-4 shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700/50 text-slate-400 group-hover:bg-sky-500 group-hover:text-white group-hover:border-sky-400 transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(14,165,233,0.3)]">
+                        <span className="text-xs font-bold uppercase tracking-tighter">Download</span>
+                        <div className="w-5 h-5 flex items-center justify-center rounded-full bg-slate-700 group-hover:bg-white/20">
+                           <svg className="w-3 h-3 transform group-hover:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                           </svg>
+                        </div>
                     </div>
                 </a>
             </div>
