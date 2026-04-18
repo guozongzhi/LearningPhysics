@@ -234,6 +234,8 @@ export function TiptapEditor({
           console.log("Inserting Document node into schema:", editor.schema.nodes.documentNode ? "Registered" : "MISSING");
           const success = editor.chain().focus().setDocument(url, filename, file.type || "application/octet-stream").run();
           console.log("Document Insertion success:", success);
+        }
+        
         // 上传成功后移除该进度条
         setUploads(prev => prev.filter(u => u.id !== uploadId));
       } catch (err) {
