@@ -132,7 +132,6 @@ export function TiptapEditor({
       ResizeImage.configure({
         inline: false,
       }),
-      CodeBlock,
       HtmlNode,
       PdfNode,
       DocumentNode,
@@ -146,7 +145,6 @@ export function TiptapEditor({
         types: ["heading", "paragraph"],
       }),
       Highlight,
-      Strike,
       TextStyle,
       Color,
     ],

@@ -29,7 +29,7 @@ SIMPLE_FORMAT = '%(asctime)s - %(levelname)s - [RID:%(request_id)s] - %(message)
 class RequestIDFilter(logging.Filter):
     """向日志记录注入当前请求 ID 的过滤器"""
     def filter(self, record):
-        record.request_id = request_id_ctx.get()
+        record.request_id = getattr(request_id_ctx.get(), 'id', request_id_ctx.get())
         return True
 
 # 颜色映射 (用于控制台)
@@ -42,11 +42,24 @@ COLOR_MAP = {
     'NC': '\033[0m'           # 无颜色
 }
 
-class ColoredFormatter(logging.Formatter):
+class SafeFormatter(logging.Formatter):
+    """确保 request_id 存在的安全格式化器"""
     def format(self, record):
-        color = COLOR_MAP.get(record.levelname, COLOR_MAP['NC'])
-        record.levelname = f"{color}{record.levelname}{COLOR_MAP['NC']}"
+        if not hasattr(record, "request_id"):
+            record.request_id = "INTERNAL"
         return super().format(record)
+
+class ColoredFormatter(SafeFormatter):
+    def format(self, record):
+        # 确保基类先处理 request_id
+        SafeFormatter.format(self, record)
+        
+        color = COLOR_MAP.get(record.levelname, COLOR_MAP["NC"])
+        original_levelname = record.levelname
+        record.levelname = f"{color}{original_levelname}{COLOR_MAP['NC']}"
+        result = super().format(record)
+        record.levelname = original_levelname
+        return result
 
 def setup_logger(name: str, log_file: Path, level=logging.INFO, is_error=False):
     """
@@ -75,7 +88,7 @@ def setup_logger(name: str, log_file: Path, level=logging.INFO, is_error=False):
         encoding='utf-8'
     )
     file_handler.setLevel(level)
-    file_handler.setFormatter(logging.Formatter(DETAILED_FORMAT))
+    file_handler.setFormatter(SafeFormatter(DETAILED_FORMAT))
     
     # 控制台处理器
     console_handler = logging.StreamHandler()
