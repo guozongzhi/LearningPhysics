@@ -122,6 +122,12 @@ export function TiptapEditor({
       Link.configure({
         openOnClick: false,
       }),
+      Image.configure({
+        allowBase64: true,
+        HTMLAttributes: {
+          class: "max-w-full h-auto rounded-lg shadow-sm border border-slate-700/30",
+        },
+      }),
       ResizeImage.configure({
         inline: false,
       }),
@@ -161,6 +167,10 @@ export function TiptapEditor({
             try {
               const res = await api.uploadMedia(file);
               const { schema } = view.state;
+              if (!schema.nodes.image) {
+                console.error("Image node not found in schema");
+                return;
+              }
               const node = schema.nodes.image.create({ src: res.url });
               const tr = view.state.tr.replaceSelectionWith(node);
               view.dispatch(tr);

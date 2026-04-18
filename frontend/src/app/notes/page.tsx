@@ -105,7 +105,7 @@ export default function NotesPage() {
               <div>
                 <h1 className="text-3xl font-semibold tracking-tight text-slate-100">主题共创空间</h1>
                 <p className="max-w-2xl text-sm leading-6 text-slate-400">
-                  管理知识点主题文档、组织多人协作，并沉淀课堂笔记与推导过程。
+                  深耕物理本源，汇聚群体智慧，共创共享知识资产。
                 </p>
               </div>
             </div>

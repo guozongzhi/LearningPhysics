@@ -37,7 +37,7 @@ async def upload_media(
     
     return {
         "id": str(media.id),
-        "url": str(request.url_for("get_media", media_id=media.id)),
+        "url": f"/api/v1/media/{media.id}",
         "filename": media.filename
     }
 

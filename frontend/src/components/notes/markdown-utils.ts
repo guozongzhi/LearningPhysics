@@ -22,6 +22,9 @@ export function markdownToHtml(markdown: string): string {
     // 链接
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
 
+    // 图片
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+
     // 段落
     html = html.replace(/^(?!<[hpu])(.*)$/gim, "<p>$1</p>");
 
@@ -54,6 +57,10 @@ export function htmlToMarkdown(html: string): string {
 
     // 链接
     markdown = markdown.replace(/<a href="([^"]+)"[^>]*>(.*?)<\/a>/g, "[$2]($1)");
+
+    // 图片
+    markdown = markdown.replace(/<img src="([^"]+)" alt="([^"]*)"[^>]*>/g, "![$2]($1)");
+    markdown = markdown.replace(/<img src="([^"]+)"[^>]*>/g, "![]($1)");
 
     // 段落
     markdown = markdown.replace(/<p>(.*?)<\/p>/g, "$1\n\n");
