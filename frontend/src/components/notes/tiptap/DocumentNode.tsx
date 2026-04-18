@@ -70,6 +70,9 @@ export const DocumentNode = Node.create<DocumentNodeOptions>({
             "div",
             mergeAttributes(HTMLAttributes, {
                 "data-type": "document-node",
+                "data-url": node.attrs.url,
+                "data-filename": node.attrs.filename,
+                "data-file-type": node.attrs.fileType,
             }),
         ];
     },

@@ -49,6 +49,8 @@ export const PdfNode = Node.create<PdfNodeOptions>({
             "div",
             mergeAttributes(HTMLAttributes, {
                 "data-type": "pdf-node",
+                "data-url": node.attrs.url,
+                "data-filename": node.attrs.filename,
             }),
         ];
     },

@@ -69,13 +69,20 @@ export function htmlToMarkdown(html: string): string {
     markdown = markdown.replace(/<img src="([^"]+)" alt="([^"]*)"[^>]*>/g, "![$2]($1)");
     markdown = markdown.replace(/<img src="([^"]+)"[^>]*>/g, "![]($1)");
 
-    // PDF 附件
-    markdown = markdown.replace(/<div[^>]*data-type="pdf-node"[^>]*data-url="([^"]+)"[^>]*data-filename="([^"]+)"[^>]*>.*?<\/div>/g, "[PDF:$2]($1)");
-    markdown = markdown.replace(/<div[^>]*data-url="([^"]+)"[^>]*data-filename="([^"]+)"[^>]*data-type="pdf-node"[^>]*>.*?<\/div>/g, "[PDF:$2]($1)");
+    // PDF 附件 (健鲁性匹配)
+    markdown = markdown.replace(/<div[^>]+data-type="pdf-node"[^>]*>.*?<\/div>/g, (match) => {
+        const url = match.match(/data-url="([^"]+)"/)?.[1] || "";
+        const filename = match.match(/data-filename="([^"]+)"/)?.[1] || "document.pdf";
+        return `[PDF:${filename}](${url})`;
+    });
 
-    // 一般文件附件
-    markdown = markdown.replace(/<div[^>]*data-type="document-node"[^>]*data-url="([^"]+)"[^>]*data-filename="([^"]+)"[^>]*data-file-type="([^"]+)"[^>]*>.*?<\/div>/g, "[FILE:$2|$3]($1)");
-    markdown = markdown.replace(/<div[^>]*data-url="([^"]+)"[^>]*data-filename="([^"]+)"[^>]*data-file-type="([^"]+)"[^>]*data-type="document-node"[^>]*>.*?<\/div>/g, "[FILE:$2|$3]($1)");
+    // 一般文件附件 (健鲁性匹配)
+    markdown = markdown.replace(/<div[^>]+data-type="document-node"[^>]*>.*?<\/div>/g, (match) => {
+        const url = match.match(/data-url="([^"]+)"/)?.[1] || "";
+        const filename = match.match(/data-filename="([^"]+)"/)?.[1] || "document";
+        const fileType = match.match(/data-file-type="([^"]+)"/)?.[1] || "other";
+        return `[FILE:${filename}|${fileType}](${url})`;
+    });
 
     // 段落
     markdown = markdown.replace(/<p>(.*?)<\/p>/g, "$1\n\n");

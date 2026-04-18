@@ -219,10 +219,10 @@ export function TiptapEditor({
 
         if (file.type.startsWith("image/")) {
           editor.commands.setImage({ src: url });
-        } else if (file.type === "application/pdf") {
+        } else if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
           editor.commands.setPdf(url, filename);
         } else {
-          editor.commands.setDocument(url, filename, file.type);
+          editor.commands.setDocument(url, filename, file.type || "application/octet-stream");
         }
       } catch (err) {
         console.error("File upload failed:", err);
