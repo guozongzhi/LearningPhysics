@@ -298,23 +298,34 @@ export function TiptapEditor({
 
   return (
     <div className="w-full min-h-[500px] rounded-xl border border-slate-700/30 editor-container overflow-visible relative bg-slate-950 text-slate-200 ring-1 ring-white/5">
-      {/* 轻量化右上角上传 HUD */}
+      {/* 视线中心 - 底部悬浮动态胶囊 HUD */}
       {uploads.length > 0 && (
-        <div className="absolute top-14 right-4 z-[100] w-72 space-y-3 pointer-events-none">
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[999] w-auto min-w-[320px] max-w-md pointer-events-none px-4">
           {uploads.map(u => (
-            <div key={u.id} className="bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl animate-in slide-in-from-right-8 duration-300">
-              <div className="flex justify-between items-center mb-2.5">
-                <div className="flex items-center space-x-2 truncate">
-                  <div className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
-                  <span className="text-[11px] font-bold text-slate-200 truncate">{u.name}</span>
-                </div>
-                <span className="text-[10px] font-black text-sky-400 tabular-nums">{u.progress}%</span>
+            <div key={u.id} className="bg-slate-900/90 backdrop-blur-2xl border border-sky-500/30 rounded-full py-2.5 px-6 shadow-[0_0_50px_rgba(0,0,0,0.5),0_0_20px_rgba(14,165,233,0.2)] animate-in zoom-in-95 slide-in-from-bottom-4 duration-500 ease-out flex items-center space-x-4">
+              <div className="flex-shrink-0 relative w-8 h-8 flex items-center justify-center">
+                <svg className="w-full h-full -rotate-90">
+                  <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-800" />
+                  <circle 
+                    cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="3" 
+                    strokeDasharray={88}
+                    strokeDashoffset={88 - (88 * u.progress) / 100}
+                    className="text-sky-500 transition-all duration-500"
+                  />
+                </svg>
+                <span className="absolute text-[9px] font-black text-white">{u.progress}%</span>
               </div>
-              <div className="relative h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 transition-all duration-500 ease-out"
-                  style={{ width: `${u.progress}%` }}
-                />
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center space-x-2">
+                  <span className="text-[11px] font-bold text-slate-100 truncate">{u.name}</span>
+                  <div className="flex space-x-1">
+                    <span className="w-1 h-1 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1 h-1 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1 h-1 rounded-full bg-sky-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+                <p className="text-[9px] text-slate-400 font-medium">正在同步至知识库...</p>
               </div>
             </div>
           ))}
