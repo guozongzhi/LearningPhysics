@@ -107,6 +107,7 @@ export function TiptapEditor({
 }: TiptapEditorProps) {
   const [isHtmlModalOpen, setIsHtmlModalOpen] = useState(false);
   const [htmlInput, setHtmlInput] = useState("");
+  const [uploads, setUploads] = useState<Array<{ id: string; name: string; progress: number }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isApplyingRef = useRef(false);
 
@@ -211,9 +212,13 @@ export function TiptapEditor({
   const handleFileUpload = useCallback(
     async (file: File) => {
       if (!editor) return;
+      const uploadId = Math.random().toString(36).substring(7);
 
       try {
-        const res = await api.uploadMedia(file);
+        setUploads(prev => [...prev, { id: uploadId, name: file.name, progress: 0 }]);
+        const res = await api.uploadMedia(file, (percent) => {
+          setUploads(prev => prev.map(u => u.id === uploadId ? { ...u, progress: percent } : u));
+        });
         const url = res.url;
         const filename = file.name;
         console.log("File uploaded successfully:", { filename, url, type: file.type });
@@ -229,9 +234,11 @@ export function TiptapEditor({
           console.log("Inserting Document node into schema:", editor.schema.nodes.documentNode ? "Registered" : "MISSING");
           const success = editor.chain().focus().setDocument(url, filename, file.type || "application/octet-stream").run();
           console.log("Document Insertion success:", success);
-        }
+        // 上传成功后移除该进度条
+        setUploads(prev => prev.filter(u => u.id !== uploadId));
       } catch (err) {
         console.error("File upload failed:", err);
+        setUploads(prev => prev.filter(u => u.id !== uploadId));
       }
     },
     [editor]
@@ -286,6 +293,26 @@ export function TiptapEditor({
 
   return (
     <div className="w-full min-h-[500px] rounded-xl border border-slate-700/30 editor-container overflow-visible relative bg-slate-950 text-slate-200 ring-1 ring-white/5">
+      {/* 增强型上传进度条 */}
+      {uploads.length > 0 && (
+        <div className="absolute top-14 right-4 z-50 w-64 space-y-2 pointer-events-none">
+          {uploads.map(u => (
+            <div key={u.id} className="bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-xl p-3 shadow-2xl animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[10px] font-bold text-slate-300 truncate pr-2">{u.name}</span>
+                <span className="text-[10px] font-black text-sky-400">{u.progress}%</span>
+              </div>
+              <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-sky-500 to-blue-500 transition-all duration-300"
+                  style={{ width: `${u.progress}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* 工具栏 */}
       {!readOnly && (
         <div className="editor-toolbar sticky top-0 z-20 flex flex-wrap items-center gap-0.5 p-1 border-b border-slate-700/30 bg-slate-950/80 backdrop-blur-md transition-colors text-slate-300">

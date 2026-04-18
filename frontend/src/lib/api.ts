@@ -434,17 +434,45 @@ export const api = {
   updateKnowledgeNode: (nodeId: number, data: { name?: string; description?: string }) =>
     apiFetch(`/api/v1/knowledge_nodes/${nodeId}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  uploadMedia: async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    const result = await apiFetch('/api/v1/media/upload', {
-      method: 'POST',
-      body: formData,
-      isFormData: true,
+  uploadMedia: async (file: File, onProgress?: (percent: number) => void): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // 获取认证 Token
+      const token = useAuthStore.getState().token;
+
+      xhr.open('POST', `${API_BASE_URL}/api/v1/media/upload`);
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      }
+
+      // 实时进度监听
+      if (xhr.upload && onProgress) {
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            onProgress(percent);
+          }
+        };
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            resolve(JSON.parse(xhr.responseText));
+          } catch (e) {
+            reject(new Error("Failed to parse upload response"));
+          }
+        } else {
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error("Network error during upload"));
+      xhr.send(formData);
     });
-    // Ensure the URL is absolute for the editor if needed, 
-    // but relative to the same origin usually works.
-    return result;
   },
 
   recordVisit: (path: string) => {
