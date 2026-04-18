@@ -2,7 +2,7 @@
 
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
-import { FileText } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 
 interface PdfNodeOptions {
     HTMLAttributes: Record<string, any>;
