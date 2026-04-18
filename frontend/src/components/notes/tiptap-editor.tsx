@@ -218,14 +218,17 @@ export function TiptapEditor({
         const filename = file.name;
         console.log("File uploaded successfully:", { filename, url, type: file.type });
 
+        // 使用 chain() 确保在异步回调中正确聚焦并执行
         if (file.type.startsWith("image/")) {
-          editor.commands.setImage({ src: url });
+          editor.chain().focus().setImage({ src: url }).run();
         } else if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-          console.log("Inserting PDF node...");
-          editor.commands.setPdf(url, filename);
+          console.log("Inserting PDF node into schema:", editor.schema.nodes.pdfNode ? "Registered" : "MISSING");
+          const success = editor.chain().focus().setPdf(url, filename).run();
+          console.log("PDF Insertion success:", success);
         } else {
-          console.log("Inserting Document node...");
-          editor.commands.setDocument(url, filename, file.type || "application/octet-stream");
+          console.log("Inserting Document node into schema:", editor.schema.nodes.documentNode ? "Registered" : "MISSING");
+          const success = editor.chain().focus().setDocument(url, filename, file.type || "application/octet-stream").run();
+          console.log("Document Insertion success:", success);
         }
       } catch (err) {
         console.error("File upload failed:", err);

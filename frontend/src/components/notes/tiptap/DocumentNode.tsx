@@ -37,6 +37,8 @@ export const DocumentNode = Node.create<DocumentNodeOptions>({
     name: "documentNode",
     group: "block",
     atom: true,
+    selectable: true,
+    draggable: true,
 
     addAttributes() {
         return {

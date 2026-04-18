@@ -20,6 +20,8 @@ export const PdfNode = Node.create<PdfNodeOptions>({
     name: "pdfNode",
     group: "block",
     atom: true,
+    selectable: true,
+    draggable: true,
 
     addAttributes() {
         return {
