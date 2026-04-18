@@ -209,11 +209,16 @@ export function TiptapEditor({
   // 处理文件上传
   const handleFileUpload = useCallback(
     async (file: File) => {
-      if (!editor) return;
+      console.log("--- UPLOAD START ---", file.name, file.size, file.type);
+      if (!editor) {
+        console.error("Editor not initialized during upload!");
+        return;
+      }
       const uploadId = Math.random().toString(36).substring(7);
 
       try {
-        setUploads(prev => [...prev, { id: uploadId, name: file.name, progress: 0 }]);
+        console.log("Setting upload state for:", uploadId);
+        setUploads(prev => [...prev, { id: uploadId, name: file.name, progress: 1 }]); // 从 1% 开始，确保 UI 立即显示
         const res = await api.uploadMedia(file, (percent) => {
           setUploads(prev => prev.map(u => u.id === uploadId ? { ...u, progress: percent } : u));
         });
@@ -293,23 +298,28 @@ export function TiptapEditor({
 
   return (
     <div className="w-full min-h-[500px] rounded-xl border border-slate-700/30 editor-container overflow-visible relative bg-slate-950 text-slate-200 ring-1 ring-white/5">
-      {/* 增强型上传进度条 */}
+      {/* 全局居中上传遮罩 - 增强感知 */}
       {uploads.length > 0 && (
-        <div className="absolute top-14 right-4 z-50 w-64 space-y-2 pointer-events-none">
-          {uploads.map(u => (
-            <div key={u.id} className="bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-xl p-3 shadow-2xl animate-in fade-in slide-in-from-right-4 duration-300">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[10px] font-bold text-slate-300 truncate pr-2">{u.name}</span>
-                <span className="text-[10px] font-black text-sky-400">{u.progress}%</span>
+        <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950/40 backdrop-blur-md rounded-xl animate-in fade-in duration-300">
+          <div className="w-full max-w-sm p-8 bg-slate-900/90 border border-white/10 rounded-3xl shadow-2xl space-y-6">
+            <div className="flex flex-col items-center text-center space-y-2">
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full border-4 border-sky-500/20 border-t-sky-500 animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center font-black text-xs text-sky-400">
+                  {uploads[0].progress}%
+                </div>
               </div>
-              <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-sky-500 to-blue-500 transition-all duration-300"
-                  style={{ width: `${u.progress}%` }}
-                />
-              </div>
+              <h3 className="text-lg font-bold text-white tracking-tight">正在保护您的文件...</h3>
+              <p className="text-sm text-slate-400 truncate w-full px-4">{uploads[0].name}</p>
             </div>
-          ))}
+
+            <div className="relative h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
+              <div 
+                className="h-full bg-gradient-to-r from-sky-500 via-blue-500 to-emerald-500 transition-all duration-500 ease-out shadow-[0_0_20px_rgba(14,165,233,0.4)]"
+                style={{ width: `${uploads[0].progress}%` }}
+              />
+            </div>
+          </div>
         </div>
       )}
 
