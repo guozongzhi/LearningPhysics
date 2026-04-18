@@ -38,6 +38,10 @@ from app.core.logging_config import request_id_ctx
 class APILoggingMiddleware(BaseHTTPMiddleware):
     """API 请求日志中间件"""
     async def dispatch(self, request: Request, call_next):
+        # 避开 BaseHTTPMiddleware 处理大文件上传时的流损坏 Bug
+        if request.url.path.endswith("/media/upload"):
+            return await call_next(request)
+
         # 生成唯一请求 ID
         request_id = str(uuid.uuid4())
         request_id_ctx.set(request_id)

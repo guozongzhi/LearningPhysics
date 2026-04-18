@@ -448,6 +448,9 @@ export const api = {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       }
 
+      // 显式设置超长超时时间 (10分钟)，防止浏览器或网络策略在 60s 时断开
+      xhr.timeout = 600000;
+
       // 实时进度监听
       if (xhr.upload && onProgress) {
         xhr.upload.onprogress = (event) => {
