@@ -56,6 +56,11 @@ export const DocumentNode = Node.create<DocumentNodeOptions>({
         return [
             {
                 tag: 'div[data-type="document-node"]',
+                getAttrs: (element: any) => ({
+                    url: element.getAttribute("data-url") || element.getAttribute("url"),
+                    filename: element.getAttribute("data-filename") || element.getAttribute("filename"),
+                    fileType: element.getAttribute("data-file-type") || element.getAttribute("file-type"),
+                }),
             },
         ];
     },

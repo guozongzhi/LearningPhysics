@@ -157,23 +157,21 @@ export function TiptapEditor({
     },
     editorProps: {
       handlePaste(view, event) {
-        const items = Array.from(event.clipboardData?.files || []);
-        const imageFiles = items.filter(f => f.type.startsWith("image/"));
-        
-        if (imageFiles.length > 0) {
+        if (!editor || !event.clipboardData) return false;
+        const files = Array.from(event.clipboardData.files);
+        if (files.length > 0) {
           event.preventDefault();
-          
-          imageFiles.forEach(async (file) => {
+          files.forEach(async (file) => {
             try {
               const res = await api.uploadMedia(file);
-              const { schema } = view.state;
-              if (!schema.nodes.image) {
-                console.error("Image node not found in schema");
-                return;
+              const url = res.url;
+              if (file.type.startsWith("image/")) {
+                editor.commands.setImage({ src: url });
+              } else if (file.type === "application/pdf") {
+                editor.commands.setPdf(url, file.name);
+              } else {
+                editor.commands.setDocument(url, file.name, file.type);
               }
-              const node = schema.nodes.image.create({ src: res.url });
-              const tr = view.state.tr.replaceSelectionWith(node);
-              view.dispatch(tr);
             } catch (err) {
               console.error("Paste upload failed:", err);
             }
@@ -183,27 +181,20 @@ export function TiptapEditor({
         return false;
       },
       handleDrop(view, event, slice, moved) {
-        if (moved) return false;
-        
-        const files = Array.from(event.dataTransfer?.files || []);
-        const imageFiles = files.filter(f => f.type.startsWith("image/"));
-        
-        if (imageFiles.length > 0) {
+        if (!editor || moved || !event.dataTransfer) return false;
+        const files = Array.from(event.dataTransfer.files);
+        if (files.length > 0) {
           event.preventDefault();
-          
-          imageFiles.forEach(async (file) => {
+          files.forEach(async (file) => {
             try {
               const res = await api.uploadMedia(file);
-              const { schema, tr } = view.state;
-              const node = schema.nodes.image.create({ src: res.url });
-              
-              const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY });
-              if (coordinates) {
-                const dropTr = tr.insert(coordinates.pos, node);
-                view.dispatch(dropTr);
+              const url = res.url;
+              if (file.type.startsWith("image/")) {
+                editor.commands.setImage({ src: url });
+              } else if (file.type === "application/pdf") {
+                editor.commands.setPdf(url, file.name);
               } else {
-                const appendTr = tr.replaceSelectionWith(node);
-                view.dispatch(appendTr);
+                editor.commands.setDocument(url, file.name, file.type);
               }
             } catch (err) {
               console.error("Drop upload failed:", err);

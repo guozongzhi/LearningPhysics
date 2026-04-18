@@ -36,6 +36,10 @@ export const PdfNode = Node.create<PdfNodeOptions>({
         return [
             {
                 tag: 'div[data-type="pdf-node"]',
+                getAttrs: (element: any) => ({
+                    url: element.getAttribute("data-url") || element.getAttribute("url"),
+                    filename: element.getAttribute("data-filename") || element.getAttribute("filename"),
+                }),
             },
         ];
     },

@@ -25,6 +25,13 @@ export function markdownToHtml(markdown: string): string {
     // 图片
     html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
 
+    // PDF 附件
+    html = html.replace(/\[PDF:(.*?)\]\((.*?)\)/g, '<div data-type="pdf-node" data-url="$2" data-filename="$1"></div>');
+
+    // 一般文件附件
+    html = html.replace(/\[FILE:(.*?)\|([^\]]*?)\]\((.*?)\)/g, '<div data-type="document-node" data-url="$3" data-filename="$1" data-file-type="$2"></div>');
+    html = html.replace(/\[FILE:(.*?)\]\((.*?)\)/g, '<div data-type="document-node" data-url="$2" data-filename="$1" data-file-type="other"></div>');
+
     // 段落
     html = html.replace(/^(?!<[hpu])(.*)$/gim, "<p>$1</p>");
 
@@ -61,6 +68,14 @@ export function htmlToMarkdown(html: string): string {
     // 图片
     markdown = markdown.replace(/<img src="([^"]+)" alt="([^"]*)"[^>]*>/g, "![$2]($1)");
     markdown = markdown.replace(/<img src="([^"]+)"[^>]*>/g, "![]($1)");
+
+    // PDF 附件
+    markdown = markdown.replace(/<div[^>]*data-type="pdf-node"[^>]*data-url="([^"]+)"[^>]*data-filename="([^"]+)"[^>]*>.*?<\/div>/g, "[PDF:$2]($1)");
+    markdown = markdown.replace(/<div[^>]*data-url="([^"]+)"[^>]*data-filename="([^"]+)"[^>]*data-type="pdf-node"[^>]*>.*?<\/div>/g, "[PDF:$2]($1)");
+
+    // 一般文件附件
+    markdown = markdown.replace(/<div[^>]*data-type="document-node"[^>]*data-url="([^"]+)"[^>]*data-filename="([^"]+)"[^>]*data-file-type="([^"]+)"[^>]*>.*?<\/div>/g, "[FILE:$2|$3]($1)");
+    markdown = markdown.replace(/<div[^>]*data-url="([^"]+)"[^>]*data-filename="([^"]+)"[^>]*data-file-type="([^"]+)"[^>]*data-type="document-node"[^>]*>.*?<\/div>/g, "[FILE:$2|$3]($1)");
 
     // 段落
     markdown = markdown.replace(/<p>(.*?)<\/p>/g, "$1\n\n");
