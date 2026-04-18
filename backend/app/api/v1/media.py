@@ -23,7 +23,14 @@ async def upload_media(
     #         detail="Only image uploads are supported."
     #     )
 
-    file_data = await file.read()
+    print(f"[MEDIA DEBUG] Receiving file: {file.filename}, type: {file.content_type}")
+    
+    try:
+        file_data = await file.read()
+        print(f"[MEDIA DEBUG] File read complete. Size: {len(file_data)} bytes")
+    except Exception as e:
+        print(f"[MEDIA DEBUG] Error reading file: {str(e)}")
+        raise e
     
     media = Media(
         filename=file.filename,
@@ -32,8 +39,12 @@ async def upload_media(
         owner_id=current_user.id
     )
     
+    print(f"[MEDIA DEBUG] Attempting to add to DB session...")
     db.add(media)
+    
+    print(f"[MEDIA DEBUG] Attempting commit...")
     await db.commit()
+    print(f"[MEDIA DEBUG] Commit successful.")
     await db.refresh(media)
     
     return {
