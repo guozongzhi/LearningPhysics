@@ -216,12 +216,15 @@ export function TiptapEditor({
         const res = await api.uploadMedia(file);
         const url = res.url;
         const filename = file.name;
+        console.log("File uploaded successfully:", { filename, url, type: file.type });
 
         if (file.type.startsWith("image/")) {
           editor.commands.setImage({ src: url });
         } else if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+          console.log("Inserting PDF node...");
           editor.commands.setPdf(url, filename);
         } else {
+          console.log("Inserting Document node...");
           editor.commands.setDocument(url, filename, file.type || "application/octet-stream");
         }
       } catch (err) {
@@ -499,8 +502,19 @@ export function TiptapEditor({
             />
           </div>
 
-          {/* 增加菜单 */}
+          {/* 增加菜单 - 改进可见性 */}
           <div className="flex items-center gap-0.5 px-2">
+            <ToolbarButton
+              onClick={() => triggerFileUpload("application/pdf")}
+              icon={FileText}
+              label="插入 PDF"
+            />
+            <ToolbarButton
+              onClick={() => triggerFileUpload(".ppt,.pptx,.doc,.docx,.xls,.xlsx")}
+              icon={File}
+              label="插入文档"
+            />
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -516,14 +530,6 @@ export function TiptapEditor({
                 <DropdownMenuItem onClick={() => triggerFileUpload("image/*")}>
                   <ImageIcon className="h-4 w-4 mr-2" />
                   <span>插入图片</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => triggerFileUpload("application/pdf")}>
-                  <FileText className="h-4 w-4 mr-2" />
-                  <span>插入 PDF</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => triggerFileUpload(".ppt,.pptx,.doc,.docx,.xls,.xlsx")}>
-                  <File className="h-4 w-4 mr-2" />
-                  <span>插入文档</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setIsHtmlModalOpen(true)}>
                   <Code2 className="h-4 w-4 mr-2" />
