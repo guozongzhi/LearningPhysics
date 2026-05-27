@@ -230,22 +230,33 @@ async def _batch_evaluate(
 
     all_items_str = "\n".join(items_list)
 
-    prompt = f"""你是物理测验批改API。直接输出JSON，第一个字符必须是{{。
+    prompt = f"""你是一位资深高中物理教师，正在批改学生测验。请直接输出JSON，第一个字符必须是{{。
 共{total_count}题，系统已预判对错。
 
 {all_items_str}
 
 JSON格式：
-{{"answers":[{{"question_id":"ID","is_correct":bool,"error_tag":"CORRECT或VALUE_ERROR/UNIT_ERROR/CALCULATION_ERROR/CONCEPT_ERROR/FORMAT_ERROR","feedback":"仅错题输出1句中文解析"}}],"overall_summary":"3句中文整体评价与建议"}}
+{{"answers":[{{"question_id":"ID","is_correct":bool,"error_tag":"CORRECT或VALUE_ERROR/UNIT_ERROR/CALCULATION_ERROR/CONCEPT_ERROR/FORMAT_ERROR","feedback":"仅错题：2-3句详细解析"}}],"overall_summary":"5句详细整体评价"}}
 
-规则：is_correct为true时不输出feedback字段。overall_summary包含得分{correct_count}/{total_count}、薄弱知识点和学习建议。"""
+错题feedback要求（2-3句）：
+- 第1句：指出学生犯了什么错误（概念混淆/计算失误/公式误用等）
+- 第2句：给出正确的物理思路和关键公式
+- 第3句：点明易错点或助记技巧
+is_correct为true时不输出feedback字段。
+
+overall_summary要求（5句）：
+- 得分统计：{correct_count}/{total_count}
+- 整体评价
+- 薄弱知识点归纳（按物理模块分类）
+- 具体学习建议
+- 鼓励性结语"""
 
     response = await ai_client.chat.completions.create(
         model=settings.OPENAI_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.0,
-        max_tokens=8192,
-        timeout=60.0,
+        max_tokens=16384,
+        timeout=120.0,
         extra_body={"reasoning_split": True}
     )
 
