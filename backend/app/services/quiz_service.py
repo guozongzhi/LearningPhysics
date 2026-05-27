@@ -152,8 +152,151 @@ def _evaluate_answer(student_input: str, answer_schema: Dict[str, Any]) -> bool:
     return False
 
 
+def _format_correct_answer_brief(question: Question) -> str:
+    """生成简短的正确答案展示字符串"""
+    ans_schema = question.answer_schema or {}
+    q_type = question.question_type
+    if q_type in ["CHOICE", "SINGLE_CHOICE"]:
+        return str(ans_schema.get("correct_answer", ""))
+    elif q_type == "MULTIPLE_CHOICE":
+        return ", ".join(ans_schema.get("correct_answers", []))
+    elif q_type == "TRUE_FALSE":
+        return "正确" if str(ans_schema.get("correct_answer")).lower() == "true" else "错误"
+    elif q_type == "BLANK":
+        return str(ans_schema.get("correct_answer", ""))
+    elif q_type == "CALCULATION":
+        return f"{ans_schema.get('correct_value')} {ans_schema.get('unit')}"
+    return ""
+
+
+def _clean_ai_content(content: str) -> str:
+    """清洗 AI 输出内容，提取 JSON"""
+    content = content.strip()
+    # 清理 reasoning 模型的 <think> 标签
+    if "<think>" in content:
+        think_end = content.find("</think>")
+        if think_end != -1:
+            content = content[think_end + 8:].strip()
+        else:
+            content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
+            content = re.sub(r'<think>[\s\S]*', '', content).strip()
+    # 去除 markdown 代码块标记
+    if content.startswith("```json"):
+        content = content[7:]
+    if content.startswith("```"):
+        content = content[3:]
+    if content.endswith("```"):
+        content = content[:-3]
+    content = content.strip()
+    # 兜底：提取 JSON 对象
+    json_start = content.find('{')
+    json_end = content.rfind('}')
+    if json_start != -1 and json_end != -1 and json_end > json_start:
+        content = content[json_start:json_end + 1]
+    return content
+
+
+async def _batch_evaluate(
+    ai_client: openai.AsyncClient,
+    questions: Dict[uuid.UUID, Question],
+    answers: List[StudentAnswer],
+    eval_results: Dict[uuid.UUID, bool],
+    correct_count: int
+) -> tuple:
+    """
+    批量评估方案：1 次 API 调用完成所有题目的对错判定 + 错题解析 + 总结报告。
+    使用 reasoning_split=true 分离思维链，max_tokens=8192。
+    返回 (analysis_dict, overall_summary, tokens_used)
+    """
+    total_count = len(answers)
+    items_list = []
+
+    for idx, answer in enumerate(answers):
+        q = questions.get(answer.question_id)
+        if not q:
+            continue
+        is_correct = eval_results.get(answer.question_id, False)
+        correct_str = _format_correct_answer_brief(q)
+        status = "正确" if is_correct else "错误"
+
+        items_list.append(
+            f"[题{idx+1}] ID:{answer.question_id} | 答案:{correct_str} | 学生:{answer.student_input} | {status}"
+        )
+        # 仅对错题提供题干和解题步骤，节省 Prompt Token
+        if not is_correct:
+            items_list.append(f"  题干: {q.content_latex}")
+            if q.solution_steps:
+                items_list.append(f"  解法: {q.solution_steps}")
+
+    all_items_str = "\n".join(items_list)
+
+    prompt = f"""你是物理测验批改API。直接输出JSON，第一个字符必须是{{。
+共{total_count}题，系统已预判对错。
+
+{all_items_str}
+
+JSON格式：
+{{"answers":[{{"question_id":"ID","is_correct":bool,"error_tag":"CORRECT或VALUE_ERROR/UNIT_ERROR/CALCULATION_ERROR/CONCEPT_ERROR/FORMAT_ERROR","feedback":"仅错题输出1句中文解析"}}],"overall_summary":"3句中文整体评价与建议"}}
+
+规则：is_correct为true时不输出feedback字段。overall_summary包含得分{correct_count}/{total_count}、薄弱知识点和学习建议。"""
+
+    response = await ai_client.chat.completions.create(
+        model=settings.OPENAI_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.0,
+        max_tokens=8192,
+        timeout=60.0,
+        extra_body={"reasoning_split": True}
+    )
+
+    raw_content = response.choices[0].message.content or ""
+    tokens_used = response.usage.total_tokens if response.usage else 0
+    content = _clean_ai_content(raw_content)
+
+    data = json.loads(content)
+    ai_answers = data.get("answers", [])
+    overall_summary = data.get("overall_summary", "")
+
+    # 构建 analysis_dict: question_id -> AnalysisResult
+    analysis_dict: Dict[uuid.UUID, AnalysisResult] = {}
+    # 将 AI 返回的按 question_id 索引
+    ai_answer_map = {}
+    for ai_ans in ai_answers:
+        qid_str = ai_ans.get("question_id", "")
+        try:
+            qid = uuid.UUID(qid_str)
+            ai_answer_map[qid] = ai_ans
+        except (ValueError, AttributeError):
+            continue
+
+    for answer in answers:
+        qid = answer.question_id
+        is_correct = eval_results.get(qid, False)
+        ai_ans = ai_answer_map.get(qid, {})
+
+        feedback = ai_ans.get("feedback", "")
+        error_tag = ai_ans.get("error_tag", "CORRECT" if is_correct else "AI_ERROR")
+
+        if is_correct:
+            feedback = feedback or "回答正确！"
+            error_tag = "CORRECT"
+
+        # 附加正确答案展示
+        q = questions.get(qid)
+        correct_answer_display = _format_correct_answer_brief(q) if q else ""
+
+        analysis_dict[qid] = AnalysisResult(
+            is_correct=is_correct,
+            feedback=feedback,
+            error_tag=error_tag,
+            correct_answer_display=correct_answer_display
+        )
+
+    return analysis_dict, overall_summary, tokens_used
+
+
 async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is_correct: bool, user: User) -> tuple[AnalysisResult, int]:
-    """Generates detailed feedback for any answer. Returns (AnalysisResult, token_usage)."""
+    """单题 AI 反馈（降级兜底路径，仅在批量评估失败时使用）。返回 (AnalysisResult, token_usage)。"""
     ai_client = get_client()
     if not ai_client:
         return AnalysisResult(
@@ -218,32 +361,18 @@ async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is
 如果回答正确，error_tag 固定为 "CORRECT"。
 如果回答错误，从以下选项中选一个最贴切的 error_tag：[VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR]
 不要包含 markdown 格式或其他多余的文本。"""
-
+    
     try:
         response = await get_client().chat.completions.create(
             model=settings.OPENAI_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
-            timeout=30.0,  # 30 seconds timeout for AI calls
+            max_tokens=2000,
+            timeout=30.0,
+            extra_body={"reasoning_split": True}
         )
-        # Parse the JSON and handle markdown blocks
-        content = response.choices[0].message.content.strip()
+        content = _clean_ai_content(response.choices[0].message.content or "")
         tokens = response.usage.total_tokens if response.usage else 0
-        
-        # Strip thinking process block (<think>...</think>) for reasoning models
-        if "<think>" in content:
-            think_end = content.find("</think>")
-            if think_end != -1:
-                content = content[think_end + 8:].strip()
-            else:
-                import re
-                content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
-                content = re.sub(r'<think>[\s\S]*', '', content).strip()
-                
-        if content.startswith("```json"):
-            content = content[7:-3].strip()
-        elif content.startswith("```"):
-            content = content[3:-3].strip()
         
         analysis_json = json.loads(content)
         return AnalysisResult(is_correct=is_correct, **analysis_json), tokens
@@ -259,11 +388,12 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
     """
     Service layer function to grade a submitted quiz and provide feedback.
     Yields NDJSON progress chunks, and final result.
+    
+    优化后的架构：1 次 API 调用完成全部评估（对错判定 + 错题解析 + 总结报告）。
+    如果批量调用失败，降级为逐题调用。
     """
     from app.models.models import User
     
-    # Needs to run in a db scope capable of concurrent commits if needed,
-    # but since it's an async generator, the db session remains open during iteration.
     user_result = await db.execute(select(User).where(User.id == user_id))
     user = user_result.scalar_one()
 
@@ -272,72 +402,154 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
     result = await db.execute(query)
     questions = {q.id: q for q in result.scalars().all()}
 
-    analysis_results: Dict[uuid.UUID, AnalysisResult] = {}
-    correct_count = 0
-    total_tokens_used = 0
-    
     total_answers = len(request_data.answers)
-    graded_count = 0
     
-    sem = asyncio.Semaphore(2)
-    
-    async def sem_feedback(q_obj, ans_obj, is_corr, user_obj):
-        async with sem:
-            return await _get_ai_feedback(q_obj, ans_obj, is_corr, user_obj)
-
-    feedback_tasks = []
-    task_map = {}
-
-    for i, answer in enumerate(request_data.answers):
+    # ========== Phase 1: 本地预判对错 ==========
+    eval_results: Dict[uuid.UUID, bool] = {}
+    correct_count = 0
+    for answer in request_data.answers:
         question = questions.get(answer.question_id)
         if not question:
             continue
-
         is_correct = _evaluate_answer(answer.student_input, question.answer_schema)
+        eval_results[answer.question_id] = is_correct
         if is_correct:
             correct_count += 1
-            
-        # Yield 'analyzing' status chunk before kicking off the task
-        progress_data = {"progress": graded_count, "total": total_answers, "status": "analyzing", "currentIndex": i}
-        yield json.dumps(progress_data) + "\n"
 
-        task = asyncio.create_task(sem_feedback(question, answer, is_correct, user))
-        feedback_tasks.append(task)
-        task_map[task] = answer.question_id
+    # 发送"评估中"进度
+    yield json.dumps({"progress": 0, "total": total_answers, "status": "analyzing"}) + "\n"
 
-    # We use asyncio.wait instead of as_completed to keep our internal mapping
-    pending = set(feedback_tasks)
-    while pending:
-        done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
-        for task in done:
-            q_id = task_map.get(task)
-            res, tokens = task.result()
-            analysis_results[q_id] = res
-            
-            # Add correct_answer_display
-            q = questions.get(q_id)
-            if q:
-                ans_schema = q.answer_schema or {}
-                q_type = q.question_type
-                if q_type in ["CHOICE", "SINGLE_CHOICE"]:
-                    res.correct_answer_display = str(ans_schema.get("correct_answer", ""))
-                elif q_type == "MULTIPLE_CHOICE":
-                    res.correct_answer_display = ", ".join(ans_schema.get("correct_answers", []))
-                elif q_type == "TRUE_FALSE":
-                    res.correct_answer_display = "正确" if str(ans_schema.get("correct_answer")).lower() == "true" else "错误"
-                elif q_type == "BLANK":
-                    res.correct_answer_display = str(ans_schema.get("correct_answer", ""))
-                elif q_type == "CALCULATION":
-                    res.correct_answer_display = f"{ans_schema.get('correct_value')} {ans_schema.get('unit')}"
+    analysis_results: Dict[uuid.UUID, AnalysisResult] = {}
+    total_tokens_used = 0
+    overall_summary = ""
 
-            total_tokens_used += tokens
-            graded_count += 1
-            
-            # Yield progress checkpoint
-            progress_data = {"progress": graded_count, "total": total_answers}
+    ai_client = get_client()
+    batch_success = False
+
+    # ========== Phase 2: 尝试批量 AI 评估（1 次 API 调用） ==========
+    if ai_client and user.token_usage < user.token_limit:
+        try:
+            analysis_results, overall_summary, total_tokens_used = await _batch_evaluate(
+                ai_client, questions, request_data.answers, eval_results, correct_count
+            )
+            batch_success = True
+            # 批量成功，发送完成进度
+            yield json.dumps({"progress": total_answers, "total": total_answers, "status": "analyzing"}) + "\n"
+        except Exception as e:
+            print(f"[submit_quiz] 批量评估失败，降级为逐题调用: {e}")
+            import traceback
+            traceback.print_exc()
+            batch_success = False
+
+    # ========== Phase 3: 降级路径 - 逐题调用 ==========
+    if not batch_success:
+        graded_count = 0
+        sem = asyncio.Semaphore(2)
+        
+        async def sem_feedback(q_obj, ans_obj, is_corr, user_obj):
+            async with sem:
+                return await _get_ai_feedback(q_obj, ans_obj, is_corr, user_obj)
+
+        feedback_tasks = []
+        task_map = {}
+
+        for i, answer in enumerate(request_data.answers):
+            question = questions.get(answer.question_id)
+            if not question:
+                continue
+
+            is_correct = eval_results.get(answer.question_id, False)
+            progress_data = {"progress": graded_count, "total": total_answers, "status": "analyzing", "currentIndex": i}
             yield json.dumps(progress_data) + "\n"
 
-    # Save exam records based on outcomes
+            task = asyncio.create_task(sem_feedback(question, answer, is_correct, user))
+            feedback_tasks.append(task)
+            task_map[task] = answer.question_id
+
+        pending = set(feedback_tasks)
+        while pending:
+            done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+            for task in done:
+                q_id = task_map.get(task)
+                res, tokens = task.result()
+                analysis_results[q_id] = res
+                
+                # Add correct_answer_display
+                q = questions.get(q_id)
+                if q:
+                    ans_schema = q.answer_schema or {}
+                    q_type = q.question_type
+                    if q_type in ["CHOICE", "SINGLE_CHOICE"]:
+                        res.correct_answer_display = str(ans_schema.get("correct_answer", ""))
+                    elif q_type == "MULTIPLE_CHOICE":
+                        res.correct_answer_display = ", ".join(ans_schema.get("correct_answers", []))
+                    elif q_type == "TRUE_FALSE":
+                        res.correct_answer_display = "正确" if str(ans_schema.get("correct_answer")).lower() == "true" else "错误"
+                    elif q_type == "BLANK":
+                        res.correct_answer_display = str(ans_schema.get("correct_answer", ""))
+                    elif q_type == "CALCULATION":
+                        res.correct_answer_display = f"{ans_schema.get('correct_value')} {ans_schema.get('unit')}"
+
+                total_tokens_used += tokens
+                graded_count += 1
+                yield json.dumps({"progress": graded_count, "total": total_answers}) + "\n"
+
+        # 降级路径的 summary 生成
+        yield json.dumps({"progress": graded_count, "total": total_answers, "status": "summarizing"}) + "\n"
+        
+        if ai_client and len(request_data.answers) > 0 and user.token_usage + total_tokens_used < user.token_limit:
+            try:
+                wrong_details = []
+                for answer in request_data.answers:
+                    q = questions.get(answer.question_id)
+                    ar = analysis_results.get(answer.question_id)
+                    if q and ar and not ar.is_correct:
+                        wrong_details.append(f"- 题目: {q.content_latex[:80]}，学生答: {answer.student_input}，错误类型: {ar.error_tag}")
+
+                summary_prompt = f"""你是一位资深高中物理教师。一位学生刚完成了一次物理测验。
+测验结果：答对 {correct_count}/{len(request_data.answers)} 题，得分 {(correct_count / len(request_data.answers)) * 100:.0f} 分。
+
+{'错题详情：' + chr(10).join(wrong_details) if wrong_details else '全部正确！'}
+
+请用中文写一段简短的整体分析报告（3-5句话），包含：
+1. 对学生表现的整体评价
+2. 薄弱知识点分析（如果有错题）
+3. 具体的学习建议
+
+不要使用 markdown 格式，直接输出纯文本。"""
+
+                summary_response = await ai_client.chat.completions.create(
+                    model=settings.OPENAI_MODEL,
+                    messages=[{"role": "user", "content": summary_prompt}],
+                    temperature=0.7,
+                    max_tokens=2000,
+                    timeout=30.0,
+                    extra_body={"reasoning_split": True}
+                )
+                overall_summary = _clean_ai_content(summary_response.choices[0].message.content or "")
+                # clean_ai_content 会提取 JSON，但 summary 是纯文本，如果不是 JSON 则直接使用
+                if not overall_summary.startswith('{'):
+                    overall_summary = (summary_response.choices[0].message.content or "").strip()
+                    # 仍需清理 think 标签
+                    if "<think>" in overall_summary:
+                        think_end = overall_summary.find("</think>")
+                        if think_end != -1:
+                            overall_summary = overall_summary[think_end + 8:].strip()
+                        else:
+                            overall_summary = re.sub(r'<think>[\s\S]*?</think>', '', overall_summary).strip()
+                            overall_summary = re.sub(r'<think>[\s\S]*', '', overall_summary).strip()
+                total_tokens_used += (summary_response.usage.total_tokens if summary_response.usage else 0)
+            except Exception as e:
+                total_score = (correct_count / len(request_data.answers)) * 100 if request_data.answers else 0
+                overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。"
+        else:
+            total_score = (correct_count / len(request_data.answers)) * 100 if request_data.answers else 0
+            if user.token_usage + total_tokens_used >= user.token_limit:
+                overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。[超额取消长分析]"
+            else:
+                overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。请配置 AI API 以获取更详细的分析。"
+
+    # ========== Phase 4: 保存记录并返回结果 ==========
     for answer in request_data.answers:
         if answer.question_id not in analysis_results:
             continue
@@ -354,66 +566,11 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
 
     total_score = (correct_count / len(request_data.answers)) * 100 if request_data.answers else 0
 
-    # Generate AI overall analysis summary
-    
-    # Yield 'summarizing' before the final API call
-    yield json.dumps({"progress": graded_count, "total": total_answers, "status": "summarizing"}) + "\n"
-    
-    overall_summary = ""
-    ai_client = get_client()
-    if ai_client and len(request_data.answers) > 0 and user.token_usage + total_tokens_used < user.token_limit:
-        try:
-            wrong_details = []
-            for answer in request_data.answers:
-                q = questions.get(answer.question_id)
-                ar = analysis_results.get(answer.question_id)
-                if q and ar and not ar.is_correct:
-                    wrong_details.append(f"- 题目: {q.content_latex[:80]}，学生答: {answer.student_input}，错误类型: {ar.error_tag}")
-
-            summary_prompt = f"""你是一位资深高中物理教师。一位学生刚完成了一次物理测验。
-测验结果：答对 {correct_count}/{len(request_data.answers)} 题，得分 {total_score:.0f} 分。
-
-{'错题详情：' + chr(10).join(wrong_details) if wrong_details else '全部正确！'}
-
-请用中文写一段简短的整体分析报告（3-5句话），包含：
-1. 对学生表现的整体评价
-2. 薄弱知识点分析（如果有错题）
-3. 具体的学习建议
-
-不要使用 markdown 格式，直接输出纯文本。"""
-
-            summary_response = await get_client().chat.completions.create(
-                model=settings.OPENAI_MODEL,
-                messages=[{"role": "user", "content": summary_prompt}],
-                temperature=0.7,
-                max_tokens=300,
-                timeout=30.0,  # 30 seconds timeout for summary generation
-            )
-            overall_summary = summary_response.choices[0].message.content.strip()
-            # Strip thinking process block (<think>...</think>) for reasoning models
-            if "<think>" in overall_summary:
-                think_end = overall_summary.find("</think>")
-                if think_end != -1:
-                    overall_summary = overall_summary[think_end + 8:].strip()
-                else:
-                    import re
-                    overall_summary = re.sub(r'<think>[\s\S]*?</think>', '', overall_summary).strip()
-                    overall_summary = re.sub(r'<think>[\s\S]*', '', overall_summary).strip()
-            total_tokens_used += (summary_response.usage.total_tokens if summary_response.usage else 0)
-        except Exception as e:
-            overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。"
-    else:
-        if user.token_usage + total_tokens_used >= user.token_limit:
-             overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。[超额取消长分析]"
-        else:
-             overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。请配置 AI API 以获取更详细的分析。"
-
     # Update token usage and commit
     user.token_usage += total_tokens_used
     await db.commit()
 
     # Yield final result
-    # Pydantic dict formatting
     serializable_analysis = {str(k): v.dict() for k, v in analysis_results.items()}
     final_data = {
         "result": {
