@@ -116,39 +116,81 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
   }
 
   if (status === "submitting" || status === "finished") {
-    const progressPercent = gradingProgress && gradingProgress.total > 0
-      ? Math.round((gradingProgress.progress / gradingProgress.total) * 100)
-      : 0;
+    // 根据后端 NDJSON 状态确定当前阶段
+    const phase = !gradingProgress ? 'preparing' :
+      gradingProgress.status === 'summarizing' ? 'summarizing' :
+      gradingProgress.progress === gradingProgress.total ? 'done' : 'analyzing';
+
+    const phases = [
+      { key: 'preparing', label: '提交试卷', icon: '📤' },
+      { key: 'analyzing', label: 'AI 智能批改', icon: '🧠' },
+      { key: 'done', label: '生成报告', icon: '📊' },
+    ];
+
+    const currentPhaseIndex = phase === 'preparing' ? 0 :
+      phase === 'analyzing' ? 1 :
+      phase === 'summarizing' ? 1 : 2;
 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-100 p-4">
+        {/* 旋转动画 */}
         <div className="relative w-24 h-24 mb-8">
           <div className="absolute inset-0 border-4 border-slate-700/50 rounded-full" />
           <div className="absolute inset-0 border-4 border-sky-400 rounded-full border-t-transparent animate-spin" />
-          <div className="absolute inset-0 flex items-center justify-center text-3xl">🧠</div>
-        </div>
-
-        <h2 className="text-2xl font-bold text-slate-100 mb-2">AI 智能评分中</h2>
-
-        <div className="w-full max-w-sm mb-6">
-          <div className="flex justify-between text-sm text-slate-400 mb-2">
-            <span>评分进度</span>
-            <span>{progressPercent}%</span>
-          </div>
-          <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-sky-500 to-cyan-400 transition-all duration-300 ease-out"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-          <div className="text-center mt-3 text-sm text-sky-400 font-medium">
-            {!gradingProgress ? '准备中...' :
-              gradingProgress.status === 'analyzing' && gradingProgress.currentIndex !== undefined ? `正在分析第 ${gradingProgress.currentIndex + 1} 题...` :
-                gradingProgress.status === 'summarizing' ? '总结整体情况中，请稍等...' :
-                  `已完成 ${gradingProgress.progress} / ${gradingProgress.total} 题`}
+          <div className="absolute inset-0 flex items-center justify-center text-3xl">
+            {phases[currentPhaseIndex]?.icon || '🧠'}
           </div>
         </div>
 
+        <h2 className="text-2xl font-bold text-slate-100 mb-6">AI 智能评分中</h2>
+
+        {/* 三段式步骤指示器 */}
+        <div className="w-full max-w-sm mb-8">
+          <div className="flex items-center justify-between">
+            {phases.map((p, i) => {
+              const isActive = i === currentPhaseIndex;
+              const isCompleted = i < currentPhaseIndex;
+              return (
+                <div key={p.key} className="flex flex-col items-center flex-1">
+                  {/* 步骤圆点 */}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg mb-2 transition-all duration-500 ${
+                    isCompleted ? 'bg-sky-500 text-white' :
+                    isActive ? 'bg-sky-500/20 border-2 border-sky-400 text-sky-300 animate-pulse' :
+                    'bg-slate-800 border-2 border-slate-700 text-slate-500'
+                  }`}>
+                    {isCompleted ? '✓' : p.icon}
+                  </div>
+                  {/* 步骤文字 */}
+                  <span className={`text-xs font-medium transition-colors duration-300 ${
+                    isActive ? 'text-sky-300' :
+                    isCompleted ? 'text-sky-400/70' :
+                    'text-slate-500'
+                  }`}>
+                    {p.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          {/* 连接线 */}
+          <div className="flex items-center mt-[-2.1rem] mb-6 px-[1.25rem]">
+            {[0, 1].map((i) => (
+              <div key={i} className={`flex-1 h-0.5 mx-1 transition-all duration-500 ${
+                i < currentPhaseIndex ? 'bg-sky-500' : 'bg-slate-700'
+              }`} />
+            ))}
+          </div>
+        </div>
+
+        {/* 提示文案 */}
+        <div className="text-center text-sm text-sky-400/80 font-medium mb-6">
+          {phase === 'preparing' && '正在提交试卷...'}
+          {phase === 'analyzing' && '正在分析全部题目，请稍候...'}
+          {phase === 'summarizing' && '即将完成，正在生成学情报告...'}
+          {phase === 'done' && '分析完成，即将跳转...'}
+        </div>
+
+        {/* 物理趣知识 */}
         <div className="text-center max-w-md min-h-[4rem]">
           <span className="block mb-2 text-sm text-sky-400/80 font-medium transition-opacity duration-500">
             {physicsFacts[factIndex]}
