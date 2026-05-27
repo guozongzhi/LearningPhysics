@@ -114,7 +114,6 @@ for i in range(20):
 
 def clean_think_tag(content: str) -> str:
     """提取大模型可能输出的思维推理段，并截断它"""
-    # 强制清理可能的 markdown 标记和首尾的推理文字，只保留 {} 区域
     content = content.strip()
     if "<think>" in content:
         think_end = content.find("</think>")
@@ -163,7 +162,7 @@ async def _get_ai_feedback_mock(q: Dict[str, Any], is_correct: bool, client) -> 
     action_text = "肯定学生的表现并深化理解" if is_correct else "分析错误原因（如概念混淆、计算失误等）并给出指引"
     
     prompt = f"""你是一个物理题目自动批改与解析 API。请直接返回一个 JSON 格式的对象。
-【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），禁止输出任何自我推理过程。第一个输出字符必须是 {{】
+【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），第一个输出字符必须是 {{】
 
 --- 题目 ---
 {q['content_latex']}
@@ -185,7 +184,7 @@ JSON 必须正好有 "feedback" 和 "error_tag" 两个字段：
     response = await client.chat.completions.create(
         model=settings.OPENAI_MODEL,
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.0, # 降低随机性，使模型更倾向于直接吐 JSON 而非说废话
+        temperature=0.0,
         timeout=30.0
     )
     content = clean_think_tag((response.choices[0].message.content or "").strip())
@@ -288,7 +287,7 @@ async def run_scheme_b(client) -> Dict[str, Any]:
     all_items_str = "\n".join(items_list)
 
     prompt = f"""你是一个物理测验批量批改 API。请直接返回一个标准的 JSON 格式对象。
-【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），禁止输出任何自我推理过程。第一个输出字符必须是 {{】
+【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），第一个输出字符必须是 {{】
 
 --- 题目列表与作答详情 ---
 {all_items_str}
@@ -300,7 +299,7 @@ async def run_scheme_b(client) -> Dict[str, Any]:
     response = await client.chat.completions.create(
         model=settings.OPENAI_MODEL,
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.0, # 强制为 0
+        temperature=0.0,
         max_tokens=4000,
         timeout=60.0
     )
@@ -326,9 +325,6 @@ async def run_scheme_b(client) -> Dict[str, Any]:
             print(f"[Scheme B] JSON structure incomplete. Answers count: {len(data.get('answers', []))}")
     except Exception as e:
         print(f"[Scheme B] JSON Parse error: {e}")
-        print(f"[Scheme B] raw_content length: {len(raw_content or '')}, finish_reason: {finish_reason}")
-        print(f"[Scheme B] First 300 chars: {repr(content[:300])}")
-        print(f"[Scheme B] Last 300 chars: {repr(content[-300:])}")
         
     duration = time.time() - start_time
     return {
@@ -339,12 +335,10 @@ async def run_scheme_b(client) -> Dict[str, Any]:
     }
 
 # =========================================================================
-# 方案 D：动态分批打包方案 (每 5 题一包，20 道题分 4 个 Batch，Semaphore=2)
+# 方案 D：动态分批打包方案 (每 5 题一包)
 # =========================================================================
 async def run_scheme_d(client) -> Dict[str, Any]:
     start_time = time.time()
-    
-    # 动态切片，安全大小调优为 5 题一包，规避 Token 截断
     batch_size = 5
     chunks = [MOCK_QUESTIONS[i:i + batch_size] for i in range(0, len(MOCK_QUESTIONS), batch_size)]
     
@@ -372,7 +366,7 @@ async def run_scheme_d(client) -> Dict[str, Any]:
             chunk_items_str = "\n".join(items_list)
 
             prompt = f"""你是一个物理题目分批评估 API。请直接返回一个标准的 JSON 对象，其顶级键为 "answers"。
-【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），禁止输出任何自我推理过程。第一个输出字符必须是 {{】
+【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），第一个输出字符必须是 {{】
 
 --- 题目列表与作答详情 ---
 {chunk_items_str}
@@ -383,12 +377,11 @@ async def run_scheme_d(client) -> Dict[str, Any]:
             response = await client.chat.completions.create(
                 model=settings.OPENAI_MODEL,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.0, # 强制为 0
+                temperature=0.0,
                 max_tokens=2500,
                 timeout=45.0
             )
             raw_chunk_content = response.choices[0].message.content
-            finish_reason = response.choices[0].finish_reason
             content = clean_think_tag((raw_chunk_content or "").strip())
                 
             t = response.usage.total_tokens if response.usage else 0
@@ -396,10 +389,6 @@ async def run_scheme_d(client) -> Dict[str, Any]:
                 data = json.loads(content)
                 return data.get("answers", []), t, True
             except Exception as e:
-                print(f"[Scheme D] Chunk {chunk_idx+1} JSON Parse error: {e}")
-                print(f"[Scheme D] raw_content length: {len(raw_chunk_content or '')}, finish_reason: {finish_reason}")
-                print(f"[Scheme D] First 300 chars: {repr(content[:300])}")
-                print(f"[Scheme D] Last 300 chars: {repr(content[-300:])}")
                 return [], t, False
 
     tasks = [evaluate_chunk(chunk, idx) for idx, chunk in enumerate(chunks)]
@@ -408,7 +397,6 @@ async def run_scheme_d(client) -> Dict[str, Any]:
     chunk_success = True
     for idx, res in enumerate(results):
         if isinstance(res, Exception):
-            print(f"[Scheme D] Chunk {idx+1} executed with exception: {res}")
             chunk_success = False
             continue
         answers_list, t, chunk_ok = res
@@ -447,16 +435,99 @@ async def run_scheme_d(client) -> Dict[str, Any]:
         "overall_summary": summary_text
     }
 
+# =========================================================================
+# 方案 E（混合分治方案）：阶段一（仅轻量对错判定与综合评估）+ 阶段二（模拟单题按需生成）
+# =========================================================================
+async def run_scheme_e(client) -> Dict[str, Any]:
+    start_time = time.time()
+    
+    # ------------------ 阶段 1：交卷（极简判定 + 综合评价） ------------------
+    items_list = []
+    for idx, q in enumerate(MOCK_QUESTIONS):
+        is_correct = _evaluate_answer(q["student_input"], q["answer_schema"])
+        correct_str = format_correct_answer(q)
+        items_list.append(f"""[题号 {idx + 1}]
+- 题目 ID: {q['id']}
+- 标准答案信息: {correct_str}
+- 学生作答: {q['student_input']}
+- 系统判定对错: {"正确" if is_correct else "错误"}
+------------------------""")
+
+    all_items_str = "\n".join(items_list)
+
+    prompt = f"""你是一个物理测验轻量判定 API。请直接返回一个标准的 JSON 对象。
+【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），禁止输出任何物理思路详细解析（feedback 字段不允许生成！），第一个输出字符必须是 {{】
+
+--- 题目列表与作答详情 ---
+{all_items_str}
+
+请在返回的 JSON 中，严格且仅包含：
+1. "answers": 列表，每个元素对应一道题的判定，必须包含且仅包含 "question_id"（与输入 ID 完全相同）、"is_correct"（布尔值）和 "error_tag"（判定错则从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 选择，正确则为 CORRECT）。
+2. "overall_summary": 纯文本，3-5句中文，对测验的整体评价、薄弱点和具体的物理建议，不要包含 markdown 标签。"""
+
+    response_p1 = await client.chat.completions.create(
+        model=settings.OPENAI_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.0,
+        max_tokens=1500,
+        timeout=30.0
+    )
+    
+    content_p1 = clean_think_tag((response_p1.choices[0].message.content or "").strip())
+    tokens_used = response_p1.usage.total_tokens if response_p1.usage else 0
+    
+    success_p1 = False
+    data_p1 = {}
+    try:
+        data_p1 = json.loads(content_p1)
+        if "answers" in data_p1 and len(data_p1["answers"]) == len(MOCK_QUESTIONS) and "overall_summary" in data_p1:
+            success_p1 = True
+    except Exception as e:
+        print(f"[Scheme E-P1] JSON Parse error: {e}. Content: {content_p1[:200]}")
+        
+    p1_duration = time.time() - start_time
+    
+    # ------------------ 阶段 2：延迟按需生成（模拟生成 1 道错题的反馈） ------------------
+    # 找到 1 道错题进行延迟评估生成测试
+    target_q = None
+    for q in MOCK_QUESTIONS:
+        if not _evaluate_answer(q["student_input"], q["answer_schema"]):
+            target_q = q
+            break
+            
+    p2_duration = 0
+    success_p2 = False
+    p2_tokens = 0
+    
+    if target_q and success_p1:
+        p2_start = time.time()
+        try:
+            res_data, t = await _get_ai_feedback_mock(target_q, False, client)
+            p2_tokens = t
+            success_p2 = "feedback" in res_data
+        except Exception as e:
+            print(f"[Scheme E-P2] Single feedback failed: {e}")
+        p2_duration = time.time() - p2_start
+        
+    return {
+        "p1_duration": p1_duration,
+        "p2_duration": p2_duration,
+        "tokens": tokens_used + p2_tokens,
+        "success": success_p1,
+        "p2_success": success_p2,
+        "overall_summary": data_p1.get("overall_summary", "") if success_p1 else ""
+    }
+
 async def main():
-    print("=" * 80)
-    print("开始 20 道物理题目(多于10题场景) AI 评估优化对比测试 (开发测试)")
+    print("=" * 85)
+    print("开始 20 道物理题目 AI 评估优化对比测试 (新增方案 E)")
     print(f"当前 API 模型配置: {settings.OPENAI_MODEL}")
     print(f"API 节点地址: {settings.OPENAI_BASE_URL}")
-    print("=" * 80)
+    print("=" * 85)
     
     client = get_client()
     if not client:
-        print("错误: 未配置大模型 API，请检查环境变量。")
+        print("错误: 未配置大模型 API。")
         return
         
     # 1. 运行方案 A
@@ -465,16 +536,16 @@ async def main():
         res_a = await run_scheme_a(client)
         print(f"-> 方案 A 完成！耗时: {res_a['duration']:.2f}s, Token: {res_a['tokens']}, 成功率: {res_a['success']}")
     except Exception as e:
-        print(f"-> 方案 A 执行崩溃: {e}")
+        print(f"-> 方案 A 崩溃: {e}")
         res_a = {"duration": 0, "tokens": 0, "success": False}
         
     # 2. 运行方案 B
-    print("\n[方案 B] 启动：20 题一次性打包合并评估 (观察是否被截断) ...")
+    print("\n[方案 B] 启动：20 题一次性打包合并评估 ...")
     try:
         res_b = await run_scheme_b(client)
         print(f"-> 方案 B 完成！耗时: {res_b['duration']:.2f}s, Token: {res_b['tokens']}, 成功率: {res_b['success']}")
     except Exception as e:
-        print(f"-> 方案 B 执行崩溃: {e}")
+        print(f"-> 方案 B 崩溃: {e}")
         res_b = {"duration": 0, "tokens": 0, "success": False}
 
     # 3. 运行方案 D
@@ -483,23 +554,31 @@ async def main():
         res_d = await run_scheme_d(client)
         print(f"-> 方案 D 完成！耗时: {res_d['duration']:.2f}s, Token: {res_d['tokens']}, 成功率: {res_d['success']}")
     except Exception as e:
-        print(f"-> 方案 D 执行崩溃: {e}")
+        print(f"-> 方案 D 崩溃: {e}")
         res_d = {"duration": 0, "tokens": 0, "success": False}
 
+    # 4. 运行方案 E
+    print("\n[方案 E] 启动：混合分治方案 (P1极简判定 + P2按需单题生成) ...")
+    try:
+        res_e = await run_scheme_e(client)
+        print(f"-> 方案 E 完成！P1(交卷)耗时: {res_e['p1_duration']:.2f}s, P2(单题)耗时: {res_e['p2_duration']:.2f}s, Token: {res_e['tokens']}, 成功率: {res_e['success']}")
+    except Exception as e:
+        print(f"-> 方案 E 崩溃: {e}")
+        res_e = {"p1_duration": 0, "p2_duration": 0, "tokens": 0, "success": False, "p2_success": False}
+
     # 输出性能对比表格
-    print("\n" + "=" * 85)
-    print(f"{'方案名称':<30} | {'总耗时(秒)':<10} | {'消耗Token数':<12} | {'API请求数':<10} | {'执行成功':<8}")
-    print("-" * 85)
-    print(f"{'方案 A (分步并行 Semaphore=2)':<30} | {res_a['duration']:<10.2f} | {res_a['tokens']:<12} | {'21':<10} | {str(res_a['success']):<8}")
-    print(f"{'方案 B (20 题一次打包合并)':<30} | {res_b['duration']:<10.2f} | {res_b['tokens']:<12} | {'1':<10} | {str(res_b['success']):<8}")
-    print(f"{'方案 D (动态分批打包 - 5题一包)':<30} | {res_d['duration']:<10.2f} | {res_d['tokens']:<12} | {'5':<10} | {str(res_d['success']):<8}")
-    print("=" * 85)
+    print("\n" + "=" * 95)
+    print(f"{'方案名称':<35} | {'交卷耗时(秒)':<12} | {'单题耗时(秒)':<12} | {'Token 消耗':<10} | {'API请求数':<8} | {'交卷成功':<8}")
+    print("-" * 95)
+    print(f"{'方案 A (原分步限速 Semaphore=2)':<35} | {res_a['duration']:<12.2f} | {'N/A':<12} | {res_a['tokens']:<10} | {'21':<8} | {str(res_a['success']):<8}")
+    print(f"{'方案 B (20 题打包合并)':<35} | {res_b['duration']:<12.2f} | {'N/A':<12} | {res_b['tokens']:<10} | {'1':<8} | {str(res_b['success']):<8}")
+    print(f"{'方案 D (每 5 题打包分组)':<35} | {res_d['duration']:<12.2f} | {'N/A':<12} | {res_d['tokens']:<10} | {'5':<8} | {str(res_d['success']):<8}")
+    print(f"{'方案 E (轻量交卷+延迟生成 - 建议)':<35} | {res_e['p1_duration']:<12.2f} | {res_e['p2_duration']:<12.2f} | {res_e['tokens']:<10} | {'1 + 1':<8} | {str(res_e['success']):<8}")
+    print("=" * 95)
     
-    print("\n[方案 B 评估总结报告示例]:")
-    print(res_b.get("overall_summary") or "N/A")
-    print("\n[方案 D 评估总结报告示例]:")
-    print(res_d.get("overall_summary") or "N/A")
-    print("=" * 85)
+    print("\n[方案 E 整体报告示例]:")
+    print(res_e.get("overall_summary") or "N/A")
+    print("=" * 95)
 
 if __name__ == "__main__":
     asyncio.run(main())
