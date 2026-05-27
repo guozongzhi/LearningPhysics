@@ -143,6 +143,32 @@ async def delete_student(
     if student.is_admin:
         api_logger.warning(f"删除学生失败 - 无法删除管理员: {student.username}")
         raise HTTPException(status_code=400, detail="Cannot delete admin user")
+        
+    from sqlalchemy import delete
+    from app.models.models import (
+        TopicDocument, TopicDocumentCollaborator, TopicDocumentNode,
+        TopicDocumentVersion, TopicDocumentActivity, Media, UserMastery, ExamRecord
+    )
+    
+    # 1. 清理该用户拥有的所有文档及其关联数据
+    doc_result = await db.execute(select(TopicDocument.id).where(TopicDocument.owner_id == student_id))
+    doc_ids = [row[0] for row in doc_result.all()]
+    if doc_ids:
+        await db.execute(delete(TopicDocumentCollaborator).where(TopicDocumentCollaborator.document_id.in_(doc_ids)))
+        await db.execute(delete(TopicDocumentNode).where(TopicDocumentNode.document_id.in_(doc_ids)))
+        await db.execute(delete(TopicDocumentVersion).where(TopicDocumentVersion.document_id.in_(doc_ids)))
+        await db.execute(delete(TopicDocumentActivity).where(TopicDocumentActivity.document_id.in_(doc_ids)))
+        await db.execute(delete(TopicDocument).where(TopicDocument.id.in_(doc_ids)))
+        
+    # 2. 清理该用户作为实体被关联到的其他表记录
+    await db.execute(delete(TopicDocumentCollaborator).where(TopicDocumentCollaborator.user_id == student_id))
+    await db.execute(delete(TopicDocumentActivity).where(TopicDocumentActivity.user_id == student_id))
+    await db.execute(delete(TopicDocumentVersion).where(TopicDocumentVersion.edited_by == student_id))
+    await db.execute(delete(Media).where(Media.owner_id == student_id))
+    await db.execute(delete(UserMastery).where(UserMastery.user_id == student_id))
+    await db.execute(delete(ExamRecord).where(ExamRecord.user_id == student_id))
+    
+    # 3. 删除用户本身
     await db.delete(student)
     await db.commit()
     api_logger.debug(f"学生删除成功 - 管理员: {admin.username}, 学生: {student.username}")
