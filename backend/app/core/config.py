@@ -52,6 +52,13 @@ class Settings(BaseSettings):
                 )
 
 
+# 强行覆写环境变量以保证持久化配置的最高优先级，避免被 docker-compose 注入的默认空变量覆盖
+import os
+import dotenv
+for env_file_path in ["data/backend.env", "/app/data/backend.env"]:
+    if os.path.exists(env_file_path):
+        dotenv.load_dotenv(env_file_path, override=True)
+
 settings = Settings()
 
 # Validate settings on startup
