@@ -390,6 +390,15 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
                 timeout=15.0,  # 15 seconds timeout for summary generation
             )
             overall_summary = summary_response.choices[0].message.content.strip()
+            # Strip thinking process block (<think>...</think>) for reasoning models
+            if "<think>" in overall_summary:
+                think_end = overall_summary.find("</think>")
+                if think_end != -1:
+                    overall_summary = overall_summary[think_end + 8:].strip()
+                else:
+                    import re
+                    overall_summary = re.sub(r'<think>[\s\S]*?</think>', '', overall_summary).strip()
+                    overall_summary = re.sub(r'<think>[\s\S]*', '', overall_summary).strip()
             total_tokens_used += (summary_response.usage.total_tokens if summary_response.usage else 0)
         except Exception as e:
             overall_summary = f"本次测验得分 {total_score:.0f} 分，答对 {correct_count}/{len(request_data.answers)} 题。"
