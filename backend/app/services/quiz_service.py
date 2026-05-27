@@ -448,13 +448,24 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
                 _batch_evaluate(ai_client, questions, request_data.answers, eval_results, correct_count)
             )
             heartbeat_count = 0
+            # 动态阶段文案，每 5 秒轮换
+            stage_messages = [
+                "正在判定每道题的对错...",
+                "正在分析错题原因...",
+                "正在生成详细解题步骤...",
+                "正在归纳薄弱知识点...",
+                "正在撰写学习建议...",
+                "正在生成学情报告...",
+                "即将完成，请稍等...",
+            ]
             while not batch_task.done():
                 try:
                     await asyncio.wait_for(asyncio.shield(batch_task), timeout=5.0)
                 except asyncio.TimeoutError:
                     # AI 还没返回，发送心跳保持连接存活
                     heartbeat_count += 1
-                    yield json.dumps({"progress": 0, "total": total_answers, "status": "analyzing", "heartbeat": heartbeat_count}) + "\n"
+                    msg = stage_messages[min(heartbeat_count - 1, len(stage_messages) - 1)]
+                    yield json.dumps({"progress": 0, "total": total_answers, "status": "analyzing", "heartbeat": heartbeat_count, "message": msg}) + "\n"
 
             # 获取结果（如有异常会在此抛出）
             analysis_results, overall_summary, total_tokens_used = batch_task.result()
@@ -602,7 +613,8 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
         "result": {
             "total_score": total_score,
             "analysis": serializable_analysis,
-            "overall_summary": overall_summary
+            "overall_summary": overall_summary,
+            "model_name": settings.OPENAI_MODEL or "AI"
         }
     }
     yield json.dumps(final_data) + "\n"

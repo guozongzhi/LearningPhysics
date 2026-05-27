@@ -182,10 +182,10 @@ export default function QuizPage({ params }: { params: Promise<{ quizId: string 
           </div>
         </div>
 
-        {/* 提示文案 */}
-        <div className="text-center text-sm text-sky-400/80 font-medium mb-6">
+        {/* 提示文案 - 显示后端推送的动态阶段 */}
+        <div className="text-center text-sm text-sky-400/80 font-medium mb-6 min-h-[1.5rem] transition-all duration-300">
           {phase === 'preparing' && '正在提交试卷...'}
-          {phase === 'analyzing' && '正在分析全部题目，请稍候...'}
+          {phase === 'analyzing' && (gradingProgress?.message || '正在分析全部题目，请稍候...')}
           {phase === 'summarizing' && '即将完成，正在生成学情报告...'}
           {phase === 'done' && '分析完成，即将跳转...'}
         </div>

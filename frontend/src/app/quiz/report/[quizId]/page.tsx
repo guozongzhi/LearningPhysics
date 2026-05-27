@@ -79,7 +79,9 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
               </div>
               <div>
                 <CardTitle className="text-lg font-bold text-white/90 tracking-tight">AI 综合学情评价</CardTitle>
-                <CardDescription className="text-slate-600 font-bold text-[9px] uppercase tracking-widest">Logic Generation Engine</CardDescription>
+                <CardDescription className="text-slate-600 font-bold text-[9px] uppercase tracking-widest">
+                  Powered by {report.model_name || "AI"}
+                </CardDescription>
               </div>
             </CardHeader>
             <CardContent className="pt-5 pb-8 px-8">
