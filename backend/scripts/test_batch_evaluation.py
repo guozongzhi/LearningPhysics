@@ -153,6 +153,9 @@ async def _get_ai_feedback_mock(q: Dict[str, Any], is_correct: bool, client) -> 
     correct_str = format_correct_answer(q)
     status_str = "正确回答" if is_correct else "错误回答"
     
+    # 提前定义好条件分支的文本，避免在 f-string 内使用复杂的逻辑和 \n
+    action_text = "肯定学生的表现并深化理解" if is_correct else "分析错误原因（如概念混淆、计算失误等）并给出指引"
+    
     prompt = f"""你是一位资深高中物理教师。一位学生{status_str}了以下题目，请给出详细的解析。
 
 --- 题目 ---
@@ -168,7 +171,7 @@ async def _get_ai_feedback_mock(q: Dict[str, Any], is_correct: bool, client) -> 
 {q['student_input']}
 
 请用中文写出详细的解析（3-5句话），包含：
-1. {"肯定学生的表现并深化理解" if is_correct else "分析错误原因（如概念混淆、计算失误等）并给出指引"}
+1. {action_text}
 2. 详细的物理思路和关联的知识点
 3. 如果是多选题或单选题，请解释为什么选项正确或错误
 4. 鼓励性的结尾
@@ -196,10 +199,15 @@ async def _get_ai_feedback_mock(q: Dict[str, Any], is_correct: bool, client) -> 
 
 async def _get_ai_summary_mock(correct_count: int, total_count: int, wrong_details: List[str], client) -> tuple[str, int]:
     """方案 A 综合报告的 AI 评估模拟"""
-    summary_prompt = f"""你是一位资深高中物理教师。一位学生刚完成了一次物理测验。
-测验结果：答对 {correct_count}/{total_count} 题，得分 {int(correct_count/total_count*100)} 分。
+    # 规避 f-string 中包含换行符 \n 的语法限制
+    details_str = "\n".join(wrong_details) if wrong_details else "全部正确！"
+    score = int(correct_count / total_count * 100)
+    
+    summary_prompt = f"""你是一位资深高中物理教师。一位 student 刚完成了一次物理测验。
+测验结果：答对 {correct_count}/{total_count} 题，得分 {score} 分。
 
-{'错题详情：' + '\n'.join(wrong_details) if wrong_details else '全部正确！'}
+错题详情：
+{details_str}
 
 请用中文写一段简短的整体分析报告（3-5句话），包含：
 1. 对学生表现的整体评价
@@ -277,11 +285,11 @@ async def run_scheme_a(client) -> Dict[str, Any]:
 async def run_scheme_b(client) -> Dict[str, Any]:
     start_time = time.time()
     
-    items_str = []
+    items_list = []
     for idx, q in enumerate(MOCK_QUESTIONS):
         is_correct = _evaluate_answer(q["student_input"], q["answer_schema"])
         correct_str = format_correct_answer(q)
-        items_str.append(f"""[题号 {idx + 1}]
+        items_list.append(f"""[题号 {idx + 1}]
 - 题目 ID: {q['id']}
 - 题干: {q['content_latex']}
 - 标准答案信息: {correct_str}
@@ -290,11 +298,14 @@ async def run_scheme_b(client) -> Dict[str, Any]:
 - 系统初步判定对错: {"正确" if is_correct else "错误"}
 ------------------------""")
 
+    # 外置反斜杠拼接，避免在 f-string 大括号里包含它
+    all_items_str = "\n".join(items_list)
+
     prompt = f"""你是一位资深高中物理教师。以下是一位学生刚完成的物理测验，共包含了 10 道题目。
 请对每道题目学生的答案进行批改和解析，并给出整份测验的综合评估。
 
 --- 题目列表与作答详情 ---
-{chr(10).join(items_str)}
+{all_items_str}
 
 请以严格的 JSON 格式返回，包含：
 1. "answers": 列表，每个元素对应一道题的评估，必须包含 "question_id"、"is_correct"（布尔值）、"feedback"（中文解析 3-5 句）和 "error_tag"（若系统判定错，从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 中选择最贴切的一个，正确则为 CORRECT）。
@@ -319,6 +330,7 @@ async def run_scheme_b(client) -> Dict[str, Any]:
     
     # 验证解析
     success = False
+    data = {}
     try:
         data = json.loads(content)
         if "answers" in data and len(data["answers"]) == len(MOCK_QUESTIONS) and "overall_summary" in data:
@@ -355,11 +367,11 @@ async def run_scheme_c(client) -> Dict[str, Any]:
     wrong_details = []
     
     async def evaluate_group(group: List[Dict[str, Any]], group_idx: int) -> tuple[List[Dict[str, Any]], int]:
-        items_str = []
+        items_list = []
         for idx, q in enumerate(group):
             is_correct = _evaluate_answer(q["student_input"], q["answer_schema"])
             correct_str = format_correct_answer(q)
-            items_str.append(f"""[题号 {group_idx * 5 + idx + 1}]
+            items_list.append(f"""[题号 {group_idx * 5 + idx + 1}]
 - 题目 ID: {q['id']}
 - 题干: {q['content_latex']}
 - 标准答案信息: {correct_str}
@@ -368,11 +380,13 @@ async def run_scheme_c(client) -> Dict[str, Any]:
 - 系统初步判定对错: {"正确" if is_correct else "错误"}
 ------------------------""")
 
+        group_items_str = "\n".join(items_list)
+
         prompt = f"""你是一位资深高中物理教师。以下是一个测验中的 5 道题目。
 请对每道题目学生的答案进行批改和解析。
 
 --- 题目列表与作答详情 ---
-{chr(10).join(items_str)}
+{group_items_str}
 
 请以严格的 JSON 格式返回一个包含 "answers" 字段的对象。
 "answers" 是一个列表，每个元素对应一道题的评估，必须包含 "question_id"、"is_correct"（布尔值）、"feedback"（中文解析 3-5 句）和 "error_tag"（若系统判定错，从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 中选择，正确则为 CORRECT）。
