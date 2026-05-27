@@ -229,6 +229,17 @@ async def _get_ai_feedback(question: Question, student_answer: StudentAnswer, is
         # Parse the JSON and handle markdown blocks
         content = response.choices[0].message.content.strip()
         tokens = response.usage.total_tokens if response.usage else 0
+        
+        # Strip thinking process block (<think>...</think>) for reasoning models
+        if "<think>" in content:
+            think_end = content.find("</think>")
+            if think_end != -1:
+                content = content[think_end + 8:].strip()
+            else:
+                import re
+                content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
+                content = re.sub(r'<think>[\s\S]*', '', content).strip()
+                
         if content.startswith("```json"):
             content = content[7:-3].strip()
         elif content.startswith("```"):
@@ -267,6 +278,12 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
     
     total_answers = len(request_data.answers)
     graded_count = 0
+    
+    sem = asyncio.Semaphore(2)
+    
+    async def sem_feedback(q_obj, ans_obj, is_corr, user_obj):
+        async with sem:
+            return await _get_ai_feedback(q_obj, ans_obj, is_corr, user_obj)
 
     feedback_tasks = []
     task_map = {}
@@ -284,7 +301,7 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
         progress_data = {"progress": graded_count, "total": total_answers, "status": "analyzing", "currentIndex": i}
         yield json.dumps(progress_data) + "\n"
 
-        task = asyncio.create_task(_get_ai_feedback(question, answer, is_correct, user))
+        task = asyncio.create_task(sem_feedback(question, answer, is_correct, user))
         feedback_tasks.append(task)
         task_map[task] = answer.question_id
 
