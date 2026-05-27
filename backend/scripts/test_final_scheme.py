@@ -142,17 +142,15 @@ def format_correct_answer_brief(q: Dict[str, Any]) -> str:
 
 
 # =========================================================================
-# 最终方案 F：reasoning_split + 仅错题解析 + 20题一次打包
+# 通用方案运行器：reasoning_split + 仅错题解析 + 可变 max_tokens
 # =========================================================================
-async def run_scheme_f(client) -> Dict[str, Any]:
-    start_time = time.time()
-
-    # 准备题目及预判结果
+def build_prompt(questions: List[Dict[str, Any]]) -> tuple:
+    """构建 Prompt，返回 (prompt_str, correct_count, wrong_count)"""
     items_list = []
     correct_count = 0
-    wrong_indices = []
+    wrong_count = 0
 
-    for idx, q in enumerate(MOCK_QUESTIONS):
+    for idx, q in enumerate(questions):
         is_correct = _evaluate_answer(q["student_input"], q["answer_schema"])
         correct_str = format_correct_answer_brief(q)
         status = "正确" if is_correct else "错误"
@@ -160,142 +158,63 @@ async def run_scheme_f(client) -> Dict[str, Any]:
         if is_correct:
             correct_count += 1
         else:
-            wrong_indices.append(idx)
+            wrong_count += 1
 
-        items_list.append(f"[题{idx+1}] ID:{q['id']} | 标准答案:{correct_str} | 学生答:{q['student_input']} | 判定:{status}")
-        # 对错题额外提供题干和解题步骤
+        items_list.append(f"[题{idx+1}] ID:{q['id']} | 答案:{correct_str} | 学生:{q['student_input']} | {status}")
         if not is_correct:
             items_list.append(f"  题干: {q['content_latex']}")
-            items_list.append(f"  解题步骤: {q['solution_steps']}")
+            items_list.append(f"  解法: {q['solution_steps']}")
 
     all_items_str = "\n".join(items_list)
-    wrong_count = len(wrong_indices)
-    total_count = len(MOCK_QUESTIONS)
+    total_count = len(questions)
 
-    prompt = f"""你是一个物理测验批量批改 API。请直接返回一个标准 JSON 对象。
-第一个输出字符必须是 {{，严禁输出 markdown 标记或任何前言。
-
-共 {total_count} 题，已由系统预判对错（判定为"正确"的无需生成 feedback）。
+    prompt = f"""你是物理测验批改API。直接输出JSON，第一个字符必须是{{。
+共{total_count}题，系统已预判对错。
 
 {all_items_str}
 
-请返回以下 JSON 结构：
-1. "answers": 列表（{total_count} 个元素），每个元素包含：
-   - "question_id": 与输入 ID 严格一致
-   - "is_correct": 布尔值
-   - "error_tag": 正确为 "CORRECT"；错误从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 选一个
-   - "feedback": 仅当 is_correct 为 false 时才生成（中文 2-3 句简要物理解析）。is_correct 为 true 时不要输出此字段。
-2. "overall_summary": 纯文本，3-5句中文，包含整体评价、薄弱知识点和学习建议。"""
+JSON格式：
+{{"answers":[{{"question_id":"ID","is_correct":bool,"error_tag":"CORRECT或VALUE_ERROR/UNIT_ERROR/CALCULATION_ERROR/CONCEPT_ERROR/FORMAT_ERROR","feedback":"仅错题输出1句中文解析"}}],"overall_summary":"3句中文整体评价与建议"}}
 
-    # 使用 reasoning_split=true 将思考链分离到独立字段
-    response = await client.chat.completions.create(
-        model=settings.OPENAI_MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.0,
-        max_tokens=3000,
-        timeout=60.0,
-        extra_body={"reasoning_split": True}
-    )
+规则：is_correct为true时不输出feedback字段。"""
+
+    return prompt, correct_count, wrong_count
+
+
+async def run_test(client, label: str, max_tokens: int, use_split: bool) -> Dict[str, Any]:
+    """运行单次测试"""
+    start_time = time.time()
+    prompt, correct_count, wrong_count = build_prompt(MOCK_QUESTIONS)
+    total_count = len(MOCK_QUESTIONS)
+
+    kwargs = {
+        "model": settings.OPENAI_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.0,
+        "max_tokens": max_tokens,
+        "timeout": 120.0,
+    }
+    if use_split:
+        kwargs["extra_body"] = {"reasoning_split": True}
+
+    response = await client.chat.completions.create(**kwargs)
 
     raw_content = response.choices[0].message.content or ""
     finish_reason = response.choices[0].finish_reason
-    content = clean_content(raw_content)
     tokens_used = response.usage.total_tokens if response.usage else 0
 
-    print(f"  [调试] raw_content 长度: {len(raw_content)}, finish_reason: {finish_reason}")
-    print(f"  [调试] clean_content 前 300 字符: {repr(content[:300])}")
+    # 尝试获取 reasoning tokens 信息
+    reasoning_tokens = 0
+    completion_tokens = 0
+    if response.usage:
+        completion_tokens = getattr(response.usage, 'completion_tokens', 0) or 0
+        # MiniMax 可能在 completion_tokens_details 或其他字段返回 reasoning tokens
+        details = getattr(response.usage, 'completion_tokens_details', None)
+        if details:
+            reasoning_tokens = getattr(details, 'reasoning_tokens', 0) or 0
 
-    success = False
-    data = {}
-    try:
-        data = json.loads(content)
-        answers = data.get("answers", [])
-        summary = data.get("overall_summary", "")
-        if len(answers) == total_count and summary:
-            # 校验 ID 对应
-            received_ids = {ans.get("question_id") for ans in answers}
-            expected_ids = {q["id"] for q in MOCK_QUESTIONS}
-            if received_ids == expected_ids:
-                # 校验错题是否有 feedback
-                wrong_with_feedback = sum(
-                    1 for ans in answers
-                    if not ans.get("is_correct") and ans.get("feedback")
-                )
-                print(f"  [调试] 错题数: {wrong_count}, 有 feedback 的错题数: {wrong_with_feedback}")
-                success = True
-            else:
-                missing = expected_ids - received_ids
-                print(f"  [调试] ID 不匹配，缺少: {missing}")
-        else:
-            print(f"  [调试] answers 数量: {len(answers)}, summary 长度: {len(summary)}")
-    except Exception as e:
-        print(f"  [调试] JSON 解析失败: {e}")
-        print(f"  [调试] 原始 content 前 500 字符: {repr(content[:500])}")
-        print(f"  [调试] 原始 content 后 500 字符: {repr(content[-500:])}")
-
-    duration = time.time() - start_time
-    return {
-        "duration": duration,
-        "tokens": tokens_used,
-        "success": success,
-        "correct_count": correct_count,
-        "wrong_count": wrong_count,
-        "overall_summary": data.get("overall_summary", "") if success else "",
-        "finish_reason": finish_reason
-    }
-
-
-# =========================================================================
-# 对照方案 F_NO_SPLIT：不使用 reasoning_split（控制变量对比）
-# =========================================================================
-async def run_scheme_f_no_split(client) -> Dict[str, Any]:
-    start_time = time.time()
-
-    items_list = []
-    correct_count = 0
-
-    for idx, q in enumerate(MOCK_QUESTIONS):
-        is_correct = _evaluate_answer(q["student_input"], q["answer_schema"])
-        correct_str = format_correct_answer_brief(q)
-        status = "正确" if is_correct else "错误"
-        if is_correct:
-            correct_count += 1
-        items_list.append(f"[题{idx+1}] ID:{q['id']} | 标准答案:{correct_str} | 学生答:{q['student_input']} | 判定:{status}")
-        if not is_correct:
-            items_list.append(f"  题干: {q['content_latex']}")
-            items_list.append(f"  解题步骤: {q['solution_steps']}")
-
-    all_items_str = "\n".join(items_list)
-    total_count = len(MOCK_QUESTIONS)
-
-    prompt = f"""你是一个物理测验批量批改 API。请直接返回一个标准 JSON 对象。
-第一个输出字符必须是 {{，严禁输出 markdown 标记或任何前言。
-
-共 {total_count} 题，已由系统预判对错（判定为"正确"的无需生成 feedback）。
-
-{all_items_str}
-
-请返回以下 JSON 结构：
-1. "answers": 列表（{total_count} 个元素），每个元素包含：
-   - "question_id": 与输入 ID 严格一致
-   - "is_correct": 布尔值
-   - "error_tag": 正确为 "CORRECT"；错误从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 选一个
-   - "feedback": 仅当 is_correct 为 false 时才生成（中文 2-3 句简要物理解析）。is_correct 为 true 时不要输出此字段。
-2. "overall_summary": 纯文本，3-5句中文，包含整体评价、薄弱知识点和学习建议。"""
-
-    # 不使用 reasoning_split（对照组）
-    response = await client.chat.completions.create(
-        model=settings.OPENAI_MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.0,
-        max_tokens=3000,
-        timeout=60.0
-    )
-
-    raw_content = response.choices[0].message.content or ""
-    finish_reason = response.choices[0].finish_reason
-    # 对照组需要先清理 think 标签
-    if "<think>" in raw_content:
+    # 不使用 split 时手动清理 think 标签
+    if not use_split and "<think>" in raw_content:
         think_end = raw_content.find("</think>")
         if think_end != -1:
             raw_content = raw_content[think_end + 8:].strip()
@@ -303,9 +222,9 @@ async def run_scheme_f_no_split(client) -> Dict[str, Any]:
             raw_content = re.sub(r'<think>[\s\S]*', '', raw_content).strip()
 
     content = clean_content(raw_content)
-    tokens_used = response.usage.total_tokens if response.usage else 0
 
-    print(f"  [调试-无split] raw_content 长度: {len(raw_content)}, finish_reason: {finish_reason}")
+    print(f"  [{label}] content长度: {len(content)}, finish: {finish_reason}, total_tokens: {tokens_used}, completion: {completion_tokens}, reasoning: {reasoning_tokens}")
+    print(f"  [{label}] 前200字符: {repr(content[:200])}")
 
     success = False
     data = {}
@@ -314,64 +233,89 @@ async def run_scheme_f_no_split(client) -> Dict[str, Any]:
         answers = data.get("answers", [])
         summary = data.get("overall_summary", "")
         if len(answers) == total_count and summary:
-            success = True
+            received_ids = {ans.get("question_id") for ans in answers}
+            expected_ids = {q["id"] for q in MOCK_QUESTIONS}
+            if received_ids == expected_ids:
+                wrong_with_fb = sum(1 for a in answers if not a.get("is_correct") and a.get("feedback"))
+                print(f"  [{label}] ✅ ID全部匹配, 错题feedback: {wrong_with_fb}/{wrong_count}")
+                success = True
+            else:
+                print(f"  [{label}] ❌ ID不匹配")
         else:
-            print(f"  [调试-无split] answers 数量: {len(answers)}")
+            print(f"  [{label}] ❌ answers数量: {len(answers)}/{total_count}, summary: {len(summary)}字符")
     except Exception as e:
-        print(f"  [调试-无split] JSON 解析失败: {e}")
+        print(f"  [{label}] ❌ JSON解析失败: {e}")
+        if content:
+            print(f"  [{label}] 尾部200字符: {repr(content[-200:])}")
 
     duration = time.time() - start_time
     return {
+        "label": label,
         "duration": duration,
         "tokens": tokens_used,
+        "completion_tokens": completion_tokens,
+        "reasoning_tokens": reasoning_tokens,
         "success": success,
-        "finish_reason": finish_reason
+        "correct_count": correct_count,
+        "wrong_count": wrong_count,
+        "overall_summary": data.get("overall_summary", "") if success else "",
+        "finish_reason": finish_reason,
+        "content_length": len(content)
     }
 
 
 async def main():
-    print("=" * 85)
-    print("最终方案验证：reasoning_split + 仅错题解析 + 20 题一次打包")
+    print("=" * 90)
+    print("最终方案验证：reasoning_split + 仅错题解析 + max_tokens 梯度测试")
     print(f"模型: {settings.OPENAI_MODEL}")
     print(f"API: {settings.OPENAI_BASE_URL}")
-    print("=" * 85)
+    print(f"题目数: {len(MOCK_QUESTIONS)}")
+    print("=" * 90)
 
     client = get_client()
     if not client:
         print("错误: 未配置大模型 API。")
         return
 
-    # 1. 运行对照组（不使用 reasoning_split）
-    print("\n[对照组] 启动：仅错题解析 + 20 题打包（无 reasoning_split）...")
-    try:
-        res_no_split = await run_scheme_f_no_split(client)
-        print(f"-> 对照组完成！耗时: {res_no_split['duration']:.2f}s, Token: {res_no_split['tokens']}, finish: {res_no_split['finish_reason']}, 成功: {res_no_split['success']}")
-    except Exception as e:
-        print(f"-> 对照组崩溃: {e}")
-        res_no_split = {"duration": 0, "tokens": 0, "success": False, "finish_reason": "error"}
+    # 测试矩阵：reasoning_split × max_tokens
+    test_cases = [
+        ("split+8k",   8192,  True),
+        ("split+16k",  16384, True),
+        ("nosplit+16k", 16384, False),
+    ]
 
-    # 2. 运行最终方案（使用 reasoning_split）
-    print("\n[方案 F] 启动：reasoning_split + 仅错题解析 + 20 题打包 ...")
-    try:
-        res_f = await run_scheme_f(client)
-        print(f"-> 方案 F 完成！耗时: {res_f['duration']:.2f}s, Token: {res_f['tokens']}, finish: {res_f['finish_reason']}, 成功: {res_f['success']}")
-    except Exception as e:
-        print(f"-> 方案 F 崩溃: {e}")
-        res_f = {"duration": 0, "tokens": 0, "success": False, "finish_reason": "error", "correct_count": 0, "wrong_count": 0}
+    results = []
+    for label, max_tokens, use_split in test_cases:
+        print(f"\n{'='*60}")
+        print(f"[{label}] max_tokens={max_tokens}, reasoning_split={use_split}")
+        print(f"{'='*60}")
+        try:
+            res = await run_test(client, label, max_tokens, use_split)
+            results.append(res)
+            print(f"-> {label} 完成！耗时: {res['duration']:.2f}s, 成功: {res['success']}")
+        except Exception as e:
+            print(f"-> {label} 崩溃: {e}")
+            import traceback
+            traceback.print_exc()
+            results.append({"label": label, "duration": 0, "tokens": 0, "success": False, "finish_reason": "error", "content_length": 0, "completion_tokens": 0, "reasoning_tokens": 0})
 
-    # 输出对比
-    print("\n" + "=" * 85)
-    print(f"{'方案':<40} | {'耗时(秒)':<10} | {'Token':<10} | {'finish_reason':<15} | {'成功':<8}")
-    print("-" * 85)
-    print(f"{'对照组 (无 reasoning_split)':<40} | {res_no_split['duration']:<10.2f} | {res_no_split['tokens']:<10} | {res_no_split['finish_reason']:<15} | {str(res_no_split['success']):<8}")
-    print(f"{'方案 F (reasoning_split=true)':<40} | {res_f['duration']:<10.2f} | {res_f['tokens']:<10} | {res_f.get('finish_reason',''):<15} | {str(res_f['success']):<8}")
-    print("=" * 85)
+    # 输出对比表格
+    print("\n" + "=" * 110)
+    header = f"{'方案':<18} | {'耗时(s)':<8} | {'总Token':<8} | {'Completion':<11} | {'Reasoning':<10} | {'Content长度':<10} | {'finish':<10} | {'成功':<6}"
+    print(header)
+    print("-" * 110)
+    for r in results:
+        row = f"{r['label']:<18} | {r['duration']:<8.1f} | {r['tokens']:<8} | {r.get('completion_tokens',0):<11} | {r.get('reasoning_tokens',0):<10} | {r.get('content_length',0):<10} | {r.get('finish_reason',''):<10} | {str(r['success']):<6}"
+        print(row)
+    print("=" * 110)
 
-    if res_f.get("success"):
-        print(f"\n答对: {res_f['correct_count']}/20, 错题: {res_f['wrong_count']}")
-        print(f"\n[整体报告]:")
-        print(res_f.get("overall_summary"))
-    print("=" * 85)
+    # 输出成功方案的报告
+    for r in results:
+        if r.get("success") and r.get("overall_summary"):
+            print(f"\n[{r['label']}] 整体报告:")
+            print(r["overall_summary"])
+
+    print("\n" + "=" * 110)
 
 
 if __name__ == "__main__":
