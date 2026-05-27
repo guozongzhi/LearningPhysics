@@ -443,9 +443,21 @@ async def submit_quiz(db: AsyncSession, request_data: QuizSubmitRequest, user_id
     # ========== Phase 2: 尝试批量 AI 评估（1 次 API 调用） ==========
     if ai_client and user.token_usage < user.token_limit:
         try:
-            analysis_results, overall_summary, total_tokens_used = await _batch_evaluate(
-                ai_client, questions, request_data.answers, eval_results, correct_count
+            # 将 AI 调用放入后台 task，主循环每 5 秒发送心跳保持连接
+            batch_task = asyncio.create_task(
+                _batch_evaluate(ai_client, questions, request_data.answers, eval_results, correct_count)
             )
+            heartbeat_count = 0
+            while not batch_task.done():
+                try:
+                    await asyncio.wait_for(asyncio.shield(batch_task), timeout=5.0)
+                except asyncio.TimeoutError:
+                    # AI 还没返回，发送心跳保持连接存活
+                    heartbeat_count += 1
+                    yield json.dumps({"progress": 0, "total": total_answers, "status": "analyzing", "heartbeat": heartbeat_count}) + "\n"
+
+            # 获取结果（如有异常会在此抛出）
+            analysis_results, overall_summary, total_tokens_used = batch_task.result()
             batch_success = True
             # 批量成功，发送完成进度
             yield json.dumps({"progress": total_answers, "total": total_answers, "status": "analyzing"}) + "\n"
