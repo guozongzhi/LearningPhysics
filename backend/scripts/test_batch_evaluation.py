@@ -14,7 +14,7 @@ from app.services.quiz_service import get_client, _evaluate_answer, AnalysisResu
 from app.models.models import Question, User
 from app.schemas.quiz import StudentAnswer
 
-# 20 道内置的高中物理题目及学生模拟作答（由 10 道原题复制并重编号生成）
+# 20 道内置的高中物理题目及学生模拟作答
 BASE_QUESTIONS = [
     {
         "question_type": "SINGLE_CHOICE",
@@ -97,7 +97,7 @@ BASE_QUESTIONS = [
     {
         "question_type": "BLANK",
         "content_latex": "功和能量的国际单位制单位是______。",
-        "solution_steps": "在国际单位制中，功 and 能量的单位都是焦耳，符号为J。",
+        "solution_steps": "在国际单位制中，功和能量的单位都是焦耳，符号为J。",
         "answer_schema": {"type": "blank", "correct_answer": "焦耳"},
         "student_input": "焦耳"
     }
@@ -108,9 +108,7 @@ MOCK_QUESTIONS = []
 for i in range(20):
     base = BASE_QUESTIONS[i % 10]
     q = base.copy()
-    # 模拟不同的 UUID 作为 question_id
     q["id"] = f"00000000-0000-0000-0000-{i+1:012d}"
-    # 把题目的题干稍微加点序号区别开
     q["content_latex"] = f"({i+1}) {base['content_latex']}"
     MOCK_QUESTIONS.append(q)
 
@@ -274,7 +272,7 @@ async def run_scheme_a(client) -> Dict[str, Any]:
     }
 
 # =========================================================================
-# 方案 B：20题一次性打包合并方案 (观察是否会超出最大Token限制或失败)
+# 方案 B：20题一次性打包合并方案
 # =========================================================================
 async def run_scheme_b(client) -> Dict[str, Any]:
     start_time = time.time()
@@ -306,16 +304,17 @@ async def run_scheme_b(client) -> Dict[str, Any]:
 
 注意：直接输出合法 JSON，不要加 ```json 标签。question_id 必须与输入的题目 ID 完全对应。"""
 
-    # 由于 20 题输出很大，设置 max_tokens = 4000
     response = await client.chat.completions.create(
         model=settings.OPENAI_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.3,
         max_tokens=4000,
-        timeout=60.0  # 给更多的超时时间以应对大吞吐
+        timeout=60.0
     )
     
-    content = clean_think_tag(response.choices[0].message.content.strip())
+    raw_content = response.choices[0].message.content
+    finish_reason = response.choices[0].finish_reason
+    content = clean_think_tag((raw_content or "").strip())
     if content.startswith("```json"):
         content = content[7:-3].strip()
     elif content.startswith("```"):
@@ -337,7 +336,10 @@ async def run_scheme_b(client) -> Dict[str, Any]:
         else:
             print(f"[Scheme B] JSON structure incomplete. Answers count: {len(data.get('answers', []))}")
     except Exception as e:
-        print(f"[Scheme B] JSON Parse error: {e}. Content: {content[:300]}...")
+        print(f"[Scheme B] JSON Parse error: {e}")
+        print(f"[Scheme B] raw_content length: {len(raw_content or '')}, finish_reason: {finish_reason}")
+        print(f"[Scheme B] First 500 chars: {repr(content[:500])}")
+        print(f"[Scheme B] Last 500 chars: {repr(content[-500:])}")
         
     duration = time.time() - start_time
     return {
@@ -353,7 +355,6 @@ async def run_scheme_b(client) -> Dict[str, Any]:
 async def run_scheme_d(client) -> Dict[str, Any]:
     start_time = time.time()
     
-    # 将 20 题分成 [8, 8, 4] 三组
     batch_size = 8
     chunks = [MOCK_QUESTIONS[i:i + batch_size] for i in range(0, len(MOCK_QUESTIONS), batch_size)]
     
@@ -363,7 +364,7 @@ async def run_scheme_d(client) -> Dict[str, Any]:
     
     sem = asyncio.Semaphore(2)
     
-    async def evaluate_chunk(chunk: List[Dict[str, Any]], chunk_idx: int) -> tuple[List[Dict[str, Any]], int]:
+    async def evaluate_chunk(chunk: List[Dict[str, Any]], chunk_idx: int) -> tuple[List[Dict[str, Any]], int, bool]:
         async with sem:
             items_list = []
             for idx, q in enumerate(chunk):
@@ -387,7 +388,7 @@ async def run_scheme_d(client) -> Dict[str, Any]:
 {chunk_items_str}
 
 请以严格的 JSON 格式返回一个包含 "answers" 字段的对象。
-"answers" 是一个列表，每个元素对应一道题的评估，必须包含 "question_id"、"is_correct"（布尔值）、"feedback"（中文解析 3-5 句）和 "error_tag"（若系统判定错，从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 中选择，正确则为 CORRECT）。
+"answers" 是一个列表，每个元素对应一道题 of the answers, 必须包含 "question_id"、"is_correct"（布尔值）、"feedback"（中文解析 3-5 句）和 "error_tag"（若系统判定错，从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 中选择，正确则为 CORRECT）。
 
 注意：直接输出合法 JSON，不要加 ```json 标签。且 question_id 必须与输入的题目 ID 完全对应。"""
 
@@ -398,31 +399,40 @@ async def run_scheme_d(client) -> Dict[str, Any]:
                 max_tokens=2500,
                 timeout=45.0
             )
-            content = clean_think_tag(response.choices[0].message.content.strip())
+            raw_chunk_content = response.choices[0].message.content
+            finish_reason = response.choices[0].finish_reason
+            content = clean_think_tag((raw_chunk_content or "").strip())
             if content.startswith("```json"):
                 content = content[7:-3].strip()
             elif content.startswith("```"):
                 content = content[3:-3].strip()
                 
-            data = json.loads(content)
             t = response.usage.total_tokens if response.usage else 0
-            return data.get("answers", []), t
+            try:
+                data = json.loads(content)
+                return data.get("answers", []), t, True
+            except Exception as e:
+                print(f"[Scheme D] Chunk {chunk_idx+1} JSON Parse error: {e}")
+                print(f"[Scheme D] raw_content length: {len(raw_chunk_content or '')}, finish_reason: {finish_reason}")
+                print(f"[Scheme D] First 300 chars: {repr(content[:300])}")
+                print(f"[Scheme D] Last 300 chars: {repr(content[-300:])}")
+                return [], t, False
 
-    # 并发执行这 3 个 Chunk
     tasks = [evaluate_chunk(chunk, idx) for idx, chunk in enumerate(chunks)]
     results = await asyncio.gather(*tasks, return_exceptions=True)
     
     chunk_success = True
     for idx, res in enumerate(results):
         if isinstance(res, Exception):
-            print(f"[Scheme D] Chunk {idx+1} failed: {res}")
+            print(f"[Scheme D] Chunk {idx+1} executed with exception: {res}")
             chunk_success = False
             continue
-        answers_list, t = res
+        answers_list, t, chunk_ok = res
         tokens_used += t
+        if not chunk_ok:
+            chunk_success = False
         all_answers.extend(answers_list)
         
-    # 验证 ID 对应
     id_match = False
     if len(all_answers) == len(MOCK_QUESTIONS):
         received_ids = {ans.get("question_id") for ans in all_answers}
@@ -442,7 +452,6 @@ async def run_scheme_d(client) -> Dict[str, Any]:
             else:
                 wrong_details.append(f"- 题目: {q['content_latex'][:30]}，学生答: {q['student_input']}，错误类型: {ans.get('error_tag')}")
                 
-        # 最后的综合汇总评估
         summary_text, summary_tokens = await _get_ai_summary_mock(correct_count, len(MOCK_QUESTIONS), wrong_details, client)
         tokens_used += summary_tokens
         
