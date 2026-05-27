@@ -114,6 +114,8 @@ for i in range(20):
 
 def clean_think_tag(content: str) -> str:
     """提取大模型可能输出的思维推理段，并截断它"""
+    # 强制清理可能的 markdown 标记和首尾的推理文字，只保留 {} 区域
+    content = content.strip()
     if "<think>" in content:
         think_end = content.find("</think>")
         if think_end != -1:
@@ -121,6 +123,13 @@ def clean_think_tag(content: str) -> str:
         else:
             content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
             content = re.sub(r'<think>[\s\S]*', '', content).strip()
+    
+    # 针对推理模型没带 think 标签但吐了前言的防御过滤：找到第一个 '{' 和最后一个 '}' 截取
+    json_start = content.find('{')
+    json_end = content.rfind('}')
+    if json_start != -1 and json_end != -1 and json_end > json_start:
+        content = content[json_start:json_end + 1]
+        
     return content
 
 def format_correct_answer(q: Dict[str, Any]) -> str:
@@ -153,7 +162,8 @@ async def _get_ai_feedback_mock(q: Dict[str, Any], is_correct: bool, client) -> 
     status_str = "正确回答" if is_correct else "错误回答"
     action_text = "肯定学生的表现并深化理解" if is_correct else "分析错误原因（如概念混淆、计算失误等）并给出指引"
     
-    prompt = f"""你是一位资深高中物理教师。一位学生{status_str}了以下题目，请给出详细的解析。
+    prompt = f"""你是一个物理题目自动批改与解析 API。请直接返回一个 JSON 格式的对象。
+【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），禁止输出任何自我推理过程。第一个输出字符必须是 {{】
 
 --- 题目 ---
 {q['content_latex']}
@@ -167,29 +177,18 @@ async def _get_ai_feedback_mock(q: Dict[str, Any], is_correct: bool, client) -> 
 --- 学生的答案 ---
 {q['student_input']}
 
-请用中文写出详细的解析（3-5句话），包含：
-1. {action_text}
-2. 详细的物理思路和关联的知识点
-3. 如果是多选题或单选题，请解释为什么选项正确或错误
-4. 鼓励性的结尾
-
-以 JSON 格式返回，包含 "feedback" 和 "error_tag" 两个字段。
-如果回答正确，error_tag 固定为 "CORRECT"。
-如果回答错误，从以下选项中选一个最贴切的 error_tag：[VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR]
-不要包含 markdown 格式或其他多余的文本。"""
+请在 JSON 中生成 feedback（3-5句中文物理思路解析与对错判定分析）以及 error_tag。
+JSON 必须正好有 "feedback" 和 "error_tag" 两个字段：
+如果回答正确，error_tag 必须为 "CORRECT"。
+如果回答错误，error_tag 从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 中选择最贴切的一个。"""
 
     response = await client.chat.completions.create(
         model=settings.OPENAI_MODEL,
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
+        temperature=0.0, # 降低随机性，使模型更倾向于直接吐 JSON 而非说废话
         timeout=30.0
     )
-    content = clean_think_tag(response.choices[0].message.content.strip())
-    if content.startswith("```json"):
-        content = content[7:-3].strip()
-    elif content.startswith("```"):
-        content = content[3:-3].strip()
-    
+    content = clean_think_tag((response.choices[0].message.content or "").strip())
     data = json.loads(content)
     tokens = response.usage.total_tokens if response.usage else 0
     return data, tokens
@@ -199,27 +198,23 @@ async def _get_ai_summary_mock(correct_count: int, total_count: int, wrong_detai
     details_str = "\n".join(wrong_details) if wrong_details else "全部正确！"
     score = int(correct_count / total_count * 100)
     
-    summary_prompt = f"""你是一位资深高中物理教师。一位学生刚完成了一次物理测验。
-测验结果：答对 {correct_count}/{total_count} 题，得分 {score} 分。
+    summary_prompt = f"""你是一个物理测验综合报告生成器。一位学生完成了测验，结果如下：
+答对 {correct_count}/{total_count} 题，得分 {score} 分。
 
 错题详情：
 {details_str}
 
-请用中文写一段简短的整体分析报告（3-5句话），包含：
-1. 对学生表现的整体评价
-2. 薄弱知识点分析（如果有错题）
-3. 具体的学习建议
-
-不要使用 markdown 格式，直接输出纯文本。"""
+请直接返回 3-5 句中文整体分析报告，包含：整体评价、薄弱点、具体学习建议。
+【直接输出纯文本，严禁使用 markdown，绝对不要带任何前言或后记】"""
 
     response = await client.chat.completions.create(
         model=settings.OPENAI_MODEL,
         messages=[{"role": "user", "content": summary_prompt}],
-        temperature=0.7,
+        temperature=0.5,
         max_tokens=300,
         timeout=30.0
     )
-    content = clean_think_tag(response.choices[0].message.content.strip())
+    content = clean_think_tag((response.choices[0].message.content or "").strip())
     tokens = response.usage.total_tokens if response.usage else 0
     return content, tokens
 
@@ -292,22 +287,20 @@ async def run_scheme_b(client) -> Dict[str, Any]:
 
     all_items_str = "\n".join(items_list)
 
-    prompt = f"""你是一位资深高中物理教师。以下是一位学生刚完成的物理测验，共包含了 20 道题目。
-请对每道题目学生的答案进行批改和解析，并给出整份测验的综合评估。
+    prompt = f"""你是一个物理测验批量批改 API。请直接返回一个标准的 JSON 格式对象。
+【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），禁止输出任何自我推理过程。第一个输出字符必须是 {{】
 
 --- 题目列表与作答详情 ---
 {all_items_str}
 
-请以严格的 JSON 格式返回，包含：
-1. "answers": 列表，每个元素对应一道题的评估，必须包含 "question_id"、"is_correct"（布尔值）、"feedback"（中文解析 3-5 句）和 "error_tag"（若系统判定错，从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 中选择最贴切的一个，正确则为 CORRECT）。
-2. "overall_summary": 纯文本，3-5句中文，对测验的整体评价、薄弱点和具体的物理建议，不要包含 markdown 标签。
-
-注意：直接输出合法 JSON，不要加 ```json 标签。question_id 必须与输入的题目 ID 完全对应。"""
+请在返回的 JSON 中，严格包含：
+1. "answers": 列表，每个元素对应一道题的评估，必须包含 "question_id"（与输入题目 ID 必须完全相同）、"is_correct"（布尔值）、"feedback"（中文物理思路解析 3-5 句）和 "error_tag"（系统判定错则从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 选择，正确则为 CORRECT）。
+2. "overall_summary": 纯文本，3-5句中文，对测验的整体评价、薄弱点和具体的物理建议，不要包含 markdown 标签。"""
 
     response = await client.chat.completions.create(
         model=settings.OPENAI_MODEL,
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
+        temperature=0.0, # 强制为 0
         max_tokens=4000,
         timeout=60.0
     )
@@ -315,10 +308,6 @@ async def run_scheme_b(client) -> Dict[str, Any]:
     raw_content = response.choices[0].message.content
     finish_reason = response.choices[0].finish_reason
     content = clean_think_tag((raw_content or "").strip())
-    if content.startswith("```json"):
-        content = content[7:-3].strip()
-    elif content.startswith("```"):
-        content = content[3:-3].strip()
         
     tokens_used = response.usage.total_tokens if response.usage else 0
     
@@ -338,8 +327,8 @@ async def run_scheme_b(client) -> Dict[str, Any]:
     except Exception as e:
         print(f"[Scheme B] JSON Parse error: {e}")
         print(f"[Scheme B] raw_content length: {len(raw_content or '')}, finish_reason: {finish_reason}")
-        print(f"[Scheme B] First 500 chars: {repr(content[:500])}")
-        print(f"[Scheme B] Last 500 chars: {repr(content[-500:])}")
+        print(f"[Scheme B] First 300 chars: {repr(content[:300])}")
+        print(f"[Scheme B] Last 300 chars: {repr(content[-300:])}")
         
     duration = time.time() - start_time
     return {
@@ -350,12 +339,13 @@ async def run_scheme_b(client) -> Dict[str, Any]:
     }
 
 # =========================================================================
-# 方案 D：动态分批打包方案 (每 8 题一包，20 道题分 3 个 Batch，Semaphore=2)
+# 方案 D：动态分批打包方案 (每 5 题一包，20 道题分 4 个 Batch，Semaphore=2)
 # =========================================================================
 async def run_scheme_d(client) -> Dict[str, Any]:
     start_time = time.time()
     
-    batch_size = 8
+    # 动态切片，安全大小调优为 5 题一包，规避 Token 截断
+    batch_size = 5
     chunks = [MOCK_QUESTIONS[i:i + batch_size] for i in range(0, len(MOCK_QUESTIONS), batch_size)]
     
     tokens_used = 0
@@ -381,31 +371,25 @@ async def run_scheme_d(client) -> Dict[str, Any]:
 
             chunk_items_str = "\n".join(items_list)
 
-            prompt = f"""你是一位资深高中物理教师。以下是一个测验中的 {len(chunk)} 道题目。
-请对每道题目学生的答案进行批改和解析。
+            prompt = f"""你是一个物理题目分批评估 API。请直接返回一个标准的 JSON 对象，其顶级键为 "answers"。
+【严禁包含任何前言、后记、Markdown 格式标记（不要输出 ```json），禁止输出任何自我推理过程。第一个输出字符必须是 {{】
 
 --- 题目列表与作答详情 ---
 {chunk_items_str}
 
-请以严格的 JSON 格式返回一个包含 "answers" 字段的对象。
-"answers" 是一个列表，每个元素对应一道题 of the answers, 必须包含 "question_id"、"is_correct"（布尔值）、"feedback"（中文解析 3-5 句）和 "error_tag"（若系统判定错，从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 中选择，正确则为 CORRECT）。
-
-注意：直接输出合法 JSON，不要加 ```json 标签。且 question_id 必须与输入的题目 ID 完全对应。"""
+请在 JSON 中，严格返回：
+"answers": 列表，每个元素对应一道题的评估，必须包含 "question_id"（与输入题目 ID 严格一致）、"is_correct"（布尔值）、"feedback"（中文物理思路解析 3-5 句）和 "error_tag"（系统判定错则从 [VALUE_ERROR, UNIT_ERROR, CALCULATION_ERROR, CONCEPT_ERROR, FORMAT_ERROR] 选择，正确则为 CORRECT）。"""
 
             response = await client.chat.completions.create(
                 model=settings.OPENAI_MODEL,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.3,
+                temperature=0.0, # 强制为 0
                 max_tokens=2500,
                 timeout=45.0
             )
             raw_chunk_content = response.choices[0].message.content
             finish_reason = response.choices[0].finish_reason
             content = clean_think_tag((raw_chunk_content or "").strip())
-            if content.startswith("```json"):
-                content = content[7:-3].strip()
-            elif content.startswith("```"):
-                content = content[3:-3].strip()
                 
             t = response.usage.total_tokens if response.usage else 0
             try:
@@ -494,7 +478,7 @@ async def main():
         res_b = {"duration": 0, "tokens": 0, "success": False}
 
     # 3. 运行方案 D
-    print("\n[方案 D] 启动：动态分批打包评估 (每 8 题一包) ...")
+    print("\n[方案 D] 启动：动态分批打包评估 (每 5 题一包) ...")
     try:
         res_d = await run_scheme_d(client)
         print(f"-> 方案 D 完成！耗时: {res_d['duration']:.2f}s, Token: {res_d['tokens']}, 成功率: {res_d['success']}")
@@ -508,7 +492,7 @@ async def main():
     print("-" * 85)
     print(f"{'方案 A (分步并行 Semaphore=2)':<30} | {res_a['duration']:<10.2f} | {res_a['tokens']:<12} | {'21':<10} | {str(res_a['success']):<8}")
     print(f"{'方案 B (20 题一次打包合并)':<30} | {res_b['duration']:<10.2f} | {res_b['tokens']:<12} | {'1':<10} | {str(res_b['success']):<8}")
-    print(f"{'方案 D (动态分批打包 - 8题一包)':<30} | {res_d['duration']:<10.2f} | {res_d['tokens']:<12} | {'4':<10} | {str(res_d['success']):<8}")
+    print(f"{'方案 D (动态分批打包 - 5题一包)':<30} | {res_d['duration']:<10.2f} | {res_d['tokens']:<12} | {'5':<10} | {str(res_d['success']):<8}")
     print("=" * 85)
     
     print("\n[方案 B 评估总结报告示例]:")
