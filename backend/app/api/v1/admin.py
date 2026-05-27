@@ -247,7 +247,7 @@ async def update_global_token_limit(
 ):
     import os
     import dotenv
-    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "data", "backend.env")
     
     # Update in memory and write to .env
     settings.GLOBAL_TOKEN_LIMIT = data.global_limit
@@ -721,7 +721,7 @@ async def update_llm_config(
     data: LlmConfigUpdate,
     admin: User = Depends(get_admin_user),
 ):
-    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "data", "backend.env")
     
     # Update in memory and write to .env
     if data.openai_api_key is not None and data.openai_api_key.strip():

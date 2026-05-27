@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     #   Doubao:  https://ark.cn-beijing.volces.com/api/v3
     #   OpenAI:  https://api.openai.com/v1  (default)
     OPENAI_API_KEY: str = ""
-    OPENAI_BASE_URL: str = "https://ark.cn-beijing.volces.com/api/v3"
-    OPENAI_MODEL: str = "ep-xxxxxxxxxxxx-xxxxx"
+    OPENAI_BASE_URL: str = "https://api.minimaxi.com/v1"
+    OPENAI_MODEL: str = "MiniMax-M2.7"
 
     # Secret key for JWT tokens — override via .env in production
     SECRET_KEY: str = secrets.token_urlsafe(32)
@@ -29,7 +29,10 @@ class Settings(BaseSettings):
     # Global tokens limit across platform
     GLOBAL_TOKEN_LIMIT: int = 1000000
 
-    model_config = SettingsConfigDict(env_file=["../config/backend.env", ".env"], env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(
+        env_file=["../config/backend.env", ".env", "data/backend.env", "/app/data/backend.env"], 
+        env_file_encoding='utf-8'
+    )
 
     def validate_production_settings(self):
         """Validate critical settings for production environment."""

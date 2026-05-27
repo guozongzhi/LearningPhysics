@@ -265,7 +265,7 @@ export const adminApi = {
   getLlmConfig: () =>
     apiFetch(`/api/v1/admin/config/llm`),
   updateLlmConfig: (data: any) =>
-    apiFetch(`/api/v1/admin/config/llm`, { method: 'POST', body: JSON.stringify(data) }),
+    apiFetch(`/api/v1/admin/config/llm`, { method: 'PUT', body: JSON.stringify(data) }),
   testLlmConfig: () =>
     apiFetch(`/api/v1/admin/config/llm/test`),
   
