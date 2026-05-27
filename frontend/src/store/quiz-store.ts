@@ -12,7 +12,7 @@ type QuizState = {
   report: any | null;
   currentQuestionIndex: number;
   startedAt: number | null;
-  gradingProgress: { progress: number; total: number; status?: string; currentIndex?: number } | null;
+  gradingProgress: { progress: number; total: number; status?: string; currentIndex?: number; heartbeat?: number; message?: string } | null;
 };
 
 type QuizActions = {
