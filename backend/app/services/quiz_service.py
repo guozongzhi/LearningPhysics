@@ -236,19 +236,23 @@ async def _batch_evaluate(
 {all_items_str}
 
 JSON格式：
-{{"answers":[{{"question_id":"ID","is_correct":bool,"error_tag":"CORRECT或VALUE_ERROR/UNIT_ERROR/CALCULATION_ERROR/CONCEPT_ERROR/FORMAT_ERROR","feedback":"仅错题：2-3句详细解析"}}],"overall_summary":"4-5句整体反馈"}}
+{{"answers":[{{"question_id":"ID","is_correct":bool,"error_tag":"CORRECT或VALUE_ERROR/UNIT_ERROR/CALCULATION_ERROR/CONCEPT_ERROR/FORMAT_ERROR","feedback":"仅错题：4-5句详细解析"}}],"overall_summary":"6-8句详细整体反馈"}}
 
-错题feedback要求（2-3句，用"你"称呼）：
-- 第1句：温和地指出错在哪里（如"这道题你可能混淆了XX和YY的概念"）
-- 第2句：给出正确的物理思路和关键公式
-- 第3句：点明易错点或记忆技巧
+错题feedback要求（4-5句，用"你"称呼）：
+- 第1句：温和指出错因（如"这道题你可能把XX和YY搞混了"）
+- 第2句：讲解正确的物理概念或原理
+- 第3句：写出关键公式并简要演示正确的解题步骤
+- 第4句：点明这类题的易错点或记忆口诀
+- 第5句（可选）：给出举一反三的建议（如"类似的题目还会考到XX场景，思路是一样的"）
 is_correct为true时不输出feedback字段。
 
-overall_summary要求（4-5句，用"你"称呼，语气亲切鼓励）：
-- 这次答对了{correct_count}/{total_count}题
-- 哪些知识模块需要重点复习
-- 给出具体可操作的学习建议
-- 以鼓励和肯定的语气结尾，让学生有信心继续学习"""
+overall_summary要求（6-8句，用"你"称呼，语气亲切鼓励）：
+- 这次你答对了{correct_count}/{total_count}题
+- 哪些题目做得不错，值得肯定
+- 按物理模块归纳薄弱知识点（如力学、电学、热学等）
+- 分析错误的主要类型（是概念不清、公式记错还是计算粗心）
+- 给出具体可操作的复习建议（如"建议你把XX章节的公式整理一遍"）
+- 鼓励性结尾，让你对后续学习充满信心"""
 
     response = await ai_client.chat.completions.create(
         model=settings.OPENAI_MODEL,
