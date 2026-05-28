@@ -13,7 +13,7 @@ from app.db.session import get_session
 # Secret key and algorithm for JWT
 SECRET_KEY = settings.SECRET_KEY if hasattr(settings, 'SECRET_KEY') else "fallback_secret_key_for_development"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24小时，避免学生答题期间过期
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 
