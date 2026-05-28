@@ -29,67 +29,57 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
     );
   }
 
-  const reportRef = useRef<HTMLDivElement>(null);
-  const [downloading, setDownloading] = useState(false);
-
   const handleFinish = () => {
     reset();
     router.push("/");
   };
 
-  const handleDownloadPDF = useCallback(async () => {
+  const handleDownloadHTML = () => {
     if (!reportRef.current) return;
-    setDownloading(true);
-    try {
-      const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
+    
+    const score = Math.round(report?.total_score || 0);
+    const reportContent = reportRef.current.innerHTML;
+    
+    const htmlString = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物理测验报告 - ${score}分</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <style>
+        body { background-color: #050505; color: #f1f5f9; padding: 2rem; display: flex; justify-content: center; }
+        .report-container { width: 100%; max-width: 56rem; }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        ${reportContent}
+    </div>
+</body>
+</html>`;
 
-      const canvas = await html2canvas(reportRef.current, {
-        backgroundColor: '#050505',
-        scale: 1.5, // 降低分辨率，防止 50 题超长报告导致 Canvas 高度超出浏览器限制
-        useCORS: true,
-        logging: true, // 开启日志以便在控制台查看详情
-      });
-
-      const imgWidth = 210; // A4 宽度 mm
-      const pageHeight = 297; // A4 高度 mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const imgData = canvas.toDataURL('image/png');
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // 第一页
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      // 后续页
-      while (heightLeft > 0) {
-        position -= pageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      const score = Math.round(report?.total_score || 0);
-      pdf.save(`物理测验报告_${score}分.pdf`);
-    } catch (e: any) {
-      console.error('PDF生成失败:', e);
-      alert(`PDF生成失败，请重试\n\n错误详情: ${e?.message || String(e)}`);
-    } finally {
-      setDownloading(false);
-    }
-  }, [report]);
+    const blob = new Blob([htmlString], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `物理测验报告_${score}分.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <main className="min-h-screen bg-[#050505] text-slate-100 flex flex-col items-center relative overflow-hidden">
-      {/* Background Decorative Elements */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-sky-900/20 to-transparent pointer-events-none" />
-      <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-sky-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
+    <main className="min-h-screen bg-[#050505] print:bg-white print:text-black text-slate-100 flex flex-col items-center relative overflow-hidden print:overflow-visible">
+      {/* Background Decorative Elements - Hidden during print */}
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-sky-900/20 to-transparent pointer-events-none print:hidden" />
+      <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-sky-500/10 rounded-full blur-[120px] pointer-events-none print:hidden" />
+      <div className="absolute top-[20%] -right-[10%] w-[35%] h-[35%] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none print:hidden" />
 
-      <div ref={reportRef} className="w-full max-w-4xl relative z-10 p-6 sm:p-10 md:p-12">
+      <div className="w-full max-w-4xl relative z-10 p-6 sm:p-10 md:p-12">
         {/* Header Section - Refined */}
         <div className="mb-10 flex flex-col md:flex-row justify-between items-end gap-6">
           <div className="space-y-1.5">
@@ -279,27 +269,19 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
           })}
         </div>
 
-        {/* Final Action Bar */}
-        <div className="mt-20 mb-16 flex flex-col items-center gap-5">
+        {/* Final Action Bar - Hidden during print */}
+        <div className="mt-20 mb-16 flex flex-col items-center gap-5 print:hidden">
           <div className="w-12 h-px bg-slate-800" />
           <div className="flex items-center gap-4">
             <Button
-              onClick={handleDownloadPDF}
-              disabled={downloading}
+              onClick={handleDownloadHTML}
               size="lg"
               className="group relative h-14 px-8 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-300 font-bold text-sm tracking-wide hover:bg-sky-500/20 hover:scale-105 transition-all"
             >
-              {downloading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                  生成中...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  下载报告
-                </span>
-              )}
+              <span className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                下载 HTML 报告
+              </span>
             </Button>
             <Button
               onClick={handleFinish}
