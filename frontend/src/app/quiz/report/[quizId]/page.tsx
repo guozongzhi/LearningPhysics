@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Latex } from "@/components/latex";
 import { useQuizStore } from "@/store/quiz-store";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function QuizReportPage({ params }: { params: Promise<{ quizId: string }> }) {
   const { quizId } = use(params);
   const router = useRouter();
-  const { status, questions, answers, report, reset } = useQuizStore();
+  const { status, questions, answers, report, reset, startedAt } = useQuizStore();
+  const { username } = useAuthStore();
 
   useEffect(() => {
     if (status === "idle") {
@@ -66,6 +68,24 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
               学习分析报告
             </h1>
             <p className="text-slate-500 text-base font-medium">深度推演与学情画像</p>
+            
+            {/* Student Info Badges */}
+            <div className="flex flex-wrap items-center gap-3 mt-4">
+              <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                <span className="text-slate-500 text-xs font-bold uppercase">Student</span>
+                <span className="text-slate-200 text-sm font-semibold">{username || 'Unknown'}</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                <span className="text-slate-500 text-xs font-bold uppercase">Time Spent</span>
+                <span className="text-slate-200 text-sm font-semibold">
+                  {startedAt ? `${Math.max(1, Math.round((Date.now() - startedAt) / 60000))} 分钟` : '未知'}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                <span className="text-slate-500 text-xs font-bold uppercase">Date</span>
+                <span className="text-slate-200 text-sm font-semibold">{new Date().toLocaleDateString('zh-CN')}</span>
+              </div>
+            </div>
           </div>
           <div className="relative group">
             <div className="absolute inset-x-0 -bottom-2 h-8 bg-sky-500 blur-2xl opacity-10 group-hover:opacity-20 transition-opacity" />
