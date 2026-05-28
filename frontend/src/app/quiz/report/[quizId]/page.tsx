@@ -29,6 +29,8 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
     );
   }
 
+  const reportRef = useRef<HTMLDivElement>(null);
+
   const handleFinish = () => {
     reset();
     router.push("/");
