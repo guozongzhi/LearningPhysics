@@ -46,9 +46,9 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
 
       const canvas = await html2canvas(reportRef.current, {
         backgroundColor: '#050505',
-        scale: 2,
+        scale: 1.5, // 降低分辨率，防止 50 题超长报告导致 Canvas 高度超出浏览器限制
         useCORS: true,
-        logging: false,
+        logging: true, // 开启日志以便在控制台查看详情
       });
 
       const imgWidth = 210; // A4 宽度 mm
@@ -74,9 +74,9 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
 
       const score = Math.round(report?.total_score || 0);
       pdf.save(`物理测验报告_${score}分.pdf`);
-    } catch (e) {
+    } catch (e: any) {
       console.error('PDF生成失败:', e);
-      alert('PDF生成失败，请重试');
+      alert(`PDF生成失败，请重试\n\n错误详情: ${e?.message || String(e)}`);
     } finally {
       setDownloading(false);
     }
@@ -187,7 +187,7 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
                       </div>
                       {q.image_url && (
                         <div className="relative rounded-xl overflow-hidden border border-white/5 bg-black/20 mt-4">
-                          <img src={q.image_url} alt="题目配图" className="max-h-56 mx-auto object-contain p-2" />
+                          <img src={q.image_url} alt="题目配图" crossOrigin="anonymous" className="max-h-56 mx-auto object-contain p-2" />
                         </div>
                       )}
                     </div>
