@@ -37,41 +37,11 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
   };
 
   const handleDownloadHTML = () => {
-    if (!reportRef.current) return;
-    
-    const score = Math.round(report?.total_score || 0);
-    const reportContent = reportRef.current.innerHTML;
-    
-    const htmlString = `
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>物理测验报告 - ${score}分</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <style>
-        body { background-color: #050505; color: #f1f5f9; padding: 2rem; display: flex; justify-content: center; }
-        .report-container { width: 100%; max-width: 56rem; }
-    </style>
-</head>
-<body>
-    <div class="report-container">
-        ${reportContent}
-    </div>
-</body>
-</html>`;
-
-    const blob = new Blob([htmlString], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `物理测验报告_${score}分.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // 浏览器出于安全限制，禁止 JS 直接唤起“网页另存为”对话框。
+    // 因此这里通过弹窗引导用户使用最原生、最完美的保存方式。
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const shortcut = isMac ? 'Cmd + S' : 'Ctrl + S';
+    alert(`💡 推荐保存方式：\n\n为了获得排版最完美、可离线查看的完整报告，请按键盘快捷键【 ${shortcut} 】，或在页面空白处右键选择“另存为...”。`);
   };
 
   return (
@@ -282,7 +252,7 @@ export default function QuizReportPage({ params }: { params: Promise<{ quizId: s
             >
               <span className="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                下载 HTML 报告
+                保存完整报告
               </span>
             </Button>
             <Button
