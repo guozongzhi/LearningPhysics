@@ -58,7 +58,7 @@ export const HtmlNode = Node.create<HtmlNodeOptions>({
             [
                 "iframe",
                 {
-                    srcdoc: `<!DOCTYPE html><html><head><style>body{margin:0;font-family:sans-serif;color:#cbd5e1;overflow:hidden;}</style></head><body>${node.attrs.html}</body></html>`,
+                    srcdoc: `<!DOCTYPE html><html><head><style>body{margin:0;font-family:sans-serif;color:#cbd5e1;overflow:auto;}</style></head><body>${node.attrs.html}</body></html>`,
                     style: "width:100%;border:none;min-height:30px;",
                     onload: "this.style.height=this.contentWindow.document.body.scrollHeight+'px';parent.postMessage({type:'setHeight',height:this.contentWindow.document.body.scrollHeight},'*');",
                 },
@@ -163,24 +163,31 @@ function HtmlIframe({ html }: { html: string }) {
           body { 
             margin: 0; 
             padding: 0; 
-            overflow: hidden; 
+            overflow-x: auto;
+            overflow-y: hidden;
             font-family: system-ui, -apple-system, sans-serif;
             color: #cbd5e1;
           }
           /* Reset some common leakage-prone styles inside iframe */
           button { cursor: pointer; }
+          /* 自定义滚动条样式 */
+          ::-webkit-scrollbar { height: 6px; }
+          ::-webkit-scrollbar-track { background: transparent; }
+          ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+          ::-webkit-scrollbar-thumb:hover { background: #64748b; }
         </style>
       </head>
       <body>
         <div id="content">${html || "<p style='color: #64748b; font-size: 0.875rem;'>点击编辑 HTML</p>"}</div>
         <script>
           const observer = new ResizeObserver((entries) => {
-            const height = document.documentElement.scrollHeight;
+            // 加 16px 余量，避免出现横向滚动条时垂直方向也被截断
+            const height = document.documentElement.scrollHeight + 16;
             window.parent.postMessage({ type: 'setHeight', height }, '*');
           });
           observer.observe(document.body);
           // Initial height
-          window.parent.postMessage({ type: 'setHeight', height: document.documentElement.scrollHeight }, '*');
+          window.parent.postMessage({ type: 'setHeight', height: document.documentElement.scrollHeight + 16 }, '*');
         </script>
       </body>
     </html>

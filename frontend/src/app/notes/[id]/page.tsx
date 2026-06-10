@@ -92,6 +92,7 @@ export default function NoteDetailPage() {
   const [savingNodes, setSavingNodes] = useState(false);
   const { isLoggedIn, token, isAdmin, _hasHydrated } = useAuthStore();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPresenting, setIsPresenting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -201,6 +202,16 @@ export default function NoteDetailPage() {
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [hasUnsavedChanges]);
+
+  // ESC 退出放映模式
+  useEffect(() => {
+    if (!isPresenting) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsPresenting(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isPresenting]);
 
   const refreshDocument = async () => {
     if (!documentId) {
@@ -398,6 +409,61 @@ export default function NoteDetailPage() {
   }
 
   return (
+    <>
+      {/* ── 放映模式覆盖层 ── */}
+      {isPresenting && document && (
+        <div className="fixed inset-0 z-[100] flex flex-col bg-slate-950">
+          {/* 顶栏 */}
+          <div className="flex items-center justify-between px-6 py-3 border-b border-slate-800/60 flex-shrink-0 bg-slate-950/95 backdrop-blur">
+            <div className="flex items-center gap-4">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPreviewTab("preview")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "preview" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
+                >
+                  📝 正文
+                </button>
+                <button
+                  onClick={() => setPreviewTab("whiteboard")}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "whiteboard" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
+                >
+                  🎨 白板空间
+                </button>
+              </div>
+              <span className="text-sm text-slate-500 truncate max-w-[400px]">{document.title}</span>
+            </div>
+            <Button
+              onClick={() => setIsPresenting(false)}
+              variant="outline"
+              className="border-slate-600 bg-slate-900/60 text-slate-300 hover:bg-slate-800 hover:text-white"
+            >
+              退出放映 (ESC)
+            </Button>
+          </div>
+          {/* 内容区 */}
+          <div className="flex-1 min-h-0 overflow-y-auto p-6">
+            {previewTab === "preview" ? (
+              <TiptapEditor
+                key={`present-${document.id}-${document.updated_at}`}
+                initialContent={contentHtml}
+                initialContentJson={contentJson}
+                readOnly={true}
+              />
+            ) : (
+              <div className="h-full min-h-[calc(100vh-80px)]">
+                <WhiteboardView
+                  key={`${document.id}:${document.updated_at}:whiteboard-present`}
+                  initialData={whiteboardData}
+                  onChange={(data) => setWhiteboardData(data)}
+                  readOnly={true}
+                  fullHeight={true}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     <div className="min-h-screen px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-4 rounded-3xl border border-slate-700/60 bg-slate-950/70 p-6 backdrop-blur lg:flex-row lg:items-center lg:justify-between">
@@ -733,38 +799,49 @@ export default function NoteDetailPage() {
                           🎨 白板空间
                         </button>
                       </div>
-                      {canEdit && (
-                        <div className="flex items-center gap-2 sm:justify-end">
+                      <div className="flex items-center gap-2 sm:justify-end">
+                        {!isEditing && (
                           <Button
-                            onClick={() => {
-                              if (isEditing) {
-                                if (isFullscreen) setIsFullscreen(false);
-                                handleSave();
-                              } else {
-                                setIsEditing(true);
-                              }
-                            }}
-                            disabled={saving}
-                            className={isEditing ? "bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90" : "bg-slate-800 text-slate-200 hover:bg-slate-700"}
+                            onClick={() => setIsPresenting(true)}
+                            variant="outline"
+                            className="border-emerald-500/40 bg-emerald-950/20 text-emerald-200 hover:bg-emerald-900/40"
                           >
-                            {saving ? "保存中..." : isEditing ? "保存修改" : "✏️ 编辑文档"}
+                            📺 放映
                           </Button>
-                          {isEditing && (
+                        )}
+                        {canEdit && (
+                          <>
                             <Button
-                              onClick={toggleFullscreen}
-                              variant="outline"
-                              className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800"
+                              onClick={() => {
+                                if (isEditing) {
+                                  if (isFullscreen) setIsFullscreen(false);
+                                  handleSave();
+                                } else {
+                                  setIsEditing(true);
+                                }
+                              }}
+                              disabled={saving}
+                              className={isEditing ? "bg-gradient-to-r from-sky-500 to-cyan-500 text-slate-950 hover:opacity-90" : "bg-slate-800 text-slate-200 hover:bg-slate-700"}
                             >
-                              {isFullscreen ? "退出全屏" : "🗖 全屏编辑"}
+                              {saving ? "保存中..." : isEditing ? "保存修改" : "✏️ 编辑文档"}
                             </Button>
-                          )}
-                          {isEditing && (
-                            <Button onClick={handleCancelEditing} variant="outline" className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800">
-                              取消编辑
-                            </Button>
-                          )}
-                        </div>
-                      )}
+                            {isEditing && (
+                              <Button
+                                onClick={toggleFullscreen}
+                                variant="outline"
+                                className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800"
+                              >
+                                {isFullscreen ? "退出全屏" : "🗖 全屏编辑"}
+                              </Button>
+                            )}
+                            {isEditing && (
+                              <Button onClick={handleCancelEditing} variant="outline" className="border-slate-600 bg-slate-900/40 text-slate-200 hover:bg-slate-800">
+                                取消编辑
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -863,5 +940,6 @@ export default function NoteDetailPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
