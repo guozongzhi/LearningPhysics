@@ -58,7 +58,7 @@ export const HtmlNode = Node.create<HtmlNodeOptions>({
             [
                 "iframe",
                 {
-                    srcdoc: `<!DOCTYPE html><html><head><style>body{margin:0;font-family:sans-serif;color:#cbd5e1;overflow:auto;}</style></head><body>${node.attrs.html}</body></html>`,
+                    srcdoc: `<!DOCTYPE html><html><head><style>body{margin:0;font-family:sans-serif;color:#cbd5e1;overflow:hidden;}</style></head><body>${node.attrs.html}</body></html>`,
                     style: "width:100%;border:none;min-height:30px;",
                     onload: "this.style.height=this.contentWindow.document.body.scrollHeight+'px';parent.postMessage({type:'setHeight',height:this.contentWindow.document.body.scrollHeight},'*');",
                 },
@@ -163,31 +163,35 @@ function HtmlIframe({ html }: { html: string }) {
           body { 
             margin: 0; 
             padding: 0; 
-            overflow-x: auto;
-            overflow-y: hidden;
+            overflow: hidden;
             font-family: system-ui, -apple-system, sans-serif;
             color: #cbd5e1;
           }
-          /* Reset some common leakage-prone styles inside iframe */
           button { cursor: pointer; }
-          /* 自定义滚动条样式 */
-          ::-webkit-scrollbar { height: 6px; }
-          ::-webkit-scrollbar-track { background: transparent; }
-          ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-          ::-webkit-scrollbar-thumb:hover { background: #64748b; }
         </style>
       </head>
       <body>
-        <div id="content">${html || "<p style='color: #64748b; font-size: 0.875rem;'>点击编辑 HTML</p>"}</div>
+        <div id="content">${html || "<p style='color: #64748b; font-size: 0.875rem;'>\u70b9\u51fb\u7f16\u8f91 HTML</p>"}</div>
         <script>
-          const observer = new ResizeObserver((entries) => {
-            // 加 16px 余量，避免出现横向滚动条时垂直方向也被截断
-            const height = document.documentElement.scrollHeight + 16;
+          let fitting = false;
+          function autoFit() {
+            if (fitting) return;
+            fitting = true;
+            // \u91cd\u7f6e zoom \u4ee5\u83b7\u53d6\u5185\u5bb9\u81ea\u7136\u5bbd\u5ea6
+            document.body.style.zoom = '1';
+            const contentWidth = document.body.scrollWidth;
+            const availableWidth = window.innerWidth;
+            if (contentWidth > availableWidth + 5) {
+              document.body.style.zoom = String(availableWidth / contentWidth);
+            }
+            const height = document.documentElement.scrollHeight + 8;
             window.parent.postMessage({ type: 'setHeight', height }, '*');
-          });
+            requestAnimationFrame(() => { fitting = false; });
+          }
+          requestAnimationFrame(autoFit);
+          const observer = new ResizeObserver(() => requestAnimationFrame(autoFit));
           observer.observe(document.body);
-          // Initial height
-          window.parent.postMessage({ type: 'setHeight', height: document.documentElement.scrollHeight + 16 }, '*');
+          window.addEventListener('resize', autoFit);
         </script>
       </body>
     </html>

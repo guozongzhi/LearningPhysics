@@ -71,6 +71,7 @@ interface TiptapEditorProps {
   initialContentJson?: any;
   onChange?: (html: string, json: Record<string, any>) => void;
   readOnly?: boolean;
+  borderless?: boolean;
 }
 
 const ToolbarButton = ({
@@ -104,6 +105,7 @@ export function TiptapEditor({
   initialContentJson,
   onChange,
   readOnly = false,
+  borderless = false,
 }: TiptapEditorProps) {
   const [isHtmlModalOpen, setIsHtmlModalOpen] = useState(false);
   const [htmlInput, setHtmlInput] = useState("");
@@ -297,7 +299,12 @@ export function TiptapEditor({
   }
 
   return (
-    <div className="w-full min-h-[500px] rounded-xl border border-slate-700/30 editor-container overflow-visible relative bg-slate-950 text-slate-200 ring-1 ring-white/5">
+    <div className={cn(
+      "w-full editor-container overflow-visible relative text-slate-200",
+      borderless
+        ? "bg-transparent"
+        : "min-h-[500px] rounded-xl border border-slate-700/30 bg-slate-950 ring-1 ring-white/5"
+    )}>
       {/* 视线中心 - 底部悬浮动态胶囊 HUD */}
       {uploads.length > 0 && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[999] w-auto min-w-[320px] max-w-md pointer-events-none px-4">

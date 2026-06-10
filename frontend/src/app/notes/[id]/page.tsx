@@ -441,13 +441,14 @@ export default function NoteDetailPage() {
             </Button>
           </div>
           {/* 内容区 */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-6">
+          <div className="flex-1 min-h-0 overflow-y-auto px-2 py-3">
             {previewTab === "preview" ? (
               <TiptapEditor
                 key={`present-${document.id}-${document.updated_at}`}
                 initialContent={contentHtml}
                 initialContentJson={contentJson}
                 readOnly={true}
+                borderless
               />
             ) : (
               <div className="h-full min-h-[calc(100vh-80px)]">
