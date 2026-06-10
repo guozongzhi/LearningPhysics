@@ -412,30 +412,38 @@ export default function NoteDetailPage() {
     <>
       {/* ── 放映模式覆盖层 ── */}
       {isPresenting && document && (
-        <div className="fixed inset-0 z-[100] flex flex-col bg-slate-950">
+        <div className="fixed inset-0 z-[100] flex flex-col bg-[hsl(var(--editor-bg))] text-[hsl(var(--editor-text))]">
           {/* 顶栏 */}
-          <div className="flex items-center justify-between px-6 py-3 border-b border-slate-800/60 flex-shrink-0 bg-slate-950/95 backdrop-blur">
+          <div className="flex items-center justify-between px-6 py-3 border-b border-[hsl(var(--editor-border))]/60 flex-shrink-0 bg-[hsl(var(--editor-bg))]/95 backdrop-blur">
             <div className="flex items-center gap-4">
               <div className="flex gap-2">
                 <button
                   onClick={() => setPreviewTab("preview")}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "preview" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                    previewTab === "preview" 
+                      ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" 
+                      : "bg-[hsl(var(--editor-border))]/50 text-[hsl(var(--editor-muted))] hover:bg-[hsl(var(--editor-border))] hover:text-[hsl(var(--editor-text))]"
+                  }`}
                 >
                   📝 正文
                 </button>
                 <button
                   onClick={() => setPreviewTab("whiteboard")}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "whiteboard" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                    previewTab === "whiteboard" 
+                      ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" 
+                      : "bg-[hsl(var(--editor-border))]/50 text-[hsl(var(--editor-muted))] hover:bg-[hsl(var(--editor-border))] hover:text-[hsl(var(--editor-text))]"
+                  }`}
                 >
                   🎨 白板空间
                 </button>
               </div>
-              <span className="text-sm text-slate-500 truncate max-w-[400px]">{document.title}</span>
+              <span className="text-sm text-[hsl(var(--editor-muted))] truncate max-w-[400px]">{document.title}</span>
             </div>
             <Button
               onClick={() => setIsPresenting(false)}
               variant="outline"
-              className="border-slate-600 bg-slate-900/60 text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="border-[hsl(var(--editor-border))] bg-[hsl(var(--editor-bg))]/60 text-[hsl(var(--editor-text))] hover:bg-[hsl(var(--editor-border))]/80"
             >
               退出放映 (ESC)
             </Button>
@@ -466,7 +474,7 @@ export default function NoteDetailPage() {
       )}
 
     <div className="min-h-screen px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div className="mx-auto max-w-[1600px] space-y-6">
         <div className="flex flex-col gap-4 rounded-3xl border border-slate-700/60 bg-slate-950/70 p-6 backdrop-blur lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="text-xs uppercase tracking-[0.24em] text-cyan-300">Enhance / Notes</div>
@@ -601,7 +609,7 @@ export default function NoteDetailPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 grid-cols-1 max-w-7xl mx-auto">
+        <div className="grid gap-6 grid-cols-1 max-w-[1600px] mx-auto">
           {isEditing && (
             <div className="rounded-xl border border-slate-700/60 bg-slate-900/40 p-5 mb-6">
               <div className="grid gap-6 md:grid-cols-2">

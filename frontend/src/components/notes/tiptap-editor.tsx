@@ -818,13 +818,13 @@ export function TiptapEditor({
             borderless && "px-2 py-1",
             borderless
               ? "max-w-none"
-              : "transition-all duration-500 ease-in-out mx-auto max-w-6xl mt-0.5 mb-8 rounded-sm",
+              : "transition-all duration-500 ease-in-out mx-auto max-w-[1450px] mt-0.5 mb-8 rounded-sm",
             !borderless && "bg-[hsl(var(--editor-bg))]",
             /* 如果是明亮模式且非只读，应用纸张阴影 */
             !readOnly && !borderless && "theme-light-paper"
         )}
         style={{
-          color: borderless ? "inherit" : "hsl(var(--editor-text))"
+          color: "hsl(var(--editor-text))"
         }}
       >
         <EditorContent
