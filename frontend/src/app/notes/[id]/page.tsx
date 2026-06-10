@@ -72,7 +72,6 @@ export default function NoteDetailPage() {
   const [contentHtml, setContentHtml] = useState("");
   const [initialContentHtml, setInitialContentHtml] = useState("");
   const [contentJson, setContentJson] = useState<any>(undefined);
-  const [whiteboardData, setWhiteboardData] = useState<unknown>(undefined);
   const [visibility, setVisibility] = useState<"private" | "class" | "public">("private");
   const [selectedNodeIds, setSelectedNodeIds] = useState<number[]>([]);
   const [topics, setTopics] = useState<TopicItem[]>([]);
@@ -86,7 +85,6 @@ export default function NoteDetailPage() {
   const [mutatingCollaborator, setMutatingCollaborator] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [previewTab, setPreviewTab] = useState<"preview" | "whiteboard">("preview");
   const [togglingTemplate, setTogglingTemplate] = useState(false);
   const [isEditingNodes, setIsEditingNodes] = useState(false);
   const [savingNodes, setSavingNodes] = useState(false);
@@ -100,7 +98,6 @@ export default function NoteDetailPage() {
   }, []);
 
   const applyDocumentData = (data: DocumentDetail) => {
-    // Ensure the owner is explicitly included in the collaborators list for UI rendering
     const enhancedCollaborators = [...(data.collaborators || [])];
     if (!enhancedCollaborators.find((c) => c.role === "owner")) {
       enhancedCollaborators.unshift({
@@ -115,12 +112,33 @@ export default function NoteDetailPage() {
     setTitle(enhancedData.title);
     setSummary(enhancedData.summary || "");
     setContent(enhancedData.content_markdown || "");
-    // 如果有 content_blocks (Tiptap JSON)，留给编辑器自己解析；否则用 Markdown 转换
-    const initialHtml = enhancedData.content_markdown ? markdownToHtml(enhancedData.content_markdown) : "";
+
+    let initialHtml = enhancedData.content_markdown ? markdownToHtml(enhancedData.content_markdown) : "";
+    let initialJson = enhancedData.content_blocks;
+
+    if (enhancedData.whiteboard_data) {
+      if (initialJson) {
+        const hasWhiteboardNode = (json: any): boolean => {
+          if (!json || !json.content) return false;
+          return json.content.some((node: any) => node.type === "whiteboardNode" || (node.content && hasWhiteboardNode(node)));
+        };
+        if (!hasWhiteboardNode(initialJson)) {
+          if (!initialJson.content) initialJson.content = [];
+          initialJson.content.push({
+            type: "whiteboardNode",
+            attrs: { data: enhancedData.whiteboard_data }
+          });
+        }
+      }
+      if (!initialHtml.includes('data-type="whiteboard-node"')) {
+        const strokesStr = JSON.stringify(enhancedData.whiteboard_data).replace(/"/g, '&quot;');
+        initialHtml += `<div data-type="whiteboard-node" data-strokes="${strokesStr}"></div>`;
+      }
+    }
+
     setContentHtml(initialHtml);
     setInitialContentHtml(initialHtml);
-    setContentJson(enhancedData.content_blocks);
-    setWhiteboardData(enhancedData.whiteboard_data);
+    setContentJson(initialJson);
     setVisibility(enhancedData.visibility);
     setSelectedNodeIds(enhancedData.node_ids || []);
   };
@@ -183,15 +201,12 @@ export default function NoteDetailPage() {
   const isOwner = document?.current_user_role === "owner";
   const contentJsonSignature = useMemo(() => JSON.stringify(contentJson ?? null), [contentJson]);
   const documentContentJsonSignature = useMemo(() => JSON.stringify(document?.content_blocks ?? null), [document?.content_blocks]);
-  const whiteboardSignature = useMemo(() => JSON.stringify(whiteboardData ?? null), [whiteboardData]);
-  const documentWhiteboardSignature = useMemo(() => JSON.stringify(document?.whiteboard_data ?? null), [document?.whiteboard_data]);
   const hasUnsavedChanges = document
     ? title !== document.title ||
     summary !== (document.summary || "") ||
     contentHtml !== initialContentHtml ||
     visibility !== document.visibility ||
-    contentJsonSignature !== documentContentJsonSignature ||
-    whiteboardSignature !== documentWhiteboardSignature
+    contentJsonSignature !== documentContentJsonSignature
     : false;
   // Warn on page leave if unsaved changes exist
   useEffect(() => {
@@ -240,7 +255,7 @@ export default function NoteDetailPage() {
         summary: summary.trim(),
         content_markdown: content,
         content_blocks: contentJson,
-        whiteboard_data: whiteboardData,
+        whiteboard_data: null,
         visibility,
         node_ids: selectedNodeIds,
       });
@@ -248,7 +263,6 @@ export default function NoteDetailPage() {
       setInitialContentHtml(contentHtml);
       await refreshDocument();
       setIsEditing(false);
-      setPreviewTab("preview");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "";
       if (message.includes("409")) {
@@ -267,7 +281,6 @@ export default function NoteDetailPage() {
     }
     setIsEditing(false);
     setIsFullscreen(false);
-    setPreviewTab("preview");
   };
 
   const toggleFullscreen = () => {
@@ -416,28 +429,8 @@ export default function NoteDetailPage() {
           {/* 顶栏 */}
           <div className="flex items-center justify-between px-6 py-3 border-b border-[hsl(var(--editor-border))]/60 flex-shrink-0 bg-[hsl(var(--editor-bg))]/95 backdrop-blur">
             <div className="flex items-center gap-4">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setPreviewTab("preview")}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                    previewTab === "preview" 
-                      ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" 
-                      : "bg-[hsl(var(--editor-border))]/50 text-[hsl(var(--editor-muted))] hover:bg-[hsl(var(--editor-border))] hover:text-[hsl(var(--editor-text))]"
-                  }`}
-                >
-                  📝 正文
-                </button>
-                <button
-                  onClick={() => setPreviewTab("whiteboard")}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                    previewTab === "whiteboard" 
-                      ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" 
-                      : "bg-[hsl(var(--editor-border))]/50 text-[hsl(var(--editor-muted))] hover:bg-[hsl(var(--editor-border))] hover:text-[hsl(var(--editor-text))]"
-                  }`}
-                >
-                  🎨 白板空间
-                </button>
-              </div>
+              <span className="text-sm font-medium text-[hsl(var(--editor-text))]">📺 放映模式</span>
+              <span className="text-slate-600">·</span>
               <span className="text-sm text-[hsl(var(--editor-muted))] truncate max-w-[400px]">{document.title}</span>
             </div>
             <Button
@@ -450,25 +443,13 @@ export default function NoteDetailPage() {
           </div>
           {/* 内容区 */}
           <div className="flex-1 min-h-0 overflow-y-auto px-2 py-3">
-            {previewTab === "preview" ? (
-              <TiptapEditor
-                key={`present-${document.id}-${document.updated_at}`}
-                initialContent={contentHtml}
-                initialContentJson={contentJson}
-                readOnly={true}
-                borderless
-              />
-            ) : (
-              <div className="h-full min-h-[calc(100vh-80px)]">
-                <WhiteboardView
-                  key={`${document.id}:${document.updated_at}:whiteboard-present`}
-                  initialData={whiteboardData}
-                  onChange={(data) => setWhiteboardData(data)}
-                  readOnly={true}
-                  fullHeight={true}
-                />
-              </div>
-            )}
+            <TiptapEditor
+              key={`present-${document.id}-${document.updated_at}`}
+              initialContent={contentHtml}
+              initialContentJson={contentJson}
+              readOnly={true}
+              borderless
+            />
           </div>
         </div>
       )}
@@ -793,22 +774,8 @@ export default function NoteDetailPage() {
                 </div>
                 <div className="flex flex-col gap-5">
                   <div className="space-y-2">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setPreviewTab("preview")}
-                          className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "preview" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
-                        >
-                          📝 正文
-                        </button>
-                        <button
-                          onClick={() => setPreviewTab("whiteboard")}
-                          className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${previewTab === "whiteboard" ? "bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"}`}
-                        >
-                          🎨 白板空间
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-2 sm:justify-end">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                      <div className="flex items-center gap-2">
                         {!isEditing && (
                           <Button
                             onClick={() => setIsPresenting(true)}
@@ -863,16 +830,9 @@ export default function NoteDetailPage() {
                         <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-4">
                           <div className="flex flex-col">
                             <h2 className="text-xl font-bold text-slate-100">{title || "未命名文档"}</h2>
-                            <p className="text-xs text-slate-500">{previewTab === "preview" ? "富文本编辑模式" : "白板编辑模式"}</p>
+                            <p className="text-xs text-slate-500">富文本编辑模式</p>
                           </div>
                           <div className="flex items-center gap-3">
-                            <Button
-                              onClick={() => setPreviewTab(previewTab === "preview" ? "whiteboard" : "preview")}
-                              variant="outline"
-                              className="border-slate-700 bg-slate-900 text-slate-300 h-9"
-                            >
-                              {previewTab === "preview" ? "🎨 切换到白板" : "📝 切换到正文"}
-                            </Button>
                             <Button
                               onClick={handleSave}
                               disabled={saving}
@@ -891,55 +851,30 @@ export default function NoteDetailPage() {
                         </div>
                       )}
 
-                      {previewTab === "preview" && (
-                        <div className={`space-y-4 flex-1 flex flex-col ${isFullscreen ? "min-h-0" : ""}`}>
-                          <div className={`w-full flex-1 ${isFullscreen ? "overflow-y-auto" : ""}`}>
-                            <TiptapEditor
-                              key={document.id}
-                              initialContent={contentHtml}
-                              initialContentJson={contentJson}
-                              onChange={(html, json) => {
-                                setContentHtml(html);
-                                setContentJson(json);
-                              }}
-                              readOnly={!isEditing || !canEdit}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {previewTab === "whiteboard" && (
-                        <div className={`flex-1 ${isFullscreen ? "min-h-0" : "mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4 min-h-[500px]"}`}>
-                          <WhiteboardView
-                            key={`${document.id}:${document.updated_at}:whiteboard`}
-                            initialData={whiteboardData}
-                            onChange={(data) => setWhiteboardData(data)}
+                      <div className={`space-y-4 flex-1 flex flex-col ${isFullscreen ? "min-h-0" : ""}`}>
+                        <div className={`w-full flex-1 ${isFullscreen ? "overflow-y-auto" : ""}`}>
+                          <TiptapEditor
+                            key={document.id}
+                            initialContent={contentHtml}
+                            initialContentJson={contentJson}
+                            onChange={(html, json) => {
+                              setContentHtml(html);
+                              setContentJson(json);
+                            }}
                             readOnly={!isEditing || !canEdit}
-                            fullHeight={isFullscreen}
                           />
                         </div>
-                      )}
+                      </div>
                     </div>
                   )}
 
-                  {!isEditing && previewTab === "preview" && (
+                  {!isEditing && (
                     <TiptapEditor
-                      key={`preview-${document.id}-${document.updated_at}-${previewTab}`}
+                      key={`preview-${document.id}-${document.updated_at}`}
                       initialContent={contentHtml}
                       initialContentJson={contentJson}
                       readOnly={true}
                     />
-                  )}
-
-                  {previewTab === "whiteboard" && !isEditing && (
-                    <div className={`mt-4 rounded-xl border border-slate-800 bg-slate-900/40 ${isEditing ? "p-4 min-h-[500px]" : "p-6 lg:p-10 min-h-[600px]"}`}>
-                      <WhiteboardView
-                        key={`${document.id}:${document.updated_at}:whiteboard`}
-                        initialData={whiteboardData}
-                        onChange={(data) => setWhiteboardData(data)}
-                        readOnly={!isEditing || !canEdit}
-                      />
-                    </div>
                   )}
                 </div>
               </CardContent>

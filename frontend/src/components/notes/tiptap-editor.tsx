@@ -52,6 +52,7 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import ResizeImage from "tiptap-extension-resize-image";
 
 import { HtmlNode } from "./tiptap/HtmlNode";
+import { WhiteboardNode } from "./tiptap/WhiteboardNode";
 import { PdfNode } from "./tiptap/PdfNode";
 import { DocumentNode } from "./tiptap/DocumentNode";
 import { api } from "@/lib/api";
@@ -135,6 +136,7 @@ export function TiptapEditor({
         inline: false,
       }),
       HtmlNode,
+      WhiteboardNode,
       PdfNode,
       DocumentNode,
       TaskList,
@@ -273,6 +275,14 @@ export function TiptapEditor({
     editor.commands.setHtmlNode(htmlInput);
     setIsHtmlModalOpen(false);
     setHtmlInput("");
+  };
+
+  const handleInsertWhiteboard = () => {
+    if (!editor) return;
+    editor.commands.insertContent({
+      type: "whiteboardNode",
+      attrs: { data: null }
+    });
   };
 
   // Sync content when props change (especially for preview mode)
@@ -590,6 +600,10 @@ export function TiptapEditor({
                 <DropdownMenuItem onClick={() => setIsHtmlModalOpen(true)}>
                   <Code2 className="h-4 w-4 mr-2" />
                   <span>插入 HTML</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleInsertWhiteboard}>
+                  <Palette className="h-4 w-4 mr-2" />
+                  <span>插入白板</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
