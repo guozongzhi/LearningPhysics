@@ -177,17 +177,24 @@ function HtmlIframe({ html }: { html: string }) {
           function autoFit() {
             if (fitting) return;
             fitting = true;
-            // \u91cd\u7f6e zoom \u4ee5\u83b7\u53d6\u5185\u5bb9\u81ea\u7136\u5bbd\u5ea6
+            // 重置 zoom 以获取内容自然宽度
             document.body.style.zoom = '1';
-            const contentWidth = document.body.scrollWidth;
+            const content = document.getElementById('content');
+            const contentWidth = Math.max(
+              document.body.scrollWidth,
+              content ? content.scrollWidth : 0
+            );
             const availableWidth = window.innerWidth;
-            if (contentWidth > availableWidth + 5) {
-              document.body.style.zoom = String(availableWidth / contentWidth);
+            if (contentWidth > availableWidth + 2) {
+              // 乘以 0.98 留出安全边距，避免右侧截断
+              document.body.style.zoom = String((availableWidth / contentWidth) * 0.98);
             }
             const height = document.documentElement.scrollHeight + 8;
             window.parent.postMessage({ type: 'setHeight', height }, '*');
             requestAnimationFrame(() => { fitting = false; });
           }
+          // 延迟执行确保内容完全渲染
+          setTimeout(autoFit, 100);
           requestAnimationFrame(autoFit);
           const observer = new ResizeObserver(() => requestAnimationFrame(autoFit));
           observer.observe(document.body);
