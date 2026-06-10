@@ -160,12 +160,19 @@ function HtmlIframe({ html }: { html: string }) {
       <head>
         <meta charset="utf-8">
         <style>
-          body { 
+          html, body { 
             margin: 0; 
             padding: 0; 
-            overflow: hidden;
+            overflow: hidden !important;
             font-family: system-ui, -apple-system, sans-serif;
             color: #cbd5e1;
+            background: transparent;
+          }
+          #content {
+            display: inline-block;
+            min-width: 100%;
+            box-sizing: border-box;
+            transform-origin: top left;
           }
           button { cursor: pointer; }
         </style>
@@ -177,35 +184,54 @@ function HtmlIframe({ html }: { html: string }) {
           function autoFit() {
             if (fitting) return;
             fitting = true;
-            // 重置 zoom 以获取内容自然尺寸
-            document.body.style.zoom = '1';
+            
             const content = document.getElementById('content');
-            const contentWidth = Math.max(
-              document.body.scrollWidth,
-              content ? content.scrollWidth : 0
-            );
-            const rawHeight = Math.max(
-              document.documentElement.scrollHeight,
-              document.body.scrollHeight,
-              content ? content.scrollHeight : 0
-            );
-            const availableWidth = window.innerWidth;
-            let zoomFactor = 1;
-            if (contentWidth > availableWidth + 2) {
-              // 乘以 0.98 留出安全边距，避免右侧截断
-              zoomFactor = (availableWidth / contentWidth) * 0.98;
+            if (!content) {
+              fitting = false;
+              return;
             }
-            document.body.style.zoom = String(zoomFactor);
-            // 缩放后的高度乘以缩放因子以紧密贴合内容，消除下方多余空白
-            const height = Math.ceil(rawHeight * zoomFactor) + 4;
+            
+            // 1. 重置缩放和宽度以获取真实自然尺寸
+            content.style.transform = 'none';
+            content.style.width = 'auto';
+            
+            // 2. 测量内容的物理自然尺寸
+            const contentWidth = content.scrollWidth;
+            const contentHeight = content.scrollHeight;
+            const availableWidth = window.innerWidth;
+            
+            let scale = 1;
+            if (contentWidth > availableWidth + 2) {
+              scale = availableWidth / contentWidth;
+            }
+            
+            // 3. 应用 transform 缩放
+            content.style.transform = 'scale(' + scale + ')';
+            
+            // 4. 根据缩放比例锁定宽度，防止折行
+            if (scale < 1) {
+              content.style.width = contentWidth + 'px';
+            } else {
+              content.style.width = '100%';
+            }
+            
+            // 5. 核心修复：物理高度严格设为 缩放后的高度 + 少量偏移，消除被拉长产生的空白
+            const height = Math.ceil(contentHeight * scale) + 4;
             window.parent.postMessage({ type: 'setHeight', height }, '*');
-            requestAnimationFrame(() => { fitting = false; });
+            
+            fitting = false;
           }
-          // 延迟执行确保内容完全渲染
+          
+          // 延迟和微任务触发自适应，确保内容渲染完毕
           setTimeout(autoFit, 100);
           requestAnimationFrame(autoFit);
-          const observer = new ResizeObserver(() => requestAnimationFrame(autoFit));
+          
+          // 使用 ResizeObserver 监听内容边界变化
+          const observer = new ResizeObserver(() => {
+            autoFit();
+          });
           observer.observe(document.body);
+          
           window.addEventListener('resize', autoFit);
         </script>
       </body>
